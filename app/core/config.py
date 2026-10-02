@@ -1,0 +1,97 @@
+from functools import lru_cache
+from typing import Literal
+from urllib.parse import urlsplit
+
+from pydantic import Field, SecretStr, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy import URL
+
+
+class Settings(BaseSettings):
+    """Carga y valida la configuración del proceso desde el entorno."""
+
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        case_sensitive=False,
+        extra="ignore",
+    )
+
+    app_name: str = "RescueSync API Nacional"
+    app_version: str = "0.1.0"
+    app_env: Literal["development", "test", "production"] = "development"
+    api_v1_prefix: str = "/api/v1"
+    port: int = Field(default=8000, ge=1, le=65_535)
+    cors_origins: list[str] = ["http://localhost:5173"]
+
+    database_url_override: str | None = Field(
+        default=None,
+        validation_alias="DATABASE_URL",
+    )
+    postgres_host: str = "db"
+    postgres_port: int = Field(default=5432, ge=1, le=65_535)
+    postgres_db: str = "rescuesync_nacional"
+    postgres_user: str = "rescuesync_nacional"
+    postgres_password: SecretStr = SecretStr("rescuesync_nacional_dev")
+
+    @field_validator("database_url_override", mode="before")
+    @classmethod
+    def normalizar_database_url(cls, value: object) -> object:
+        """Selecciona explícitamente el driver Psycopg para URLs de proveedores."""
+
+        if value in {None, ""}:
+            return None
+        if not isinstance(value, str):
+            return value
+        if value.startswith("postgresql+psycopg://"):
+            return value
+        if value.startswith("postgresql://"):
+            return value.replace("postgresql://", "postgresql+psycopg://", 1)
+        if value.startswith("postgres://"):
+            return value.replace("postgres://", "postgresql+psycopg://", 1)
+        raise ValueError("DATABASE_URL debe utilizar PostgreSQL")
+
+    @field_validator("cors_origins")
+    @classmethod
+    def validar_cors_origins(cls, values: list[str]) -> list[str]:
+        """Exige orígenes HTTP explícitos y elimina barras finales duplicadas."""
+
+        normalized: list[str] = []
+        for value in values:
+            parsed = urlsplit(value)
+            if (
+                parsed.scheme not in {"http", "https"}
+                or not parsed.netloc
+                or parsed.path not in {"", "/"}
+                or parsed.query
+                or parsed.fragment
+            ):
+                raise ValueError(f"origen CORS inválido: {value}")
+            origin = value.rstrip("/")
+            if origin not in normalized:
+                normalized.append(origin)
+        return normalized
+
+    @property
+    def sqlalchemy_database_uri(self) -> str:
+        """Devuelve la URL de SQLAlchemy sin registrar la contraseña."""
+
+        if self.database_url_override is not None:
+            return self.database_url_override
+
+        url = URL.create(
+            drivername="postgresql+psycopg",
+            username=self.postgres_user,
+            password=self.postgres_password.get_secret_value(),
+            host=self.postgres_host,
+            port=self.postgres_port,
+            database=self.postgres_db,
+        )
+        return url.render_as_string(hide_password=False)
+
+
+@lru_cache
+def get_settings() -> Settings:
+    """Comparte una configuración validada durante la vida del proceso."""
+
+    return Settings()
