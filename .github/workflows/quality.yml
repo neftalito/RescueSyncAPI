@@ -1,0 +1,67 @@
+name: Calidad
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: quality
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: rescuesync_nacional
+          POSTGRES_PASSWORD: rescuesync_nacional_dev
+          POSTGRES_USER: rescuesync_nacional
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rescuesync_nacional -d rescuesync_nacional"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      APP_ENV: test
+      POSTGRES_DB: rescuesync_nacional
+      POSTGRES_HOST: localhost
+      POSTGRES_PASSWORD: rescuesync_nacional_dev
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: rescuesync_nacional
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v7
+
+      - name: Configurar Python
+        uses: actions/setup-python@v7
+        with:
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements-dev.txt
+          python-version: "3.13"
+
+      - name: Instalar dependencias
+        run: python -m pip install --requirement requirements-dev.txt
+
+      - name: Verificar lint
+        run: ruff check .
+
+      - name: Verificar formato
+        run: ruff format --check .
+
+      - name: Aplicar migraciones
+        run: alembic upgrade head
+
+      - name: Ejecutar pruebas
+        run: pytest --cov=app --cov-report=term-missing
