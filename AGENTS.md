@@ -28,24 +28,40 @@ La referencia a la Entrega 2 en `RescueSync/AGENTS.md` corresponde a ese reposit
 no limita el desarrollo nacional solicitado aquí. Este archivo tampoco autoriza
 modificaciones de la aplicación local fuera de la tarea encomendada.
 
-## Ramas y coordinación
+## Flujo y nombres de ramas
 
-- Comprobar rama y estado con `git branch --show-current` y `git status --short`
-  antes de editar. No implementar ni hacer push directo a `main` o `develop`.
-- Este repositorio inicialmente tiene `main` como base. Usar `develop` como base
-  solo si existe y el equipo la adoptó; no asumir que existe ni crearla por rutina.
-- Usar ramas `<tipo>/<descripcion>` o `<tipo>/tNN-<descripcion>`, con tipos
-  `feature`, `fix`, `hotfix`, `refactor`, `test`, `docs`, `ci`, `chore` o `release`.
-  La descripción usa minúsculas ASCII, números y guiones medios.
-- Una rama corresponde a una tarea o corte coherente. La documentación de la
-  preparación inicial puede acompañar `feature/setup-api-cloud`.
-- Preservar cambios previos. No descartar, mover ni incluir en commits cambios
-  ajenos; si hay solapamiento que no puede resolverse, pedir indicaciones.
+Se adoptan las convenciones de `../RescueSync/AGENTS.md`, adaptadas a las tareas
+del repositorio nacional:
+
+- `main` contiene versiones estables y `develop` integra el trabajo de la próxima
+  entrega. Se consideran ramas protegidas: no implementar cambios, crear commits
+  ni hacer push directo sobre ninguna de las dos; integrar mediante pull request.
+- Antes de modificar archivos, comprobar la rama con `git branch --show-current`
+  y el estado con `git status --short`. Para una tarea normal, partir de `develop`
+  actualizado y crear una rama nueva. Los hotfix son la única excepción: parten
+  de `main` y luego deben integrarse también en `develop`.
+- Una rama debe corresponder a una sola tarea. No mezclar correcciones o
+  refactors ajenos aunque resulten convenientes durante la implementación.
+- Usar el formato `<tipo>/<descripcion>` o `<tipo>/<ticket>-<descripcion>`, con
+  uno de estos tipos: `feature`, `fix`, `hotfix`, `refactor`, `test`, `docs`,
+  `ci`, `chore` o `release`. Para tareas del grooming, usar el ticket en
+  minúsculas, por ejemplo `t25`.
+- La descripción usa minúsculas ASCII, números y guiones medios; no usa espacios,
+  guiones bajos, acentos, barras adicionales ni guiones al principio o al final.
+  Ejemplos: `feature/t25-login-jwt`, `fix/cantidad-recurso` y
+  `ci/controles-calidad`.
+- Si hay cambios sin confirmar que no pertenecen a la tarea actual, no moverlos,
+  descartarlos ni incluirlos en la rama nueva. Detenerse y solicitar indicaciones.
+- Integrar siempre mediante pull request. Antes de solicitar revisión, actualizar
+  la rama con su base y verificar que el check obligatorio `quality` finalice
+  correctamente. No marcar una tarea terminada por disponer de código local o
+  de documentación solamente.
+
+## Coordinación entre repositorios y artefactos
+
 - El Excel puede estar sin versionar: leerlo no autoriza a modificarlo, agregarlo
   a Git ni inventar horas efectivas. Su actualización se realiza dentro de T42
   con horas informadas y autorización para ese artefacto.
-- Integrar mediante pull request y exigir `quality` exitoso. No marcar una tarea
-  terminada por disponer de código local o de documentación solamente.
 - Los issues T22–T42 se coordinan en `neftalito/RescueSyncAPI`; el cuerpo indica
   dónde implementar. Cambios locales/BPM se integran mediante PR en
   `neftalito/RescueSync`, enlazando el issue del repositorio nacional.
