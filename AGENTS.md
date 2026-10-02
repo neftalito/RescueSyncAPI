@@ -9,8 +9,8 @@ compromiso/liberación nacional de recursos.
 
 Antes de implementar una tarea, consultar:
 
-- `Grooming Entrega 3.xlsx`: tareas T22–T42, estimaciones y semanas sugeridas.
-- `PLAN_IMPLEMENTACION_ENTREGA_3.md`: secuencia, contratos propuestos, criterios
+- `docs/Grooming Entrega 3.xlsx`: tareas T22–T42, estimaciones y semanas sugeridas.
+- `docs/PLAN_IMPLEMENTACION_ENTREGA_3.md`: secuencia, contratos propuestos, criterios
   de aceptación y enlaces a issues.
 - `../RescueSync/docs/Trabajo integrador 2026.pdf`: requisitos funcionales y
   directivas obligatorias de arquitectura distribuida.

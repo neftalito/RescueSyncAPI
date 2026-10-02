@@ -11,19 +11,19 @@ trabajo, no duración calendario ni horas efectivamente realizadas.
 Fuentes contrastadas el 01/10/2026:
 
 - [Grooming Entrega 3](<./Grooming Entrega 3.xlsx>) y
-  [enunciado](<../RescueSync/docs/Trabajo integrador 2026.pdf>), páginas 1–4.
-- [Reglas locales](../RescueSync/AGENTS.md),
-  [índice de documentación](../RescueSync/docs/README.md),
-  [flujo implementado](../RescueSync/docs/flujo-actual.md),
-  [autenticación local](../RescueSync/docs/autenticacion-local.md) y
-  [modelo local](../RescueSync/docs/modelo-base-datos-rescuesync.md).
-- [Proceso BPM](../RescueSync/docs/bonita/proceso-bpm.md),
-  [callbacks](../RescueSync/docs/bonita/callbacks.md),
-  [operación](../RescueSync/docs/bonita/despliegue-y-operacion.md),
-  [E2E](../RescueSync/docs/bonita/pruebas-e2e.md), `.bar` 1.2 y código vigente.
-- [Migraciones](../RescueSync/docs/desarrollo/migraciones.md),
-  [calidad](../RescueSync/docs/desarrollo/calidad-y-pruebas.md) y
-  [despliegue](../RescueSync/docs/despliegue.md).
+  [enunciado](<../../RescueSync/docs/Trabajo integrador 2026.pdf>), páginas 1–4.
+- [Reglas locales](../../RescueSync/AGENTS.md),
+  [índice de documentación](../../RescueSync/docs/README.md),
+  [flujo implementado](../../RescueSync/docs/flujo-actual.md),
+  [autenticación local](../../RescueSync/docs/autenticacion-local.md) y
+  [modelo local](../../RescueSync/docs/modelo-base-datos-rescuesync.md).
+- [Proceso BPM](../../RescueSync/docs/bonita/proceso-bpm.md),
+  [callbacks](../../RescueSync/docs/bonita/callbacks.md),
+  [operación](../../RescueSync/docs/bonita/despliegue-y-operacion.md),
+  [E2E](../../RescueSync/docs/bonita/pruebas-e2e.md), `.bar` 1.2 y código vigente.
+- [Migraciones](../../RescueSync/docs/desarrollo/migraciones.md),
+  [calidad](../../RescueSync/docs/desarrollo/calidad-y-pruebas.md) y
+  [despliegue](../../RescueSync/docs/despliegue.md).
 
 El código y el `.bar` resuelven diferencias entre documentos descriptivos. Por
 ejemplo, `base-de-datos.md` aún anuncia revisiones hasta 0006, pero el esquema

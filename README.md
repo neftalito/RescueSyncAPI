@@ -11,7 +11,7 @@ se recibirán transitoriamente para su futura validación.
 
 Las reglas de desarrollo están en [AGENTS.md](./AGENTS.md). La secuencia completa,
 los contratos propuestos y la trazabilidad T22–T42 se describen en el
-[plan de implementación de la Entrega 3](./PLAN_IMPLEMENTACION_ENTREGA_3.md).
+[plan de implementación de la Entrega 3](./docs/PLAN_IMPLEMENTACION_ENTREGA_3.md).
 
 ## Requisitos
 
