@@ -1,0 +1,71 @@
+name: rescuesync-national-api
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-rescuesync_nacional}
+      POSTGRES_USER: ${POSTGRES_USER:-rescuesync_nacional}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rescuesync_nacional_dev}
+    ports:
+      - "${POSTGRES_EXPOSED_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      target: production
+    command: ["alembic", "upgrade", "head"]
+    environment: &api-environment
+      APP_ENV: ${APP_ENV:-development}
+      PORT: 8000
+      DATABASE_URL: ${DATABASE_URL:-}
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-rescuesync_nacional}
+      POSTGRES_USER: ${POSTGRES_USER:-rescuesync_nacional}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-rescuesync_nacional_dev}
+      CORS_ORIGINS: '${CORS_ORIGINS:-["http://localhost:5173"]}'
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      target: development
+    environment:
+      <<: *api-environment
+      COVERAGE_FILE: /tmp/.coverage
+      RUFF_CACHE_DIR: /tmp/ruff_cache
+    ports:
+      - "${API_PORT:-8001}:8000"
+    volumes:
+      - .:/app
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health', timeout=2)
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
