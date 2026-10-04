@@ -1,6 +1,7 @@
 # Modelo de base de datos nacional — Entrega 3
 
-**Estado:** propuesta de diseño para T22; no representa tablas ya implementadas.
+**Estado:** diseño T22 con modelos y migración inicial implementados en T24;
+integración de esta implementación pendiente de su PR.
 **Fecha del análisis:** 04/10/2026. **Motor propuesto:** PostgreSQL 16, con
 SQLAlchemy 2.x síncrono y migraciones Alembic.
 
@@ -335,7 +336,7 @@ disponible(recurso) = recurso.cantidad_total - comprometido(recurso)
 
 Conservar dueño y capacidad inmutables para no reinterpretar historia. Se puede
 corregir nombre y total bajo lock; cambiar de institución/capacidad crea otro
-recurso. Cantidades totales nulas significan cero stock, no ausencia de catálogo.
+recurso. Cantidades totales iguales a cero significan cero stock, no ausencia de catálogo.
 Varias filas de una misma capacidad representan conjuntos disjuntos: no registrar
 las mismas personas o vehículos en dos filas. No se modelan personas nominadas,
 turnos ni activos serializados en este corte.
@@ -597,12 +598,52 @@ repetir con la misma clave; no crear otra para un resultado incierto. Confirmar
 localmente la adjudicación/ejecución y el cierre después de reconciliar el éxito
 nacional. No existe una transacción distribuida entre las tres bases.
 
-## 7. Implementación posterior y criterios de verificación
+## 7. Implementación del esquema y criterios de verificación
 
-Este entregable aporta análisis, Mermaid y PNG. No crea modelos ORM, revisiones
-Alembic, endpoints, cuentas reales ni servicios cloud. Mantiene el mínimo de
-nueve entidades del plan y añade emisor, capacidad y alcance de certificación
-para normalizar permisos, unidades y perfiles.
+El diseño mantiene el mínimo de nueve entidades del plan y añade emisor,
+capacidad y alcance de certificación para normalizar permisos, unidades y
+perfiles. T24 materializa las 12 tablas mediante modelos SQLAlchemy y la revisión
+`20261004_0001`, sin modificar el repositorio local ni desplegar recursos cloud.
+
+### Revisión del diseño antes de implementar
+
+El contraste con el enunciado y Entrega 2 da una confianza técnica alta en la
+estructura para este alcance; no equivale a una probabilidad estadística medida.
+La revisión conservó las entidades y precisó estas restricciones:
+
+- Certificaciones nuevas empiezan inactivas y se activan con alcances; una
+  revisión otorgada conserva al menos un alcance aunque luego se desactive.
+- Un reclamo idempotente permite `proyecto_id`, código y resultado nulos sólo
+  dentro de la transacción; los triggers consultan la fila final al commit.
+  No evalúan una copia antigua del evento INSERT anterior a completar el resultado.
+- FKs compuestas adicionales vinculan operación y proyecto al mismo emisor, y
+  compromiso y operación al mismo proyecto. La segunda relación es diferida para
+  permitir completar el reclamo dentro de la transacción.
+- Las bajas históricas, cambios de ítems, renovaciones sobre la misma credencial,
+  cambios de alcances otorgados y alteraciones de primeras fechas de liberación
+  quedan rechazados por triggers. El resultado idempotente se completa en una
+  sola actualización y luego es inmutable.
+- Personas/vehículos requieren capacidades discretas. `NaN` y cantidades negativas
+  se rechazan en PostgreSQL. `numeric(14,3)` redondea entradas con más decimales:
+  el rechazo de esa precisión excesiva se implementará también en los DTO de
+  inventario y adjudicación; el tipo SQL por sí solo no lo garantiza.
+
+Los módulos se registran en [app/db/models](../app/db/models/__init__.py).
+La [revisión Alembic](../alembic/versions/20261004_0001_esquema_nacional.py)
+mantiene un snapshot propio de enums/tablas y usa su
+[SQL de integridad versionado](../alembic/versions/20261004_0001_integridad.sql),
+sin importar modelos actuales para reconstruir una revisión histórica.
+Las [pruebas del esquema](../tests/test_database_models.py) usan schemas
+aleatorios, rollback por prueba y PostgreSQL real. El ciclo de migraciones
+comprueba también que downgrade elimina funciones y enums y que Alembic no
+detecta diferencias de columnas, defaults, FKs o índices. Alembic no compara
+automáticamente los cuerpos de triggers: se prueban sus efectos directamente.
+
+T24 no implementa autenticación HTTP ni servicios de validación, compromiso,
+liberación o cierre. El esquema permite construirlos; el control agregado de
+stock, el cierre sin activos, la autorización del emisor, la vigencia evaluada al
+reservar y el orden global de locks siguen siendo responsabilidades de
+T25/T27/T31/T32/T33. No atribuir esos comportamientos completos a la sola migración.
 
 Orden sugerido: T24 crea el esquema en una revisión nueva y manualmente revisada;
 T25/T26 implementan identidad/onboarding; T27–T30 inventario y consultas;
@@ -632,9 +673,11 @@ Verificar al implementar, sobre PostgreSQL real y sesiones independientes:
 9. Upgrade/downgrade/upgrade, metadata Alembic sin diferencias y restricciones
    compuestas/diferidas probadas, incluyendo rechazo de escrituras inválidas.
 
-Usar los comandos de calidad de [AGENTS.md](../AGENTS.md) al materializar el
-esquema. La aprobación de T22 y su integración requieren PR con `quality`
-exitoso; este diseño local no declara implementadas T24–T41 ni desplegada la API.
+Usar los comandos de calidad de [AGENTS.md](../AGENTS.md) con `APP_ENV=test`
+durante las pruebas. Las pruebas de migraciones requieren una base de pruebas
+que permita crear sus schemas temporales y no se ejecutan con `APP_ENV=production`.
+La integración de T24 requiere PR con `quality` exitoso; el esquema no declara
+implementados los endpoints de T25–T41 ni desplegada la API.
 
 ## 8. Reproducir el PNG
 

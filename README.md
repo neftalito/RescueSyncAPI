@@ -4,6 +4,7 @@ Servicio independiente para el Sistema Nacional de Gestión de Recursos y Riesgo
 de RescueSync. Esta base cubre el setup y la dockerización de la Entrega 3 y deja
 preparados PostgreSQL, Alembic, OpenAPI y los controles de calidad.
 
+El esquema nacional incluye 12 tablas de negocio y su migración Alembic inicial.
 Este corte todavía no implementa autenticación JWT ni endpoints de cuentas,
 ONGs, certificaciones, inventario, validación, compromiso o liberación. La API
 nacional tampoco almacenará borradores u ofertas preliminares: las ofertas sólo
@@ -95,18 +96,24 @@ proveedores que entregan `DATABASE_URL`.
 
 ## Migraciones
 
-Compose ejecuta `alembic upgrade head` antes de iniciar la API. Todavía no existe
-una revisión porque este corte no define tablas de negocio.
+Compose ejecuta `alembic upgrade head` en el servicio separado `migrate`, antes
+de iniciar la API. La revisión `20261004_0001` crea las 12 tablas nacionales,
+enums, índices, restricciones y triggers de integridad. Sus fuentes están en
+`app/db/models/` y `alembic/versions/`; los campos y decisiones se describen en el
+[modelo nacional](./docs/modelo-base-datos-nacional.md).
 
-Al incorporar el modelo nacional:
+Para aplicar y comprobar el esquema:
 
 ```bash
-docker compose run --rm api alembic revision --autogenerate -m "crear esquema nacional"
 docker compose run --rm api alembic upgrade head
+docker compose run --rm api alembic check
 ```
 
-Cada revisión debe incluir `upgrade()` y `downgrade()` viables y ser revisada
-antes de integrarse.
+Cada cambio posterior crea una revisión nueva con `upgrade()` y `downgrade()`
+viables; no se reescribe una revisión aplicada. El SQL de triggers pertenece al
+snapshot de su revisión, no a los modelos actuales. El downgrade inicial elimina
+tablas e historial y debe probarse sólo en bases descartables. En cloud, migrar
+como paso previo separado del despliegue.
 
 ## Calidad y pruebas
 
@@ -115,13 +122,18 @@ Con las imágenes construidas:
 ```bash
 docker compose run --rm api ruff check .
 docker compose run --rm api ruff format --check .
-docker compose run --rm api pytest --cov=app --cov-report=term-missing
+docker compose run --rm -e APP_ENV=test api pytest --cov=app --cov-report=term-missing
 ```
 
 El workflow `quality` ejecuta las mismas verificaciones y aplica las migraciones
 contra PostgreSQL 16 real en cada pull request. Las pruebas incluyen una consulta
 real de readiness; requieren una base accesible, que Compose inicia como
 dependencia al ejecutar los comandos anteriores.
+Las pruebas del esquema crean schemas temporales con nombres aleatorios,
+revierten sus datos y comprueban upgrade/downgrade/upgrade y ausencia de drift.
+También verifican las restricciones diferidas al confirmar, el historial y
+unicidad idempotente con conexiones independientes. Requieren `APP_ENV=test`
+y permisos para crear schemas en una base de pruebas.
 
 ## Imagen de producción
 
@@ -145,7 +157,7 @@ La imagen usa un usuario no privilegiado, escucha en `0.0.0.0` y respeta
 3. Configurar `APP_ENV=production`, la URL interna como `DATABASE_URL` y los
    secretos futuros, incluido `JWT_SECRET`, desde el panel.
 4. Usar `/api/v1/health` como health check.
-5. Cuando existan revisiones, ejecutar `alembic upgrade head` como tarea previa
+5. Ejecutar `alembic upgrade head` como tarea previa
    al despliegue; no ejecutarla en cada réplica al arrancar.
 
 Render define `PORT` automáticamente y ejecuta el `CMD` del Dockerfile.
@@ -171,6 +183,7 @@ requieren cambios en Python o en el Dockerfile.
 
 ## Próximo corte
 
-El siguiente incremento debe definir mediante una migración el modelo de cuentas,
-ONGs, certificaciones, recursos, disponibilidad y compromisos. Luego incorporará
-`/login` con JWT y la dependencia Bearer para los endpoints protegidos.
+El siguiente incremento incorporará `/login` con JWT, la dependencia Bearer y
+onboarding sobre el esquema nacional. Luego implementará inventario, perfiles y
+los servicios transaccionales de compromiso/liberación/cierre. Las restricciones
+de esquema no reemplazan su autorización, revalidación de stock ni locking.
