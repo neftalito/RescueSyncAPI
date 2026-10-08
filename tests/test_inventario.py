@@ -19,7 +19,7 @@ from test_database_models import (
 
 from app.core.config import get_settings
 from app.core.security import emitir_token, generar_password_hash
-from app.db.models import Cuenta, Ong, Recurso, RolNacional
+from app.db.models import Cuenta, EstadoCompromiso, EstadoOng, Ong, Recurso, RolNacional
 from app.db.session import get_db
 from app.main import app
 from app.schemas.inventario import RecursoUpdate
@@ -164,6 +164,96 @@ def test_onboarding_atomico_pendiente_y_sin_roles(
     cuenta = session.scalar(select(Cuenta))
     assert cuenta is not None and cuenta.password_hash.startswith("$argon2id$")
     assert cuenta.rol == RolNacional.ONG
+    assert str(cuenta.ong_id) == response.json()["id"]
+    assert (
+        inventory_client.post(
+            "/api/v1/ongs",
+            json={
+                **datos,
+                "identificadorLogin": "otra@example.org",
+                "identificadorInstitucional": "registro:123",
+            },
+        ).status_code
+        == 409
+    )
+    assert session.scalar(select(func.count()).select_from(Ong)) == 1
+    assert session.scalar(select(func.count()).select_from(Cuenta)) == 1
+    login = inventory_client.post(
+        "/api/v1/login",
+        json={
+            "identificadorLogin": datos["identificadorLogin"],
+            "password": datos["password"],
+        },
+    )
+    assert login.status_code == 200
+    headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
+    assert (
+        inventory_client.get("/api/v1/me", headers=headers).json()["ongId"]
+        == response.json()["id"]
+    )
+    assert (
+        inventory_client.get(
+            f"/api/v1/ongs/{response.json()['id']}/recursos", headers=headers
+        ).json()
+        == []
+    )
+
+
+@pytest.mark.parametrize(
+    "campo,valor",
+    [("rol", "ADMIN_NACIONAL"), ("estado", "HABILITADA"), ("certificaciones", [])],
+)
+def test_onboarding_rechaza_autoasignacion_sin_crear_identidad(
+    inventory_client: TestClient, session: Session, campo: str, valor: str | list[str]
+) -> None:
+    response = inventory_client.post(
+        "/api/v1/ongs",
+        json={
+            "identificadorLogin": "nueva@example.org",
+            "password": "password-seguro123",
+            "nombre": "ONG Nueva",
+            "identificadorInstitucional": "registro:123",
+            "emailContacto": "contacto@example.org",
+            campo: valor,
+        },
+    )
+    assert response.status_code == 422
+    assert "password-seguro123" not in response.text
+    assert session.scalar(select(func.count()).select_from(Ong)) == 0
+    assert session.scalar(select(func.count()).select_from(Cuenta)) == 0
+
+
+@pytest.mark.parametrize("identificador", ["   ", 123, None])
+def test_login_invalido_no_emite_token(
+    inventory_client: TestClient, identificador: str | int | None
+) -> None:
+    response = inventory_client.post(
+        "/api/v1/login",
+        json={
+            "identificadorLogin": identificador,
+            "password": "password-confidencial",
+        },
+    )
+    assert response.status_code == 422
+    assert "password-confidencial" not in response.text
+
+
+@pytest.mark.parametrize("estado", [EstadoOng.SUSPENDIDA, EstadoOng.BAJA])
+def test_jwt_emitido_no_conserva_acceso_de_ong_inactiva(
+    inventory_client: TestClient, session: Session, cuenta: Cuenta, estado: EstadoOng
+) -> None:
+    headers = auth(cuenta)
+    ong = session.get(Ong, cuenta.ong_id)
+    assert ong is not None
+    ong.estado = estado
+    session.commit()
+    assert inventory_client.get("/api/v1/me", headers=headers).status_code == 403
+    assert (
+        inventory_client.get(
+            f"/api/v1/ongs/{ong.id}/recursos", headers=headers
+        ).status_code
+        == 403
+    )
 
 
 def test_alta_fracciones_duplicados_y_edicion_obsoleta(
@@ -216,7 +306,7 @@ def test_alta_fracciones_duplicados_y_edicion_obsoleta(
 
 
 @pytest.mark.parametrize(
-    "cantidad", ["-1", "NaN", "Infinity", "1.0001", "100000000000"]
+    "cantidad", ["0", "0.000", "-1", "NaN", "Infinity", "1.0001", "100000000000"]
 )
 def test_cantidades_invalidas_no_exponen_entrada(
     inventory_client: TestClient, cuenta: Cuenta, cantidad: str
@@ -231,6 +321,31 @@ def test_cantidades_invalidas_no_exponen_entrada(
         f"/api/v1/ongs/{cuenta.ong_id}/recursos", headers=auth(cuenta), json=datos
     )
     assert response.status_code == 422 and list(response.json()) == ["detail"]
+    recurso = inventory_client.get(
+        f"/api/v1/ongs/{cuenta.ong_id}/recursos", headers=auth(cuenta)
+    ).json()[0]
+    response = inventory_client.patch(
+        f"/api/v1/ongs/{cuenta.ong_id}/recursos/{recurso['id']}",
+        headers=auth(cuenta),
+        json={"cantidadTotal": cantidad, "actualizadoEn": recurso["actualizadoEn"]},
+    )
+    assert response.status_code == 422
+
+
+def test_disponibilidad_excluye_compromisos_liberados(session: Session) -> None:
+    datos = crear_datos(session, "inventario-liberado")
+    compromiso = crear_compromiso(session, datos, cantidad=Decimal(4))
+    session.commit()
+    assert listar_recursos(session, datos.ong.id)[0].cantidad_disponible == Decimal(6)
+    integracion_id = datos.integracion.id
+    compromiso.estado = EstadoCompromiso.LIBERADO
+    compromiso.liberado_en = datetime.now(UTC)
+    compromiso.liberado_por_id = integracion_id
+    session.commit()
+    actual = listar_recursos(session, datos.ong.id)[0]
+    assert actual.cantidad_total == Decimal(10)
+    assert actual.cantidad_comprometida == Decimal(0)
+    assert actual.cantidad_disponible == Decimal(10)
 
 
 def test_inventario_suma_compromisos_y_no_permite_reducirlos(session: Session) -> None:

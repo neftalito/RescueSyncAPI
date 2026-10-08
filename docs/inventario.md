@@ -37,7 +37,8 @@ liberación futuros deben bloquear los mismos recursos, en orden de UUID, despu�
 de bloquear el proyecto; ver [bloqueo de recursos](./bloqueo%20de%20recursos.md).
 La consulta y la edición de inventario no crean reservas.
 
-Cantidades negativas, no finitas, de más de 11 dígitos enteros o 3 decimales son
+El alta y la edición requieren un total estrictamente positivo. Cantidades cero,
+negativas, no finitas, de más de 11 dígitos enteros o 3 decimales son
 inválidas. Personal y vehículos requieren cantidades enteras. Los códigos internos
 son únicos por ONG. La ONG no puede cambiar propietario, capacidad, habilitación
 institucional ni certificaciones. Las cuentas suspendidas/de baja y sistemas de
@@ -79,6 +80,24 @@ El recorrido web y los comandos de ambos repositorios se documentan en
 `RescueSync/docs/inventario-nacional.md`. Para onboarding fuera del seed,
 `POST /ongs` recibe nombre, identificador institucional, email de contacto y
 credenciales; el administrador local vincula luego el UUID nacional verificado.
+RescueSync también ofrece este registro desde **Mis recursos** para una ONG local
+sin vínculo. Su backend toma el nombre de la organización vigente y devuelve el
+UUID pendiente sin guardar contraseña, iniciar sesión ni establecer el vínculo.
+El login se normaliza antes de validar su longitud: sólo espacios es `422`.
+
+## Trazabilidad T25, T26 y T27
+
+| Tarea | Criterios implementados | Evidencia |
+| --- | --- | --- |
+| [T25 #4](https://github.com/neftalito/RescueSyncAPI/issues/4) | Login, Argon2, JWT limitado por firma/HS256/issuer/audience, permisos vigentes y secretos de entorno | Pruebas de login, JWT alterado y ONG suspendida/de baja |
+| [T26 #5](https://github.com/neftalito/RescueSyncAPI/issues/5) | ONG y cuenta atómicas, estado pendiente, duplicados de login/identificador institucional, sin autoasignación de privilegios | Pruebas de rollback y login de la nueva identidad; adaptador y formulario locales |
+| [T27 #6](https://github.com/neftalito/RescueSyncAPI/issues/6) | GET/POST/PATCH, cantidades positivas, unidades, disponibilidad derivada y locking | Pruebas de permisos, compromisos activos/liberados, edición obsoleta y reserva concurrente; pantalla Mis recursos |
+
+Estos cambios se revisan en el [PR nacional #28](https://github.com/neftalito/RescueSyncAPI/pull/28)
+y el [PR local #45](https://github.com/neftalito/RescueSync/pull/45). Implementación
+en ramas de trabajo no equivale a integración en `develop` ni despliegue.
+Las horas efectivas no fueron informadas y no se modifica el Excel.
+La lista de validación manual está en `RescueSync/docs/pruebas-manuales-t25-t27.md`.
 
 ## Pruebas
 

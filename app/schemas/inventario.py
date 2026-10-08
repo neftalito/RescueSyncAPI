@@ -26,7 +26,7 @@ type Codigo = Annotated[
     str, StringConstraints(strip_whitespace=True, min_length=1, max_length=80)
 ]
 type Cantidad = Annotated[
-    Decimal, Field(ge=0, max_digits=14, decimal_places=3, allow_inf_nan=False)
+    Decimal, Field(gt=0, max_digits=14, decimal_places=3, allow_inf_nan=False)
 ]
 
 
@@ -44,10 +44,10 @@ class LoginRequest(Contrato):
     identificador_login: str = Field(min_length=1, max_length=320)
     password: SecretStr = Field(min_length=1, max_length=128)
 
-    @field_validator("identificador_login")
+    @field_validator("identificador_login", mode="before")
     @classmethod
-    def normalizar_login(cls, valor: str) -> str:
-        return valor.strip().lower()
+    def normalizar_login(cls, valor: object) -> object:
+        return valor.strip().lower() if isinstance(valor, str) else valor
 
 
 class TokenResponse(BaseModel):
