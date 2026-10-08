@@ -86,3 +86,12 @@ def test_configuracion_invalida_es_rechazada(
 
     with pytest.raises(ValidationError):
         Settings(_env_file=None)
+
+
+def test_jwt_exige_clave_propia_en_produccion() -> None:
+    with pytest.raises(ValidationError, match="JWT_SECRET"):
+        Settings(_env_file=None, app_env="production")
+    with pytest.raises(ValidationError, match="32 caracteres"):
+        Settings(_env_file=None, jwt_secret="corta")
+    settings = Settings(_env_file=None, app_env="production", jwt_secret="x" * 48)
+    assert settings.clave_jwt == "x" * 48

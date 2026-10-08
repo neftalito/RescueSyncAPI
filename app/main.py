@@ -1,5 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api.router import api_router
 from app.core.config import get_settings
@@ -26,6 +28,20 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix=settings.api_v1_prefix)
+
+
+@app.exception_handler(RequestValidationError)
+async def error_validacion(
+    _request: Request, _error: RequestValidationError
+) -> JSONResponse:
+    """Evita exponer entradas sensibles en el detalle de errores Pydantic."""
+
+    return JSONResponse(
+        status_code=422,
+        content={
+            "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+        },
+    )
 
 
 @app.get("/", include_in_schema=False)

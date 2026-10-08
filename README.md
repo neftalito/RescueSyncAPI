@@ -5,10 +5,13 @@ de RescueSync. Esta base cubre el setup y la dockerización de la Entrega 3 y de
 preparados PostgreSQL, Alembic, OpenAPI y los controles de calidad.
 
 El esquema nacional incluye 12 tablas de negocio y su migración Alembic inicial.
-Este corte todavía no implementa autenticación JWT ni endpoints de cuentas,
-ONGs, certificaciones, inventario, validación, compromiso o liberación. La API
-nacional tampoco almacenará borradores u ofertas preliminares: las ofertas sólo
-se recibirán transitoriamente para su futura validación.
+Este corte implementa login JWT, onboarding de ONGs, consulta de cuenta y
+capacidades, y alta/consulta/edición de inventario por ONG. Certificaciones,
+validación, compromiso y liberación conservan sus modelos y siguen pendientes
+como servicios HTTP. La API nacional no almacena borradores ni ofertas preliminares.
+
+El recorrido de inventario y los datos demo se describen en
+[Inventario nacional](./docs/inventario.md).
 
 Las reglas de desarrollo están en [AGENTS.md](./AGENTS.md). La secuencia completa,
 los contratos propuestos y la trazabilidad T22–T42 se describen en el
@@ -89,6 +92,10 @@ API y migraciones reciben la misma `DATABASE_URL`, también al usar Compose.
 | `POSTGRES_USER` | `rescuesync_nacional` | Usuario local |
 | `POSTGRES_PASSWORD` | sólo desarrollo | Contraseña local; debe ser secreta en cloud |
 | `CORS_ORIGINS` | `["http://localhost:5173"]` | Lista JSON de orígenes HTTP permitidos |
+| `JWT_SECRET` | vacío, clave efímera | Clave de al menos 32 caracteres, obligatoria en producción |
+| `JWT_ISSUER` | `rescuesync-nacional` | Emisor validado del JWT |
+| `JWT_AUDIENCE` | `rescuesync` | Audiencia validada del JWT |
+| `JWT_ACCESS_SECONDS` | `1800` | Vigencia del acceso, entre 60 y 3600 segundos |
 
 Las URLs `postgres://` y `postgresql://` se normalizan automáticamente al driver
 `postgresql+psycopg://`, por lo que son compatibles con Render, Fly.io y otros
@@ -142,6 +149,7 @@ docker build --target production -t rescuesync-national-api .
 docker run --rm -p 9000:9000 \
   -e PORT=9000 \
   -e APP_ENV=production \
+  -e JWT_SECRET="$JWT_SECRET" \
   -e DATABASE_URL='postgresql://usuario:clave@host:5432/base' \
   -e 'CORS_ORIGINS=[]' \
   rescuesync-national-api
