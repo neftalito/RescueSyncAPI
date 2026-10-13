@@ -1,8 +1,9 @@
 from functools import lru_cache
-from typing import Literal
+from secrets import token_urlsafe
+from typing import Literal, Self
 from urllib.parse import urlsplit
 
-from pydantic import Field, SecretStr, field_validator
+from pydantic import Field, PrivateAttr, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
 
@@ -33,6 +34,36 @@ class Settings(BaseSettings):
     postgres_db: str = "rescuesync_nacional"
     postgres_user: str = "rescuesync_nacional"
     postgres_password: SecretStr = SecretStr("rescuesync_nacional_dev")
+    jwt_secret: SecretStr | None = None
+    jwt_issuer: str = "rescuesync-nacional"
+    jwt_audience: str = "rescuesync"
+    jwt_access_seconds: int = Field(default=1800, ge=60, le=3600)
+    _jwt_secret_desarrollo: str = PrivateAttr(default_factory=lambda: token_urlsafe(48))
+
+    @field_validator("jwt_secret", mode="before")
+    @classmethod
+    def normalizar_jwt_secret(cls, valor: object) -> object:
+        return None if valor == "" else valor
+
+    @model_validator(mode="after")
+    def validar_jwt_secret(self) -> Self:
+        """Exige una clave propia en producción y suficiente entropía configurada."""
+
+        if self.app_env == "production" and self.jwt_secret is None:
+            raise ValueError("JWT_SECRET es obligatorio en producción")
+        if self.jwt_secret is not None and len(self.jwt_secret.get_secret_value()) < 32:
+            raise ValueError("JWT_SECRET debe tener al menos 32 caracteres")
+        return self
+
+    @property
+    def clave_jwt(self) -> str:
+        """Usa una clave efímera sólo fuera de producción si no se configura."""
+
+        return (
+            self.jwt_secret.get_secret_value()
+            if self.jwt_secret is not None
+            else self._jwt_secret_desarrollo
+        )
 
     @field_validator("database_url_override", mode="before")
     @classmethod

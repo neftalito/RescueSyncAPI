@@ -213,9 +213,9 @@ requieren PR propio en RescueSync y enlace al issue nacional.
 | T22 | Definir modelo de datos del Sistema Nacional | 6 | 1 | RescueSyncAPI | — | Pendiente | [#1](https://github.com/neftalito/RescueSyncAPI/issues/1) |
 | T23 | Configurar servicio de API externa | 5 | 1 | RescueSyncAPI | — | Base local implementada; integrar | [#2](https://github.com/neftalito/RescueSyncAPI/issues/2) |
 | T24 | Migraciones iniciales | 3 | 1 | RescueSyncAPI | T22, T23 | Alembic listo; esquema pendiente | [#3](https://github.com/neftalito/RescueSyncAPI/issues/3) |
-| T25 | Endpoint de login con JWT | 5 | 1 | RescueSyncAPI | T24 | Pendiente | [#4](https://github.com/neftalito/RescueSyncAPI/issues/4) |
-| T26 | Registro / onboarding de ONGs | 5 | 1 | RescueSyncAPI | T24, T25 | Pendiente | [#5](https://github.com/neftalito/RescueSyncAPI/issues/5) |
-| T27 | Gestión de inventario y disponibilidad | 6 | 2 | RescueSyncAPI + adaptador local | T26 | Pendiente | [#6](https://github.com/neftalito/RescueSyncAPI/issues/6) |
+| T25 | Endpoint de login con JWT | 5 | 1 | RescueSyncAPI | T24 | Implementado en PR #28; pendiente de integración | [#4](https://github.com/neftalito/RescueSyncAPI/issues/4) |
+| T26 | Registro / onboarding de ONGs | 5 | 1 | RescueSyncAPI | T24, T25 | Implementado en PR #28 y local #45; pendiente de integración | [#5](https://github.com/neftalito/RescueSyncAPI/issues/5) |
+| T27 | Gestión de inventario y disponibilidad | 6 | 2 | RescueSyncAPI + adaptador local | T26 | Implementado en PR #28 y local #45; pendiente de integración | [#6](https://github.com/neftalito/RescueSyncAPI/issues/6) |
 | T28 | Endpoint de consulta de certificaciones | 4 | 1 | RescueSyncAPI | T24, T25 | Pendiente | [#7](https://github.com/neftalito/RescueSyncAPI/issues/7) |
 | T29 | Endpoint de ONGs habilitadas | 4 | 1 | RescueSyncAPI | T26, T28 | Pendiente | [#8](https://github.com/neftalito/RescueSyncAPI/issues/8) |
 | T30 | Endpoint de disponibilidad global de recursos | 5 | 2 | RescueSyncAPI | T27 | Pendiente | [#9](https://github.com/neftalito/RescueSyncAPI/issues/9) |
