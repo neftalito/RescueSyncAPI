@@ -180,6 +180,7 @@ def consultar_certificaciones_ongs(
     session: Session,
     *,
     ong_id: UUID | None = None,
+    ong_ids: set[UUID] | None = None,
     solo_habilitadas: bool = False,
     ahora: datetime | None = None,
 ) -> list[tuple[str, CertificacionesOngResponse]]:
@@ -206,6 +207,8 @@ def consultar_certificaciones_ongs(
     )
     if ong_id is not None:
         consulta = consulta.where(Ong.id == ong_id)
+    if ong_ids is not None:
+        consulta = consulta.where(Ong.id.in_(ong_ids))
     if solo_habilitadas:
         consulta = consulta.where(Ong.estado == EstadoOng.HABILITADA)
     grupos: dict[UUID, list[FilaCertificaciones]] = {}

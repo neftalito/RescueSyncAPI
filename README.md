@@ -67,6 +67,9 @@ docker compose down
 Los agregados informativos por capacidad y ONG se describen en
 [Disponibilidad global](./docs/disponibilidad-global.md).
 
+La evaluación transitoria del snapshot T34, perfiles por aporte y sus límites
+se documentan en [Validación de competencias](./docs/validaciones.md).
+
 ```text
 app/
 ├── api/routes/    # Adaptadores HTTP pequeños
@@ -201,8 +204,9 @@ requieren cambios en Python o en el Dockerfile.
 
 ## Próximo corte
 
-El siguiente incremento incorporará ONGs habilitadas, disponibilidad global,
-validación de ofertas y los servicios transaccionales de compromiso/liberación/cierre.
+El siguiente incremento incorporará los servicios transaccionales de
+compromiso/liberación/cierre. ONGs habilitadas, disponibilidad global y validación
+transitoria de ofertas ya están disponibles.
 El catálogo y las acreditaciones ya aportan reglas de competencia reutilizables.
 Las restricciones de esquema no reemplazan autorización, revalidación de stock
 ni locking.
