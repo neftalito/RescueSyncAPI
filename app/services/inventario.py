@@ -88,8 +88,11 @@ def _respuesta(
     )
 
 
-def _exigir_ong(session: Session, ong_id: UUID) -> None:
-    if session.get(Ong, ong_id) is None:
+def _exigir_ong(session: Session, ong_id: UUID, *, bloquear: bool = False) -> None:
+    consulta = select(Ong).where(Ong.id == ong_id)
+    if bloquear:
+        consulta = consulta.with_for_update(read=True)
+    if session.scalar(consulta) is None:
         raise ReferenciaNoEncontradaError("La ONG no existe.")
 
 
@@ -134,7 +137,7 @@ def crear_recurso(
 ) -> RecursoResponse:
     """Registra una fila de inventario con capacidad y propietario inmutables."""
 
-    _exigir_ong(session, ong_id)
+    _exigir_ong(session, ong_id, bloquear=True)
     capacidad = session.scalar(
         select(Capacidad)
         .where(Capacidad.id == datos.capacidad_id, Capacidad.activa)
@@ -167,7 +170,7 @@ def actualizar_recurso(
     session: Session, ong_id: UUID, recurso_id: UUID, datos: RecursoUpdate
 ) -> RecursoResponse:
     """Bloquea la fila y luego recalcula stock; rechaza cambios desactualizados."""
-
+    _exigir_ong(session, ong_id, bloquear=True)
     recurso = session.scalar(
         select(Recurso)
         .where(Recurso.id == recurso_id, Recurso.ong_id == ong_id)
