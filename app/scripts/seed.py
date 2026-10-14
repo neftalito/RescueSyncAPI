@@ -10,6 +10,7 @@ from app.core.config import get_settings
 from app.core.security import generar_password_hash
 from app.db.models import Capacidad, Cuenta, Ong, Recurso, RolNacional, TipoRecurso
 from app.db.session import SessionLocal
+from app.scripts.seed_certificaciones import seed_certificaciones
 
 
 def seed_development_data(session: Session) -> None:
@@ -114,6 +115,8 @@ def seed_development_data(session: Session) -> None:
                 )
         session.flush()
 
+    seed_certificaciones(session)
+
 
 def main() -> int:
     """Carga datos demo sin realizar llamadas a RescueSync ni publicar secretos."""
@@ -123,7 +126,7 @@ def main() -> int:
         return 1
     with SessionLocal.begin() as session:
         seed_development_data(session)
-    print("Seed nacional listo: dos ONGs, sus cuentas y cuatro recursos de ejemplo.")
+    print("Seed nacional listo: dos ONGs, inventario y certificaciones de desarrollo.")
     return 0
 
 

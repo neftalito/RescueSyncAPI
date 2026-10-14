@@ -60,9 +60,12 @@ Después de aplicar migraciones:
 docker compose run --rm api python -m app.scripts.seed
 ```
 
-El seed sólo se permite en `development` o `test`. Agrega dos ONGs pendientes,
-sus cuentas, tres capacidades y cuatro recursos. Repetirlo no cambia stock,
-contraseñas, habilitaciones ni compromisos existentes. Un login o identificador
+El seed sólo se permite en `development` o `test`. Agrega dos ONGs,
+sus cuentas, tres capacidades y cuatro recursos. T28 agrega un escenario de
+[certificaciones](./certificaciones.md): Ayuda Sin Fronteras habilitada y Red
+Médica Solidaria pendiente, con historia de credenciales. Repetirlo no cambia stock,
+contraseñas ni compromisos existentes, y no revive suspensiones o revocaciones.
+Un login o identificador
 demo vinculado a otra identidad produce error y rollback, no una sustitución.
 
 | ONG | Login nacional | Contraseña demo nacional | Recursos iniciales |
