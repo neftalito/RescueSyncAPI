@@ -1,9 +1,10 @@
 # Bloqueo de recursos de las ONG
 
-Este documento describe el diseño propuesto para comprometer y liberar recursos
-en la API nacional de RescueSync. Corresponde a T32, T33 y su integración con
-Bonita en T37. Los modelos y endpoints de negocio todavía deben implementarse;
-esta guía desarrolla el
+Este documento describe el diseño de compromiso/liberación de recursos de
+la API nacional. Los servicios T32/T33 están implementados; sus contratos
+vigentes se documentan en [Compromisos](./compromisos.md) y
+[Liberación y cierre](./liberacion-y-cierre.md). La integración con Bonita
+corresponde a T37. Esta guía desarrolla el
 [plan de implementación de la Entrega 3](./PLAN_IMPLEMENTACION_ENTREGA_3.md).
 
 ## Momento del bloqueo
