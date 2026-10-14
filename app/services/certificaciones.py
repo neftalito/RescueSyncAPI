@@ -161,8 +161,31 @@ def consultar_certificaciones_ong(
     session: Session, ong_id: UUID, *, ahora: datetime | None = None
 ) -> CertificacionesOngResponse:
     """Carga institución e historia en un snapshot; nunca persiste el perfil."""
+    perfiles = consultar_certificaciones_ongs(session, ong_id=ong_id, ahora=ahora)
+    if not perfiles:
+        raise CertificacionNoEncontradaError("La ONG nacional no existe.")
+    return perfiles[0][1]
+
+
+type FilaCertificaciones = tuple[
+    Ong,
+    OngCertificacion | None,
+    Certificacion | None,
+    CertificacionCapacidad | None,
+    Capacidad | None,
+]
+
+
+def consultar_certificaciones_ongs(
+    session: Session,
+    *,
+    ong_id: UUID | None = None,
+    solo_habilitadas: bool = False,
+    ahora: datetime | None = None,
+) -> list[tuple[str, CertificacionesOngResponse]]:
+    """Evalúa varias instituciones en un único snapshot y con el mismo reloj UTC."""
     evaluado_en = ahora or datetime.now(UTC)
-    filas = session.execute(
+    consulta = (
         select(Ong, OngCertificacion, Certificacion, CertificacionCapacidad, Capacidad)
         .outerjoin(OngCertificacion, OngCertificacion.ong_id == Ong.id)
         .outerjoin(Certificacion, Certificacion.id == OngCertificacion.certificacion_id)
@@ -171,17 +194,35 @@ def consultar_certificaciones_ong(
             CertificacionCapacidad.certificacion_id == Certificacion.id,
         )
         .outerjoin(Capacidad, Capacidad.id == CertificacionCapacidad.capacidad_id)
-        .where(Ong.id == ong_id)
         .order_by(
+            Ong.nombre,
+            Ong.id,
             OngCertificacion.vigente_desde,
             OngCertificacion.id,
             Capacidad.codigo,
             Capacidad.id,
         )
         .execution_options(populate_existing=True)
-    ).all()
-    if not filas:
-        raise CertificacionNoEncontradaError("La ONG nacional no existe.")
+    )
+    if ong_id is not None:
+        consulta = consulta.where(Ong.id == ong_id)
+    if solo_habilitadas:
+        consulta = consulta.where(Ong.estado == EstadoOng.HABILITADA)
+    grupos: dict[UUID, list[FilaCertificaciones]] = {}
+    for ong, credencial, certificacion, alcance, capacidad in session.execute(consulta):
+        grupos.setdefault(ong.id, []).append(
+            (ong, credencial, certificacion, alcance, capacidad)
+        )
+    return [
+        (filas[0][0].nombre, _construir_perfil(filas, evaluado_en))
+        for filas in grupos.values()
+    ]
+
+
+def _construir_perfil(
+    filas: list[FilaCertificaciones], evaluado_en: datetime
+) -> CertificacionesOngResponse:
+    """Comparte reglas de competencia entre historia individual y directorio."""
     ong = filas[0][0]
     institucionales = (
         []
@@ -254,7 +295,7 @@ def consultar_certificaciones_ong(
             )
             perfil.acreditacion_ids.append(credencial.id)
     return CertificacionesOngResponse(
-        ong_id=ong_id,
+        ong_id=ong.id,
         estado_ong=ong.estado,
         evaluado_en=evaluado_en,
         acreditaciones=list(acreditaciones.values()),
