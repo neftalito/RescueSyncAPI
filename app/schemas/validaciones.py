@@ -5,7 +5,13 @@ from enum import StrEnum
 from typing import Annotated, Literal, Self
 from uuid import UUID
 
-from pydantic import AwareDatetime, Field, PlainSerializer, model_validator
+from pydantic import (
+    AwareDatetime,
+    Field,
+    PlainSerializer,
+    StringConstraints,
+    model_validator,
+)
 
 from app.db.models import NivelRiesgo
 from app.schemas.certificaciones import CapacidadHabilitadaResponse
@@ -17,7 +23,9 @@ type CantidadExacta = Annotated[
 ]
 type IdLocal = Annotated[int, Field(gt=0)]
 type CantidadLegacy = Annotated[Decimal, Field(ge=0, allow_inf_nan=False)]
-type ReferenciaCaso = Annotated[str, Field(min_length=1, max_length=120)]
+type ReferenciaCaso = Annotated[
+    str, StringConstraints(strip_whitespace=True, min_length=1, max_length=120)
+]
 
 
 class MotivoIntegracionSnapshot(Contrato):

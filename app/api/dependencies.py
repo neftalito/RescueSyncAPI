@@ -3,7 +3,7 @@
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import Depends, HTTPException
+from fastapi import Depends, Header, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import Session
@@ -16,6 +16,9 @@ Db = Annotated[Session, Depends(get_db)]
 DbEvaluacion = Annotated[Session, Depends(get_db_evaluacion)]
 _bearer = HTTPBearer(auto_error=False)
 Credencial = Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)]
+IdempotencyKey = Annotated[
+    str, Header(alias="Idempotency-Key", min_length=1, max_length=160, pattern=r"\S")
+]
 
 
 def obtener_cuenta(

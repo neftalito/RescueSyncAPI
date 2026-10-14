@@ -6,6 +6,7 @@ from app.api.routes import (
     health,
     inventario,
     ongs,
+    proyectos,
     validaciones,
 )
 
@@ -16,3 +17,4 @@ api_router.include_router(certificaciones.router, tags=["certificaciones"])
 api_router.include_router(ongs.router, tags=["ONGs habilitadas"])
 api_router.include_router(validaciones.router, tags=["validación de competencias"])
 api_router.include_router(compromisos.router, tags=["compromisos nacionales"])
+api_router.include_router(proyectos.router, tags=["proyectos nacionales"])
