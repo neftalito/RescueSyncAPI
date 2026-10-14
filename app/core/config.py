@@ -38,6 +38,8 @@ class Settings(BaseSettings):
     jwt_issuer: str = "rescuesync-nacional"
     jwt_audience: str = "rescuesync"
     jwt_access_seconds: int = Field(default=1800, ge=60, le=3600)
+    operacion_lock_timeout_ms: int = Field(default=5000, ge=1, le=60_000)
+    operacion_statement_timeout_ms: int = Field(default=15000, ge=1, le=120_000)
     _jwt_secret_desarrollo: str = PrivateAttr(default_factory=lambda: token_urlsafe(48))
 
     @field_validator("jwt_secret", mode="before")
