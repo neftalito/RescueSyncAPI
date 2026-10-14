@@ -14,6 +14,8 @@ borradores ni ofertas preliminares.
 
 El recorrido de inventario y los datos demo se describen en
 [Inventario nacional](./docs/inventario.md).
+Los agregados por capacidad y ONG se describen en
+[Disponibilidad global](./docs/disponibilidad-global.md).
 La consulta y carga oficial se describen en
 [Certificaciones nacionales](./docs/certificaciones.md), incluidos los cambios
 pendientes de Bonita y el orden de integración con RescueSync.

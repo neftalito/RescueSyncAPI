@@ -7,6 +7,7 @@ from uuid import UUID
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.selectable import Subquery
 
 from app.db.models import (
     Capacidad,
@@ -95,16 +96,7 @@ def _exigir_ong(session: Session, ong_id: UUID) -> None:
 def listar_recursos(session: Session, ong_id: UUID) -> list[RecursoResponse]:
     """Lee totales y compromisos en un único snapshot de PostgreSQL."""
     _exigir_ong(session, ong_id)
-    compromisos = (
-        select(
-            CompromisoItem.recurso_id,
-            func.sum(CompromisoItem.cantidad).label("cantidad"),
-        )
-        .join(Compromiso, Compromiso.id == CompromisoItem.compromiso_id)
-        .where(Compromiso.estado == EstadoCompromiso.ACTIVO)
-        .group_by(CompromisoItem.recurso_id)
-        .subquery()
-    )
+    compromisos = compromisos_activos_por_recurso()
     filas = session.execute(
         select(Recurso, Capacidad, func.coalesce(compromisos.c.cantidad, 0))
         .join(Capacidad, Capacidad.id == Recurso.capacidad_id)
@@ -116,6 +108,20 @@ def listar_recursos(session: Session, ong_id: UUID) -> list[RecursoResponse]:
         _respuesta(recurso, capacidad, comprometida)
         for recurso, capacidad, comprometida in filas
     ]
+
+
+def compromisos_activos_por_recurso() -> Subquery:
+    """Preagrega una fila por recurso para evitar multiplicar el stock en joins."""
+    return (
+        select(
+            CompromisoItem.recurso_id,
+            func.sum(CompromisoItem.cantidad).label("cantidad"),
+        )
+        .join(Compromiso, Compromiso.id == CompromisoItem.compromiso_id)
+        .where(Compromiso.estado == EstadoCompromiso.ACTIVO)
+        .group_by(CompromisoItem.recurso_id)
+        .subquery()
+    )
 
 
 def _validar_cantidad(capacidad: Capacidad, cantidad: Decimal) -> None:
