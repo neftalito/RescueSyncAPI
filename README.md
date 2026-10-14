@@ -6,12 +6,17 @@ preparados PostgreSQL, Alembic, OpenAPI y los controles de calidad.
 
 El esquema nacional incluye 12 tablas de negocio y su migración Alembic inicial.
 Este corte implementa login JWT, onboarding de ONGs, consulta de cuenta y
-capacidades, y alta/consulta/edición de inventario por ONG. Certificaciones,
-validación, compromiso y liberación conservan sus modelos y siguen pendientes
-como servicios HTTP. La API nacional no almacena borradores ni ofertas preliminares.
+capacidades, alta/consulta/edición de inventario por ONG y consulta de
+certificaciones, acreditaciones y competencia vigente. La carga oficial usa
+comandos administrativos autenticados. Validación de ofertas, compromiso y
+liberación siguen pendientes como servicios HTTP. La API nacional no almacena
+borradores ni ofertas preliminares.
 
 El recorrido de inventario y los datos demo se describen en
 [Inventario nacional](./docs/inventario.md).
+La consulta y carga oficial se describen en
+[Certificaciones nacionales](./docs/certificaciones.md), incluidos los cambios
+pendientes de Bonita y el orden de integración con RescueSync.
 
 Las reglas de desarrollo están en [AGENTS.md](./AGENTS.md). La secuencia completa,
 los contratos propuestos y la trazabilidad T22–T42 se describen en el
@@ -191,7 +196,8 @@ requieren cambios en Python o en el Dockerfile.
 
 ## Próximo corte
 
-El siguiente incremento incorporará `/login` con JWT, la dependencia Bearer y
-onboarding sobre el esquema nacional. Luego implementará inventario, perfiles y
-los servicios transaccionales de compromiso/liberación/cierre. Las restricciones
-de esquema no reemplazan su autorización, revalidación de stock ni locking.
+El siguiente incremento incorporará ONGs habilitadas, disponibilidad global,
+validación de ofertas y los servicios transaccionales de compromiso/liberación/cierre.
+El catálogo y las acreditaciones ya aportan reglas de competencia reutilizables.
+Las restricciones de esquema no reemplazan autorización, revalidación de stock
+ni locking.
