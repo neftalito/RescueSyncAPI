@@ -19,3 +19,12 @@ def get_db() -> Generator[Session]:
 
     with SessionLocal() as session:
         yield session
+
+
+def get_db_evaluacion() -> Generator[Session]:
+    """Fija un snapshot de sólo lectura antes de autenticar y evaluar ofertas."""
+    lectura = engine.execution_options(
+        isolation_level="REPEATABLE READ", postgresql_readonly=True
+    )
+    with Session(bind=lectura, autoflush=False, expire_on_commit=False) as session:
+        yield session
