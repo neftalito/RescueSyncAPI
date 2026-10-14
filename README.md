@@ -64,6 +64,9 @@ docker compose down
 
 ## Arquitectura
 
+Los agregados informativos por capacidad y ONG se describen en
+[Disponibilidad global](./docs/disponibilidad-global.md).
+
 ```text
 app/
 ├── api/routes/    # Adaptadores HTTP pequeños

@@ -6,6 +6,7 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException, Response
 
 from app.api.dependencies import CuentaActual, Db, autorizar_inventario
+from app.api.routes.disponibilidad import router as disponibilidad_router
 from app.core.config import get_settings
 from app.core.security import emitir_token
 from app.schemas.inventario import (
@@ -32,6 +33,7 @@ from app.services.inventario import (
 )
 
 router = APIRouter()
+router.include_router(disponibilidad_router, tags=["disponibilidad global"])
 errores = {codigo: {"model": ErrorResponse} for codigo in (401, 403, 404, 409, 422)}
 
 
