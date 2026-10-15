@@ -17,7 +17,7 @@ from pydantic import (
 )
 from pydantic.alias_generators import to_camel
 
-from app.db.models.enums import EstadoOng, RolNacional, TipoRecurso
+from app.db.models.enums import EstadoOng, PropositoCuenta, RolNacional, TipoRecurso
 
 type Nombre = Annotated[
     str, StringConstraints(strip_whitespace=True, min_length=1, max_length=160)
@@ -60,6 +60,7 @@ class CuentaResponse(Contrato):
     id: UUID
     rol: RolNacional
     ong_id: UUID | None
+    proposito: PropositoCuenta
 
 
 class OngCreate(LoginRequest):

@@ -9,7 +9,14 @@ from jwt.exceptions import InvalidTokenError
 from sqlalchemy.orm import Session
 
 from app.core.security import leer_token
-from app.db.models import Cuenta, EstadoOng, Ong, RolNacional, SistemaOrigen
+from app.db.models import (
+    Cuenta,
+    EstadoOng,
+    Ong,
+    PropositoCuenta,
+    RolNacional,
+    SistemaOrigen,
+)
 from app.db.session import get_db, get_db_evaluacion
 
 Db = Annotated[Session, Depends(get_db)]
@@ -40,11 +47,21 @@ def cargar_cuenta(
     """Comparte validación de JWT y recarga de cuenta/ONG/emisor actuales."""
 
     try:
-        cuenta_id = leer_token(credencial.credentials) if credencial else None
+        identidad = leer_token(credencial.credentials) if credencial else None
     except (InvalidTokenError, ValueError, TypeError):
-        cuenta_id = None
-    cuenta = session.get(Cuenta, cuenta_id) if cuenta_id is not None else None
-    if cuenta is None or not cuenta.activa:
+        identidad = None
+    cuenta = session.get(Cuenta, identidad.cuenta_id) if identidad is not None else None
+    if (
+        cuenta is None
+        or not cuenta.activa
+        or (
+            cuenta.proposito == PropositoCuenta.TECNICA_ONG
+            and (
+                identidad is None
+                or identidad.version_credencial != cuenta.version_credencial
+            )
+        )
+    ):
         raise HTTPException(
             401,
             "La credencial nacional no es válida o expiró.",

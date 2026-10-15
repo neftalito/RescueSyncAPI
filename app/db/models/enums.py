@@ -9,6 +9,11 @@ class RolNacional(StrEnum):
     INTEGRACION = "INTEGRACION"
 
 
+class PropositoCuenta(StrEnum):
+    PERSONAL = "PERSONAL"
+    TECNICA_ONG = "TECNICA_ONG"
+
+
 class EstadoOng(StrEnum):
     PENDIENTE = "PENDIENTE"
     HABILITADA = "HABILITADA"
