@@ -1,14 +1,14 @@
-from fastapi import FastAPI, Request
+from fastapi import Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api.router import api_router
 from app.core.config import get_settings
+from app.core.cors import AplicacionConCORS
 
 settings = get_settings()
 
-app = FastAPI(
+app = AplicacionConCORS(
     title=settings.app_name,
     version=settings.app_version,
     description=(
@@ -19,13 +19,7 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=settings.cors_origins,
-    allow_credentials=False,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+app.origenes_cors = tuple(settings.cors_origins)
 
 app.include_router(api_router, prefix=settings.api_v1_prefix)
 

@@ -1,11 +1,12 @@
 from functools import lru_cache
 from secrets import token_urlsafe
 from typing import Literal, Self
-from urllib.parse import urlsplit
 
 from pydantic import Field, PrivateAttr, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
+
+from app.core.cors import normalizar_origenes
 
 
 class Settings(BaseSettings):
@@ -87,23 +88,8 @@ class Settings(BaseSettings):
     @field_validator("cors_origins")
     @classmethod
     def validar_cors_origins(cls, values: list[str]) -> list[str]:
-        """Exige orígenes HTTP explícitos y elimina barras finales duplicadas."""
-
-        normalized: list[str] = []
-        for value in values:
-            parsed = urlsplit(value)
-            if (
-                parsed.scheme not in {"http", "https"}
-                or not parsed.netloc
-                or parsed.path not in {"", "/"}
-                or parsed.query
-                or parsed.fragment
-            ):
-                raise ValueError(f"origen CORS inválido: {value}")
-            origin = value.rstrip("/")
-            if origin not in normalized:
-                normalized.append(origin)
-        return normalized
+        """Valida la lista explícita recibida desde CORS_ORIGINS."""
+        return normalizar_origenes(values)
 
     @property
     def sqlalchemy_database_uri(self) -> str:

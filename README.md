@@ -182,6 +182,11 @@ La imagen usa un usuario no privilegiado, escucha en `0.0.0.0` y respeta
 
 ## Despliegue en Render
 
+Configurar `CORS_ORIGINS` con la lista JSON de dominios de las apps web que
+accedan desde un navegador. La [guía de CORS y nuevos dominios](docs/cors.md)
+explica la edición del `.env`, la configuración en cloud, el redeploy y la
+verificación del preflight. La integración servidor a servidor no necesita CORS.
+
 1. Crear PostgreSQL y un Web Service en la misma región.
 2. Conectar este repositorio y seleccionar el runtime Docker.
 3. Configurar `APP_ENV=production`, la URL interna como `DATABASE_URL` y los
