@@ -9,6 +9,7 @@ from app.api.dependencies import CuentaActual, Db, autorizar_inventario
 from app.api.routes.disponibilidad import router as disponibilidad_router
 from app.core.config import get_settings
 from app.core.security import emitir_token
+from app.db.models import PropositoCuenta
 from app.schemas.inventario import (
     CapacidadResponse,
     CuentaResponse,
@@ -69,8 +70,15 @@ def login(datos: LoginRequest, session: Db, response: Response) -> TokenResponse
         )
     response.headers["Cache-Control"] = "no-store"
     return TokenResponse(
-        access_token=emitir_token(cuenta.id),
-        expires_in=get_settings().jwt_access_seconds,
+        access_token=emitir_token(
+            cuenta.id,
+            version_credencial=cuenta.version_credencial
+            if cuenta.proposito == PropositoCuenta.TECNICA_ONG
+            else None,
+        ),
+        expires_in=300
+        if cuenta.proposito == PropositoCuenta.TECNICA_ONG
+        else get_settings().jwt_access_seconds,
     )
 
 
@@ -82,7 +90,9 @@ def login(datos: LoginRequest, session: Db, response: Response) -> TokenResponse
 )
 def me(cuenta: CuentaActual, response: Response) -> CuentaResponse:
     response.headers["Cache-Control"] = "no-store"
-    return CuentaResponse(id=cuenta.id, rol=cuenta.rol, ong_id=cuenta.ong_id)
+    return CuentaResponse(
+        id=cuenta.id, rol=cuenta.rol, ong_id=cuenta.ong_id, proposito=cuenta.proposito
+    )
 
 
 @router.post(

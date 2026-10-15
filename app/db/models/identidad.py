@@ -9,6 +9,7 @@ from sqlalchemy import (
     Enum,
     ForeignKey,
     Index,
+    Integer,
     String,
     text,
 )
@@ -16,7 +17,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
 from app.db.models.comunes import ActualizadoMixin
-from app.db.models.enums import EstadoOng, RolNacional
+from app.db.models.enums import EstadoOng, PropositoCuenta, RolNacional
 
 
 class SistemaOrigen(ActualizadoMixin, Base):
@@ -82,6 +83,16 @@ class Cuenta(ActualizadoMixin, Base):
 
     __tablename__ = "cuenta"
     __table_args__ = (
+        CheckConstraint("version_credencial > 0", name="ck_cuenta_version_credencial"),
+        CheckConstraint(
+            "proposito <> 'TECNICA_ONG' OR rol = 'ONG'", name="ck_cuenta_proposito_rol"
+        ),
+        Index(
+            "uq_cuenta_tecnica_ong",
+            "ong_id",
+            unique=True,
+            postgresql_where=text("proposito = 'TECNICA_ONG'"),
+        ),
         CheckConstraint(
             "identificador_login = lower(btrim(identificador_login)) "
             "AND identificador_login <> ''",
@@ -108,6 +119,10 @@ class Cuenta(ActualizadoMixin, Base):
     password_hash: Mapped[str] = mapped_column(String(255))
     rol: Mapped[RolNacional] = mapped_column(Enum(RolNacional, name="rol_nacional"))
     activa: Mapped[bool] = mapped_column(server_default=text("true"))
+    proposito: Mapped[PropositoCuenta] = mapped_column(
+        Enum(PropositoCuenta, name="proposito_cuenta"), server_default="PERSONAL"
+    )
+    version_credencial: Mapped[int] = mapped_column(Integer, server_default="1")
     ong_id: Mapped[UUID | None] = mapped_column(
         ForeignKey("ong.id", ondelete="RESTRICT")
     )

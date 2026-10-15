@@ -219,3 +219,6 @@ transitoria, compromiso atómico, liberación por ONG y cierre ya están disponi
 El catálogo y las acreditaciones ya aportan reglas de competencia reutilizables.
 Las restricciones de esquema no reemplazan autorización, revalidación de stock
 ni locking.
+
+El aprovisionamiento, rotación y revocación de cuentas técnicas independientes por
+ONG se describe en [Acceso automático](docs/acceso-automatico-ong.md).

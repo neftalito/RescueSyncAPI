@@ -1,5 +1,6 @@
 """Credenciales nacionales separadas de las sesiones locales y de Bonita."""
 
+from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
@@ -28,7 +29,7 @@ def verificar_password(password: str, hash_guardado: str | None) -> bool:
         return False
 
 
-def emitir_token(cuenta_id: UUID) -> str:
+def emitir_token(cuenta_id: UUID, *, version_credencial: int | None = None) -> str:
     """Emite un token limitado que sólo identifica la cuenta nacional."""
 
     settings = get_settings()
@@ -37,16 +38,28 @@ def emitir_token(cuenta_id: UUID) -> str:
         {
             "sub": str(cuenta_id),
             "iat": ahora,
-            "exp": ahora + timedelta(seconds=settings.jwt_access_seconds),
+            "exp": ahora
+            + timedelta(
+                seconds=300
+                if version_credencial is not None
+                else settings.jwt_access_seconds
+            ),
             "iss": settings.jwt_issuer,
             "aud": settings.jwt_audience,
+            **({"ver": version_credencial} if version_credencial is not None else {}),
         },
         settings.clave_jwt,
         algorithm="HS256",
     )
 
 
-def leer_token(token: str) -> UUID:
+@dataclass(frozen=True)
+class IdentidadToken:
+    cuenta_id: UUID
+    version_credencial: int | None
+
+
+def leer_token(token: str) -> IdentidadToken:
     """Verifica algoritmo fijo, firma, emisor, audiencia y claims obligatorios."""
 
     settings = get_settings()
@@ -58,4 +71,7 @@ def leer_token(token: str) -> UUID:
         audience=settings.jwt_audience,
         options={"require": ["sub", "iat", "exp", "iss", "aud"]},
     )
-    return UUID(claims["sub"])
+    version = claims.get("ver")
+    if version is not None and (type(version) is not int or version < 1):
+        raise ValueError("Versión de credencial inválida")
+    return IdentidadToken(UUID(claims["sub"]), version)
