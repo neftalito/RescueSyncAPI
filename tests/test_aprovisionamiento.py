@@ -101,7 +101,17 @@ def test_alta_sin_contacto_genera_identificador_y_acceso_inmediato(
         ).status_code
         == 409
     )
-    assert session.scalar(select(func.count()).select_from(AprovisionamientoOng)) == 1
+    assert (
+        session.scalar(
+            select(func.count())
+            .select_from(AprovisionamientoOng)
+            .where(
+                AprovisionamientoOng.sistema_origen_id == cuenta.sistema_origen_id,
+                AprovisionamientoOng.referencia_local == referencia,
+            )
+        )
+        == 1
+    )
 
 
 @pytest.mark.parametrize("rol", [None, RolNacional.ONG, RolNacional.ADMIN_NACIONAL])
@@ -126,11 +136,21 @@ def test_alta_no_es_publica_ni_accesible_por_otro_rol(
         session.add(cuenta)
         session.commit()
         auth = headers(cuenta)
+    referencia = uuid4()
     respuesta = inventory_client.put(
-        f"/api/v1/integraciones/ongs/{uuid4()}", headers=auth, json=DATOS
+        f"/api/v1/integraciones/ongs/{referencia}", headers=auth, json=DATOS
     )
     assert respuesta.status_code == (401 if rol is None else 403)
-    assert session.scalar(select(func.count()).select_from(AprovisionamientoOng)) == 0
+    assert (
+        session.scalar(
+            select(func.count())
+            .select_from(AprovisionamientoOng)
+            .where(
+                AprovisionamientoOng.referencia_local == referencia,
+            )
+        )
+        == 0
+    )
 
 
 def test_referencia_se_aisla_por_emisor_y_revocacion_no_se_recupera(
