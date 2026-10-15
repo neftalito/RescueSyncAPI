@@ -1,16 +1,67 @@
 """Escenario nacional reproducible vinculado al seed de RescueSync."""
 
 from decimal import Decimal
-from uuid import NAMESPACE_URL, uuid5
+from uuid import NAMESPACE_URL, UUID, uuid5
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
 from app.core.security import generar_password_hash
-from app.db.models import Capacidad, Cuenta, Ong, Recurso, RolNacional, TipoRecurso
+from app.db.models import (
+    Capacidad,
+    Cuenta,
+    Ong,
+    PropositoCuenta,
+    Recurso,
+    RolNacional,
+    TipoRecurso,
+)
 from app.db.session import SessionLocal
 from app.scripts.seed_certificaciones import seed_certificaciones
+
+
+def _cuenta_tecnica_demo(session: Session, ong_id: UUID, referencia: str) -> None:
+    """Agrega la identidad técnica demo sin rotar ni reactivar una existente."""
+    cuenta_id = uuid5(NAMESPACE_URL, f"rescuesync-demo:cuenta-tecnica:{referencia}")
+    login = f"demo-tecnica-{referencia}"
+    cuenta = session.scalar(
+        select(Cuenta).where(
+            Cuenta.ong_id == ong_id,
+            Cuenta.proposito == PropositoCuenta.TECNICA_ONG,
+        )
+    )
+    if cuenta is not None:
+        if (
+            cuenta.id != cuenta_id
+            or cuenta.identificador_login != login
+            or cuenta.rol != RolNacional.ONG
+        ):
+            raise ValueError(
+                "La ONG demo tiene otra cuenta técnica; no se reemplazó su acceso."
+            )
+        return
+    if (
+        session.get(Cuenta, cuenta_id) is not None
+        or session.scalar(select(Cuenta.id).where(Cuenta.identificador_login == login))
+        is not None
+    ):
+        raise ValueError(
+            "La identidad técnica demo ya pertenece a otra cuenta nacional."
+        )
+    # Credencial pública exclusiva de development/test, coordinada con el seed local.
+    secreto = f"demo-only-rescuesync-tecnica:{referencia}:2026"
+    session.add(
+        Cuenta(
+            id=cuenta_id,
+            identificador_login=login,
+            ong_id=ong_id,
+            password_hash=generar_password_hash(secreto),
+            rol=RolNacional.ONG,
+            proposito=PropositoCuenta.TECNICA_ONG,
+        )
+    )
+    session.flush()
 
 
 def seed_development_data(session: Session) -> None:
@@ -94,6 +145,7 @@ def seed_development_data(session: Session) -> None:
             )
         elif cuenta.ong_id != ong_id or cuenta.rol != RolNacional.ONG:
             raise ValueError("El login demo pertenece a otra identidad nacional.")
+        _cuenta_tecnica_demo(session, ong_id, referencia)
         for codigo, codigo_interno, recurso_nombre, total in recursos:
             if (
                 session.scalar(
@@ -126,7 +178,10 @@ def main() -> int:
         return 1
     with SessionLocal.begin() as session:
         seed_development_data(session)
-    print("Seed nacional listo: dos ONGs, inventario y certificaciones de desarrollo.")
+    print(
+        "Seed nacional listo: dos ONGs, cuentas técnicas, "
+        "inventario y certificaciones demo."
+    )
     return 0
 
 

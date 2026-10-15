@@ -68,7 +68,7 @@ docker compose run --rm api python -m app.scripts.seed
 ```
 
 El seed sólo se permite en `development` o `test`. Agrega dos ONGs,
-sus cuentas, tres capacidades y cuatro recursos. T28 agrega un escenario de
+sus cuentas personales y técnicas, tres capacidades y cuatro recursos. T28 agrega un escenario de
 [certificaciones](./certificaciones.md): Ayuda Sin Fronteras habilitada y Red
 Médica Solidaria pendiente, con historia de credenciales. Repetirlo no cambia stock,
 contraseñas ni compromisos existentes, y no revive suspensiones o revocaciones.
@@ -86,14 +86,26 @@ Son credenciales públicas exclusivas de desarrollo. Los UUID se generan con
 usa exactamente esas referencias para guardar la vinculación explícita; no
 busca equivalencias por nombre ni presupone IDs numéricos iguales entre bases.
 
+El seed nacional también crea una cuenta `TECNICA_ONG` por ONG demo. El seed
+local guarda su referencia y secreto cifrado; no hace falta ejecutar comandos de
+cuentas técnicas ni importar archivos para estas dos instituciones. Los contratos
+compartidos de desarrollo son:
+
+- Cuenta: `uuid5(NAMESPACE_URL, "rescuesync-demo:cuenta-tecnica:<referencia>")`.
+- Login: `demo-tecnica-<referencia>`.
+- Secreto público de demo: `demo-only-rescuesync-tecnica:<referencia>:2026`.
+
+Se usa `ayuda-sin-fronteras` o `red-medica-solidaria` como referencia. No son las
+contraseñas personales de los representantes ni credenciales productivas. El seed
+no rota ni reactiva una cuenta existente; una identidad técnica incompatible
+produce un error y requiere revisar/importar su credencial real.
+
 El recorrido web y los comandos de ambos repositorios se documentan en
-`RescueSync/docs/inventario-nacional.md`. Para onboarding fuera del seed,
-`POST /ongs` recibe nombre, identificador institucional, email de contacto y
-credenciales; el administrador local vincula luego el UUID nacional verificado.
-RescueSync también ofrece este registro desde **Mis recursos** para una ONG local
-sin vínculo. Su backend toma el nombre de la organización vigente y devuelve el
-UUID pendiente sin guardar contraseña, iniciar sesión ni establecer el vínculo.
-El login se normaliza antes de validar su longitud: sólo espacios es `422`.
+`RescueSync/docs/inventario-nacional.md`. Configurar una vez la clave Fernet en el
+backend local, ejecutar ambos seeds e iniciar sesión local con `ong123` o
+`redmedica123`. Mis recursos utiliza automáticamente la cuenta técnica.
+Para ONG nuevas fuera del seed, seguir el
+[aprovisionamiento automático](./acceso-automatico-ong.md).
 
 ## Trazabilidad T25, T26 y T27
 

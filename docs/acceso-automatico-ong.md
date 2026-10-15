@@ -105,3 +105,13 @@ aprovisionar el acceso automático después de un nuevo upgrade.
 
 Desplegar este soporte antes del backend local. Las pruebas usan PostgreSQL
 aislado, cubren rotación/revocación y verifican el archivo de exportación.
+
+
+## Escenario de desarrollo con seeds
+
+El seed nacional crea también las cuentas `TECNICA_ONG` demo; el seed local
+prepara sus accesos cifrados con la misma referencia. Ejecutar los dos seeds con
+las migraciones aplicadas y `NACIONAL_ENCRYPTION_KEY` configurada en RescueSync.
+No se requieren archivos de importación ni la cuenta emisora de aprovisionamiento
+para estas dos ONG. Ver [el escenario de inventario](./inventario.md).
+Repetir los seeds conserva contraseñas rotadas, revocaciones y accesos importados.
