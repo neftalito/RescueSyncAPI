@@ -14,6 +14,10 @@ borradores ni ofertas preliminares.
 
 El recorrido de inventario y los datos demo se describen en
 [Inventario nacional](./docs/inventario.md).
+Para medir consultas con miles de registros, el
+[seed masivo configurable](./docs/seed-masivo.md) genera por defecto 1.000 ONGs y
+20.000 recursos, conserva los datos existentes y comparte referencias con el
+seed masivo de RescueSync.
 La creación administrativa de capacidades y el catálogo base de 56 capacidades,
 31 unidades y cuatro tipos de recurso, instalado por migraciones tanto en
 desarrollo como en producción, se describen en
