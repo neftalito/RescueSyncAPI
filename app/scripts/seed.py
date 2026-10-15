@@ -15,7 +15,6 @@ from app.db.models import (
     PropositoCuenta,
     Recurso,
     RolNacional,
-    TipoRecurso,
 )
 from app.db.session import SessionLocal
 from app.scripts.seed_certificaciones import seed_certificaciones
@@ -69,24 +68,16 @@ def seed_development_data(session: Session) -> None:
 
     if get_settings().app_env not in {"development", "test"}:
         raise ValueError("El seed sólo está disponible en desarrollo y pruebas.")
-    capacidades: dict[str, Capacidad] = {}
-    for codigo, nombre, tipo, unidad, fracciones in (
-        ("AGUA", "Agua potable", TipoRecurso.SUMINISTRO, "litros", True),
-        ("PARAMEDICOS", "Personal paramédico", TipoRecurso.PERSONAL, "personas", False),
-        ("AMBULANCIAS", "Ambulancias", TipoRecurso.VEHICULO, "vehículos", False),
-    ):
-        capacidad = session.scalar(select(Capacidad).where(Capacidad.codigo == codigo))
-        if capacidad is None:
-            capacidad = Capacidad(
-                codigo=codigo,
-                nombre=nombre,
-                tipo=tipo,
-                unidad=unidad,
-                admite_fracciones=fracciones,
-            )
-            session.add(capacidad)
-            session.flush()
-        capacidades[codigo] = capacidad
+    # Las migraciones instalan el catálogo común también en producción.
+    codigos_demo = {"AGUA", "PARAMEDICOS", "AMBULANCIAS"}
+    capacidades = {
+        capacidad.codigo: capacidad
+        for capacidad in session.scalars(
+            select(Capacidad).where(Capacidad.codigo.in_(codigos_demo))
+        )
+    }
+    if capacidades.keys() != codigos_demo:
+        raise ValueError("Falta el catálogo base; ejecutar alembic upgrade head.")
 
     for referencia, nombre, login, password, recursos in (
         (

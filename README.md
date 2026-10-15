@@ -14,8 +14,9 @@ borradores ni ofertas preliminares.
 
 El recorrido de inventario y los datos demo se describen en
 [Inventario nacional](./docs/inventario.md).
-La creación administrativa de capacidades y las 31 unidades predefinidas para
-desarrollo y producción se describen en
+La creación administrativa de capacidades y el catálogo base de 56 capacidades,
+31 unidades y cuatro tipos de recurso, instalado por migraciones tanto en
+desarrollo como en producción, se describen en
 [Catálogo de capacidades y unidades](./docs/catalogo-capacidades.md).
 El directorio institucional y sus filtros se describen en
 [ONGs habilitadas](./docs/ongs-habilitadas.md).

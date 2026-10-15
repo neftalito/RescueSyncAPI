@@ -56,10 +56,12 @@ una clave vacía es efímera y reiniciar la API exige reconectar las cuentas.
 
 ## Seed coordinado con RescueSync
 
-Las 31 unidades de referencia se cargan por migración tanto en producción como
-en desarrollo. El seed siguiente sólo agrega el escenario demo; no es necesario
-para disponer de unidades. La administración de capacidades y sus permisos se
-detallan en [Catálogo de capacidades y unidades](./catalogo-capacidades.md).
+Las 31 unidades y las 56 capacidades de referencia se cargan por migración tanto
+en producción como en desarrollo. Los cuatro tipos de recurso se instalan como
+enum desde la migración inicial. El seed siguiente sólo agrega el escenario demo;
+no es necesario para disponer del catálogo. La administración de capacidades y
+sus permisos se detallan en
+[Catálogo de capacidades y unidades](./catalogo-capacidades.md).
 
 Después de aplicar migraciones:
 
@@ -68,7 +70,8 @@ docker compose run --rm api python -m app.scripts.seed
 ```
 
 El seed sólo se permite en `development` o `test`. Agrega dos ONGs,
-sus cuentas personales y técnicas, tres capacidades y cuatro recursos. T28 agrega un escenario de
+sus cuentas personales y técnicas y cuatro recursos, reutilizando las capacidades
+`AGUA`, `PARAMEDICOS` y `AMBULANCIAS` del catálogo base. T28 agrega un escenario de
 [certificaciones](./certificaciones.md): Ayuda Sin Fronteras habilitada y Red
 Médica Solidaria pendiente, con historia de credenciales. Repetirlo no cambia stock,
 contraseñas ni compromisos existentes, y no revive suspensiones o revocaciones.

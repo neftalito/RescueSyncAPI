@@ -8,11 +8,31 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 from test_inventario import inventory_client as inventory_client_fixture
 
+from app.core.config import get_settings
 from app.core.security import generar_password_hash
-from app.db.models import Cuenta, PropositoCuenta, RolNacional
+from app.db.models import Capacidad, Cuenta, PropositoCuenta, RolNacional
 from app.scripts.seed import seed_development_data
 
 inventory_client = inventory_client_fixture
+
+
+def test_seed_demo_reutiliza_catalogo_sin_modificarlo(session: Session) -> None:
+    consulta = select(Capacidad.__table__).order_by(Capacidad.codigo)
+    capacidades_antes = session.execute(consulta).all()
+
+    seed_development_data(session)
+    seed_development_data(session)
+
+    assert session.execute(consulta).all() == capacidades_antes
+
+
+def test_seed_demo_sigue_rechazando_produccion(
+    session: Session, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(get_settings(), "app_env", "production")
+    with pytest.raises(ValueError, match="desarrollo y pruebas"):
+        seed_development_data(session)
+    assert session.scalar(select(func.count()).select_from(Cuenta)) == 0
 
 
 @pytest.mark.parametrize("referencia", ["ayuda-sin-fronteras", "red-medica-solidaria"])

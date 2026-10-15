@@ -23,8 +23,8 @@ from app.schemas.catalogo import CapacidadCreate
 from app.services.catalogo import CapacidadDuplicadaError, crear_capacidad
 
 DATOS = {
-    "codigo": "ALIMENTOS",
-    "nombre": "Alimentos no perecederos",
+    "codigo": "ALIMENTOS_SIN_GLUTEN",
+    "nombre": "Alimentos sin gluten",
     "tipo": "SUMINISTRO",
     "unidad": "kg",
     "admiteFracciones": True,
@@ -76,6 +76,9 @@ def test_administrador_crea_capacidad_y_el_catalogo_la_devuelve(
 ) -> None:
     headers = auth(cuentas[RolNacional.ADMIN_NACIONAL])
     unidades_antes = session.scalar(select(func.count()).select_from(Unidad))
+    capacidades_antes = catalogo_client.get(
+        "/api/v1/capacidades", headers=headers
+    ).json()
 
     respuesta = catalogo_client.post("/api/v1/capacidades", headers=headers, json=DATOS)
 
@@ -89,7 +92,10 @@ def test_administrador_crea_capacidad_y_el_catalogo_la_devuelve(
     assert capacidad is not None and capacidad.activa
     for cuenta in cuentas.values():
         listado = catalogo_client.get("/api/v1/capacidades", headers=auth(cuenta))
-        assert listado.status_code == 200 and listado.json() == [payload]
+        assert listado.status_code == 200
+        assert len(listado.json()) == len(capacidades_antes) + 1
+        assert payload in listado.json()
+        assert all(capacidad in listado.json() for capacidad in capacidades_antes)
     assert session.scalar(select(func.count()).select_from(Unidad)) == unidades_antes
 
 
@@ -100,13 +106,14 @@ def test_solo_admin_nacional_puede_crear(
     cuentas: dict[RolNacional, Cuenta],
     rol: RolNacional | None,
 ) -> None:
+    total = session.scalar(select(func.count()).select_from(Capacidad))
     respuesta = catalogo_client.post(
         "/api/v1/capacidades",
         json=DATOS,
         headers=auth(cuentas[rol]) if rol else {},
     )
     assert respuesta.status_code == (403 if rol else 401)
-    assert session.scalar(select(func.count()).select_from(Capacidad)) == 0
+    assert session.scalar(select(func.count()).select_from(Capacidad)) == total
 
 
 def test_cuenta_desactivada_pierde_el_permiso_con_el_mismo_jwt(
@@ -146,13 +153,16 @@ def test_rechaza_datos_invalidos_sin_crear_capacidad_ni_unidad(
     cambio: dict[str, object],
 ) -> None:
     total = session.scalar(select(func.count()).select_from(Unidad))
+    capacidades_antes = session.scalar(select(func.count()).select_from(Capacidad))
     respuesta = catalogo_client.post(
         "/api/v1/capacidades",
         headers=auth(cuentas[RolNacional.ADMIN_NACIONAL]),
         json={**DATOS, **cambio},
     )
     assert respuesta.status_code == 422
-    assert session.scalar(select(func.count()).select_from(Capacidad)) == 0
+    assert (
+        session.scalar(select(func.count()).select_from(Capacidad)) == capacidades_antes
+    )
     assert session.scalar(select(func.count()).select_from(Unidad)) == total
 
 
@@ -160,14 +170,15 @@ def test_codigo_duplicado_devuelve_conflicto_y_conserva_primera_capacidad(
     catalogo_client: TestClient, session: Session, cuentas: dict[RolNacional, Cuenta]
 ) -> None:
     headers = auth(cuentas[RolNacional.ADMIN_NACIONAL])
+    total = session.scalar(select(func.count()).select_from(Capacidad))
     primera = catalogo_client.post("/api/v1/capacidades", headers=headers, json=DATOS)
     segunda = catalogo_client.post(
         "/api/v1/capacidades", headers=headers, json={**DATOS, "nombre": "Otro nombre"}
     )
     assert primera.status_code == 201 and segunda.status_code == 409
-    assert catalogo_client.get("/api/v1/capacidades", headers=headers).json() == [
-        primera.json()
-    ]
+    listado = catalogo_client.get("/api/v1/capacidades", headers=headers).json()
+    assert len(listado) == total + 1
+    assert next(c for c in listado if c["codigo"] == DATOS["codigo"]) == primera.json()
 
 
 def test_unidades_son_consultables_y_no_tienen_operaciones_de_escritura(
@@ -260,9 +271,10 @@ def test_migracion_carga_unidades_en_produccion_y_preserva_unidades_historicas(
             )
             == "envases de 5 litros"
         )
+        total = connection.scalar(text("SELECT count(*) FROM capacidad"))
         command.downgrade(config, "20261004_0001")
         assert "unidad" not in inspect(connection).get_table_names()
-        assert connection.scalar(text("SELECT count(*) FROM capacidad")) == 1
+        assert connection.scalar(text("SELECT count(*) FROM capacidad")) == total
         command.upgrade(config, "head")
         assert connection.scalar(text("SELECT count(*) FROM unidad")) == 32
         connection.execute(DropSchema(schema, cascade=True))
