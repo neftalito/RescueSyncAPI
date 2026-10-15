@@ -103,7 +103,7 @@ def crear_datos(session: Session, identificador: str = "prueba") -> DatosNaciona
         codigo=f"ATENCION_{identificador}",
         nombre="Atención prehospitalaria",
         tipo=TipoRecurso.PERSONAL,
-        unidad="persona",
+        unidad="personas",
         admite_fracciones=False,
     )
     certificacion = Certificacion(
@@ -243,6 +243,7 @@ def test_metadata_y_relaciones(session: Session, datos: DatosNacionales) -> None
         "cuenta",
         "ong",
         "capacidad",
+        "unidad",
         "certificacion",
         "certificacion_capacidad",
         "ong_certificacion",
@@ -414,7 +415,7 @@ def test_catalogo_admite_varias_capacidades(
         codigo="APOYO_LOGISTICO",
         nombre="Apoyo",
         tipo=TipoRecurso.EQUIPAMIENTO,
-        unidad="equipo",
+        unidad="equipos",
     )
     revision = Certificacion(codigo="CONSORCIO", revision=1, nombre="Capacidades")
     session.add_all([capacidad, revision])

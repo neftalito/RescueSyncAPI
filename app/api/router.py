@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 
 from app.api.routes import (
+    catalogo,
     certificaciones,
     compromisos,
     health,
@@ -12,6 +13,7 @@ from app.api.routes import (
 
 api_router = APIRouter()
 api_router.include_router(health.router, prefix="/health", tags=["health"])
+api_router.include_router(catalogo.router, tags=["catálogo nacional"])
 api_router.include_router(inventario.router, tags=["cuentas e inventario"])
 api_router.include_router(certificaciones.router, tags=["certificaciones"])
 api_router.include_router(ongs.router, tags=["ONGs habilitadas"])

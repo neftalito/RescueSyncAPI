@@ -91,6 +91,7 @@ erDiagram
     CERTIFICACION ||--|{ CERTIFICACION_CAPACIDAD : define_alcance
     CAPACIDAD ||--o{ CERTIFICACION_CAPACIDAD : habilita
     CAPACIDAD ||--o{ RECURSO : clasifica
+    UNIDAD ||--o{ CAPACIDAD : cuantifica
     COMPROMISO ||--|{ COMPROMISO_ITEM : reserva
     RECURSO ||--o{ COMPROMISO_ITEM : es_comprometido
 
@@ -115,11 +116,15 @@ erDiagram
         estado_ong estado
         timestamptz habilitada_en "nullable"
     }
+    UNIDAD {
+        varchar codigo PK
+        varchar nombre
+    }
     CAPACIDAD {
         uuid id PK
         varchar codigo UK
         tipo_recurso tipo
-        varchar unidad
+        varchar unidad FK
         boolean admite_fracciones
         boolean activa
     }
@@ -274,7 +279,8 @@ Una baja no libera stock automáticamente.
 | --- | --- | --- |
 | `capacidad.id`, `codigo`, `nombre` | UUID, varchar(80) único, varchar(160) | Código explícito, por ejemplo `ATENCION_PREHOSPITALARIA` o `ALIMENTACION`. No interpretar descripciones libres. |
 | `capacidad.tipo` | enum | `PERSONAL`, `VEHICULO`, `EQUIPAMIENTO`, `SUMINISTRO`. Un aporte mixto local se descompone en recursos concretos. |
-| `capacidad.unidad`, `admite_fracciones`, `activa` | varchar(40), boolean, boolean | Unidad canónica por capacidad, por ejemplo `persona`, `vehiculo`, `racion` o `kg`. Códigos y significado estables. |
+| `unidad.codigo`, `nombre` | varchar(40) PK, varchar(80) | Referencias cargadas por migración en todos los entornos; la API sólo permite consultarlas. |
+| `capacidad.unidad`, `admite_fracciones`, `activa` | varchar(40) FK, boolean, boolean | Unidad canónica de `unidad`, por ejemplo `personas`, `vehículos`, `raciones` o `kg`. Códigos y significado estables. |
 | `certificacion.id`, `codigo`, `revision`, `nombre`, `activa` | UUID, varchar(80), integer positivo, varchar(160), boolean | Definición versionada. `UNIQUE (codigo, revision)`; una acreditación apunta a una revisión concreta. |
 | `certificacion_capacidad.certificacion_id`, `capacidad_id` | UUID FK + UUID FK, PK compuesta | Relación N:M; una certificación puede acreditar varias capacidades. |
 | `certificacion_capacidad.riesgo_maximo` | enum | `BAJA`, `MEDIA`, `ALTA`, `CRITICA`, por capacidad; no un nivel global indiferenciado. |

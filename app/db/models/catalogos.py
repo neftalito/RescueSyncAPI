@@ -22,6 +22,19 @@ from app.db.models.enums import EstadoAcreditacion, NivelRiesgo, TipoRecurso
 nivel_riesgo = Enum(NivelRiesgo, name="nivel_riesgo")
 
 
+class Unidad(Base):
+    """Unidad predefinida por migración; la API sólo permite consultarla."""
+
+    __tablename__ = "unidad"
+    __table_args__ = (
+        CheckConstraint("btrim(codigo) <> ''", name="ck_unidad_codigo"),
+        CheckConstraint("btrim(nombre) <> ''", name="ck_unidad_nombre"),
+    )
+
+    codigo: Mapped[str] = mapped_column(String(40), primary_key=True)
+    nombre: Mapped[str] = mapped_column(String(80))
+
+
 class Capacidad(ActualizadoMixin, Base):
     """Define una capacidad y su unidad canónica sin conversiones implícitas."""
 
@@ -40,7 +53,9 @@ class Capacidad(ActualizadoMixin, Base):
     codigo: Mapped[str] = mapped_column(String(80), unique=True)
     nombre: Mapped[str] = mapped_column(String(160))
     tipo: Mapped[TipoRecurso] = mapped_column(Enum(TipoRecurso, name="tipo_recurso"))
-    unidad: Mapped[str] = mapped_column(String(40))
+    unidad: Mapped[str] = mapped_column(
+        ForeignKey("unidad.codigo", name="fk_capacidad_unidad", ondelete="RESTRICT")
+    )
     admite_fracciones: Mapped[bool] = mapped_column(server_default=text("false"))
     activa: Mapped[bool] = mapped_column(server_default=text("true"))
 

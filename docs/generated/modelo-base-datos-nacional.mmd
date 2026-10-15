@@ -16,6 +16,7 @@ erDiagram
     CERTIFICACION ||--|{ CERTIFICACION_CAPACIDAD : define_alcance
     CAPACIDAD ||--o{ CERTIFICACION_CAPACIDAD : habilita
     CAPACIDAD ||--o{ RECURSO : clasifica
+    UNIDAD ||--o{ CAPACIDAD : cuantifica
     COMPROMISO ||--|{ COMPROMISO_ITEM : reserva
     RECURSO ||--o{ COMPROMISO_ITEM : es_comprometido
 
@@ -40,11 +41,15 @@ erDiagram
         estado_ong estado
         timestamptz habilitada_en "nullable"
     }
+    UNIDAD {
+        varchar codigo PK
+        varchar nombre
+    }
     CAPACIDAD {
         uuid id PK
         varchar codigo UK
         tipo_recurso tipo
-        varchar unidad
+        varchar unidad FK
         boolean admite_fracciones
         boolean activa
     }

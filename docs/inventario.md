@@ -14,6 +14,8 @@ como strings decimales con tres decimales en las respuestas.
 | `GET /me` | Bearer JWT; cuenta, rol vigente y `ongId` |
 | `POST /ongs` | Alta pública atómica de cuenta y ONG en estado `PENDIENTE` |
 | `GET /capacidades` | Cuenta activa; capacidades activas, unidad y `admiteFracciones` |
+| `POST /capacidades` | Sólo `ADMIN_NACIONAL`; crea una capacidad con una unidad existente |
+| `GET /unidades` | Cuenta activa; catálogo de unidades predefinidas, de solo lectura |
 | `GET /ongs/{id}/recursos` | ONG propia, administración o integración; total, comprometido y disponible |
 | `POST /ongs/{id}/recursos` | ONG propia o administración; alta con capacidad y propietario inmutables |
 | `PATCH /ongs/{id}/recursos/{recursoId}` | ONG propia o administración; total y versión `actualizadoEn` |
@@ -53,6 +55,11 @@ Configurar un `JWT_SECRET` estable para varias réplicas y reinicios; en desarro
 una clave vacía es efímera y reiniciar la API exige reconectar las cuentas.
 
 ## Seed coordinado con RescueSync
+
+Las 31 unidades de referencia se cargan por migración tanto en producción como
+en desarrollo. El seed siguiente sólo agrega el escenario demo; no es necesario
+para disponer de unidades. La administración de capacidades y sus permisos se
+detallan en [Catálogo de capacidades y unidades](./catalogo-capacidades.md).
 
 Después de aplicar migraciones:
 

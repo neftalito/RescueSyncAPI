@@ -5,6 +5,7 @@ from app.db.models.catalogos import (
     Certificacion,
     CertificacionCapacidad,
     OngCertificacion,
+    Unidad,
 )
 from app.db.models.compromisos import (
     Compromiso,
@@ -46,4 +47,5 @@ __all__ = [
     "SistemaOrigen",
     "TipoOperacion",
     "TipoRecurso",
+    "Unidad",
 ]

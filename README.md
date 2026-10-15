@@ -4,7 +4,7 @@ Servicio independiente para el Sistema Nacional de Gestión de Recursos y Riesgo
 de RescueSync. Esta base cubre el setup y la dockerización de la Entrega 3 y deja
 preparados PostgreSQL, Alembic, OpenAPI y los controles de calidad.
 
-El esquema nacional incluye 12 tablas de negocio y su migración Alembic inicial.
+El esquema nacional incluye 13 tablas de negocio y migraciones Alembic.
 Este corte implementa login JWT, onboarding de ONGs, consulta de cuenta y
 capacidades, alta/consulta/edición de inventario por ONG y consulta de
 certificaciones, acreditaciones y competencia vigente. La carga oficial usa
@@ -14,6 +14,9 @@ borradores ni ofertas preliminares.
 
 El recorrido de inventario y los datos demo se describen en
 [Inventario nacional](./docs/inventario.md).
+La creación administrativa de capacidades y las 31 unidades predefinidas para
+desarrollo y producción se describen en
+[Catálogo de capacidades y unidades](./docs/catalogo-capacidades.md).
 El directorio institucional y sus filtros se describen en
 [ONGs habilitadas](./docs/ongs-habilitadas.md).
 La consulta y carga oficial se describen en

@@ -46,13 +46,16 @@ def snapshot(datos: DatosNacionales) -> ValidacionRequest:
     lote = s.lotes[0]
     lote.capacidad_nacional_id = datos.capacidad.id
     lote.codigo_capacidad = datos.capacidad.codigo
+    lote.unidad = datos.capacidad.unidad
     oferta = s.ofertas[0]
     oferta.ong_nacional_id = datos.ong.id
     oferta.participantes[0].ong_nacional_id = datos.ong.id
+    oferta.items[0].unidad = datos.capacidad.unidad
     aporte = oferta.items[0].aportes[0]
     aporte.ong_nacional_id = datos.ong.id
     aporte.recurso_nacional_id = datos.recurso.id
     aporte.capacidad_nacional_id = datos.capacidad.id
+    aporte.unidad = datos.capacidad.unidad
     return s
 
 
