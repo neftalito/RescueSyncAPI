@@ -6,6 +6,59 @@ el estado institucional ni las certificaciones. Una ONG `PENDIENTE` puede usar
 las consultas y operaciones de inventario que ya permitía la API; `SUSPENDIDA`
 y `BAJA` no pueden operar.
 
+## Alta automática desde RescueSync
+
+Las ONG nuevas creadas en el frontend local se aprovisionan mediante
+`PUT /api/v1/integraciones/ongs/{referenciaLocal}`. Requiere JWT de una cuenta
+`INTEGRACION` y un sistema de origen activo. No permite reclamar una ONG anterior
+ni adjuntar un UUID nacional elegido por el navegador.
+
+El backend local genera un secreto aleatorio de al menos 32 caracteres y conserva
+su versión cifrada antes del primer envío. El request contiene `nombre`,
+`password` y `emailContacto` opcional (omitido o `null` para no informar correo).
+La API genera el identificador institucional
+`rs:<UUID del emisor sin guiones>:<referencia sin guiones>`. El navegador no elige
+ese identificador ni conoce la contraseña técnica.
+
+La respuesta `200` contiene `ong: {id, nombre, estado}`, `cuentaId` e
+`identificadorLogin`, con `Cache-Control: no-store` y sin secretos. Institución,
+cuenta `TECNICA_ONG` y correlación se crean en una misma transacción. El alta
+`PENDIENTE` permite inventario propio; la habilitación y las certificaciones
+requieren su revisión habitual.
+
+La clave durable es `(sistemaOrigen autenticado, referenciaLocal UUID)`. Se
+serializan solicitudes del mismo emisor mediante PostgreSQL. Mismos datos y
+secreto devuelven la misma identidad; contenido distinto produce `409`. Un
+reintento no rota claves, no reactiva cuentas ni revierte suspensiones. Otro
+emisor recibe su propia identidad. Se guarda una huella del request, nunca el
+secreto en texto plano ni ofertas.
+
+### Preparación única del emisor
+
+Aplicar `alembic upgrade head`. Con acceso al entorno nacional:
+
+```bash
+python -m app.scripts.bootstrap_integracion --login alta-rescuesync --sistema-origen rescuesync-local
+```
+
+El comando solicita una contraseña (mínimo 12 caracteres), crea la cuenta y el
+emisor si faltaba y nunca sustituye identidades ni reactiva emisores. Si ya existe
+una cuenta `INTEGRACION` de ese emisor, puede utilizarse sin crear otra. Configurar
+su login/contraseña en `NACIONAL_APROVISIONAMIENTO_LOGIN` y
+`NACIONAL_APROVISIONAMIENTO_PASSWORD` del backend local, junto con su clave
+Fernet estable. Estos secretos se configuran una vez por instalación.
+
+Desplegar la API y su migración antes del cambio de RescueSync. No ejecutar
+bootstrap ni importar archivos por cada ONG nueva. El onboarding público
+`POST /ongs` conserva su contrato de cuentas personales para otros consumidores.
+
+La migración permite `ong.email_contacto = NULL` y añade `aprovisionamiento_ong`.
+Su downgrade elimina la correlación y reemplaza contactos ausentes por
+`no-informado+<UUID>@example.invalid` para satisfacer el esquema anterior sin
+eliminar instituciones. Ese dominio es un marcador de ausencia. Un rollback
+requiere conservar las referencias/secretos en el emisor para reconciliar las
+altas; no reaprovisionar a ciegas después de descartar la correlación nacional.
+
 ## Aprovisionamiento administrativo
 
 Aplicar primero `alembic upgrade head`. Con una cuenta `ADMIN_NACIONAL` activa,

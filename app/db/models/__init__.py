@@ -1,5 +1,6 @@
 """Registra toda la metadata nacional al importarse desde aplicación o Alembic."""
 
+from app.db.models.aprovisionamiento import AprovisionamientoOng
 from app.db.models.catalogos import (
     Capacidad,
     Certificacion,
@@ -28,6 +29,7 @@ from app.db.models.identidad import Cuenta, Ong, SistemaOrigen
 from app.db.models.recursos import Recurso
 
 __all__ = [
+    "AprovisionamientoOng",
     "Capacidad",
     "Certificacion",
     "CertificacionCapacidad",

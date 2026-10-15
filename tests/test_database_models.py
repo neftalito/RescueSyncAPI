@@ -239,6 +239,7 @@ def test_metadata_y_relaciones(session: Session, datos: DatosNacionales) -> None
     assert compromiso.items[0].cantidad == Decimal("3.000")
     assert compromiso.creado_en.utcoffset() == timedelta(0)
     assert set(Base.metadata.tables) == {
+        "aprovisionamiento_ong",
         "sistema_origen",
         "cuenta",
         "ong",

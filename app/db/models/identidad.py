@@ -62,7 +62,7 @@ class Ong(ActualizadoMixin, Base):
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
     identificador_institucional: Mapped[str] = mapped_column(String(80), unique=True)
     nombre: Mapped[str] = mapped_column(String(160))
-    email_contacto: Mapped[str] = mapped_column(String(320))
+    email_contacto: Mapped[str | None] = mapped_column(String(320))
     telefono_contacto: Mapped[str | None] = mapped_column(String(40))
     estado: Mapped[EstadoOng] = mapped_column(
         Enum(EstadoOng, name="estado_ong"), server_default="PENDIENTE"
