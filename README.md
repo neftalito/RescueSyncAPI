@@ -222,3 +222,8 @@ ni locking.
 
 El aprovisionamiento, rotación y revocación de cuentas técnicas independientes por
 ONG se describe en [Acceso automático](docs/acceso-automatico-ong.md).
+
+Las ONG creadas desde RescueSync se registran con cuenta técnica e identificador
+institucional automáticos mediante `PUT /api/v1/integraciones/ongs/{referenciaLocal}`.
+El correo de contacto es opcional. Configurar el emisor una vez siguiendo
+[Alta automática por ONG](docs/acceso-automatico-ong.md#alta-automática-desde-rescuesync).

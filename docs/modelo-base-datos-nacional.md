@@ -264,7 +264,7 @@ necesitan tablas de JWT, sesiones web ni refresh tokens en Entrega 3.
 | --- | --- | --- |
 | `id`, `nombre` | UUID, varchar(160) | El nombre es descriptivo y no se usa para mapear identidades. |
 | `identificador_institucional` | varchar(80), único | Identificador de registro normalizado; el organismo/tipo de registro debe formar parte del valor para evitar colisiones. No se impone CUIT como requisito de la cátedra. |
-| `email_contacto`, `telefono_contacto` | varchar(320), varchar(40) NULL | Datos institucionales; teléfono opcional. |
+| `email_contacto`, `telefono_contacto` | varchar(320) NULL, varchar(40) NULL | Datos institucionales; correo y teléfono opcionales. |
 | `estado` | enum | `PENDIENTE`, `HABILITADA`, `SUSPENDIDA`, `BAJA`. Alta pendiente; habilitación sólo administrativa. |
 | `habilitada_en`, `habilitada_por_id` | timestamptz NULL, UUID FK a cuenta NULL | Pareja de auditoría de habilitación; obligatoria si está habilitada. El servicio exige autor administrador. |
 
@@ -714,3 +714,9 @@ mmdc -i docs/generated/modelo-base-datos-nacional.mmd \
 
 El comando requiere Chromium disponible para Mermaid CLI. Comprobar que todos
 los campos, líneas y cardinalidades sean legibles antes de reemplazar la imagen.
+
+
+El alta técnica de RescueSync añade `aprovisionamiento_ong`, con PK
+`(sistema_origen_id, referencia_local UUID)`, FK única `ong_id` y `huella` SHA-256
+del request para resolver reintentos. La institución y su cuenta se crean juntas.
+`ong.email_contacto` admite NULL desde la revisión `20261015_0004`.
