@@ -5,8 +5,10 @@ from decimal import Decimal
 from uuid import NAMESPACE_URL, uuid4, uuid5
 
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import Session
+from test_catalogo import catalogo_client as catalogo_client_fixture
 
 from app.core.config import get_settings
 from app.core.security import generar_password_hash, verificar_password
@@ -22,6 +24,7 @@ from app.db.models import (
 from app.scripts.seed_masivo import ConfiguracionSeed, main, seed_mass_data
 
 CONFIG = ConfiguracionSeed(seed=17041, ongs=5, recursos_por_ong=7, batch_size=3)
+catalogo_client = catalogo_client_fixture
 
 
 def test_repetir_no_duplica_ni_restaura_stock_o_credenciales(session: Session) -> None:
@@ -158,3 +161,95 @@ def test_configuracion_invalida_se_rechaza(opciones: dict[str, int]) -> None:
 def test_simulacion_no_necesita_base(capsys: pytest.CaptureFixture[str]) -> None:
     assert main(["--dry-run", "--ongs", "2000", "--recursos-por-ong", "10"]) == 0
     assert "20000 recursos" in capsys.readouterr().out
+
+
+def test_masivo_solo_permite_administrar_catalogo_con_credenciales_demo(
+    catalogo_client: TestClient,
+    session: Session,
+) -> None:
+    seed_mass_data(session, CONFIG)
+    session.flush()
+    admin_id = uuid5(NAMESPACE_URL, "rescuesync-demo:admin:nacional")
+    admin = session.get(Cuenta, admin_id)
+    assert admin is not None
+    assert admin.identificador_login == "admin.nacional.demo@rescuesync.org"
+    assert admin.rol == RolNacional.ADMIN_NACIONAL
+    assert (
+        session.scalar(
+            select(func.count())
+            .select_from(Cuenta)
+            .where(Cuenta.rol == RolNacional.ADMIN_NACIONAL)
+        )
+        == 1
+    )
+    assert (
+        session.scalar(
+            select(Cuenta.id).where(
+                Cuenta.identificador_login == f"masivo-{CONFIG.seed}-admin@example.test"
+            )
+        )
+        is None
+    )
+    assert set(session.scalars(select(Ong.habilitada_por_id))) == {admin_id}
+    assert set(session.scalars(select(OngCertificacion.registrada_por_id))) == {
+        admin_id
+    }
+
+    login = catalogo_client.post(
+        "/api/v1/login",
+        json={
+            "identificadorLogin": "admin.nacional.demo@rescuesync.org",
+            "password": "admin-nacional-demo123",
+        },
+    )
+    assert login.status_code == 200
+    headers = {"Authorization": f"Bearer {login.json()['access_token']}"}
+    assert (
+        catalogo_client.get("/api/v1/capacidades", headers=headers).status_code == 200
+    )
+    alta = catalogo_client.post(
+        "/api/v1/capacidades",
+        headers=headers,
+        json={
+            "codigo": "PRUEBA_ADMIN_SEED",
+            "nombre": "Capacidad de prueba",
+            "tipo": "SUMINISTRO",
+            "unidad": "litros",
+            "admiteFracciones": True,
+        },
+    )
+    assert alta.status_code == 201
+
+
+def test_repetir_o_cambiar_seed_no_rota_admin_demo(session: Session) -> None:
+    seed_mass_data(session, CONFIG)
+    admin = session.get(Cuenta, uuid5(NAMESPACE_URL, "rescuesync-demo:admin:nacional"))
+    assert admin is not None
+    admin.password_hash = generar_password_hash("Clave-rotada-2026")
+    admin.version_credencial += 1
+    original = (admin.id, admin.password_hash, admin.version_credencial)
+    session.flush()
+
+    seed_mass_data(session, CONFIG)
+    seed_mass_data(session, replace(CONFIG, seed=CONFIG.seed + 1))
+
+    assert (admin.id, admin.password_hash, admin.version_credencial) == original
+    assert (
+        session.scalar(
+            select(func.count())
+            .select_from(Cuenta)
+            .where(Cuenta.rol == RolNacional.ADMIN_NACIONAL)
+        )
+        == 1
+    )
+
+
+def test_admin_demo_inactivo_no_se_reactiva(session: Session) -> None:
+    seed_mass_data(session, CONFIG)
+    admin = session.get(Cuenta, uuid5(NAMESPACE_URL, "rescuesync-demo:admin:nacional"))
+    assert admin is not None
+    admin.activa = False
+    session.flush()
+    with pytest.raises(ValueError, match="inactiva"):
+        seed_mass_data(session, CONFIG)
+    assert not admin.activa

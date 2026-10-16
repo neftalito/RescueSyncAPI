@@ -131,6 +131,12 @@ y `NACIONAL_CATALOGO_PASSWORD` y verifica el rol nacional vigente. Para crear,
 esa cuenta debe ser `ADMIN_NACIONAL`; `INTEGRACION` sólo puede consultar.
 Las contraseñas y JWT nacionales no se envían al navegador.
 
+El seed demo y el masivo son modalidades alternativas y crean la misma cuenta
+nacional `admin.nacional.demo@rescuesync.org` / `admin-nacional-demo123`. El
+backend local puede conservar estos valores en `NACIONAL_CATALOGO_LOGIN` y
+`NACIONAL_CATALOGO_PASSWORD` para ambas demostraciones. El masivo no requiere
+ejecutar antes el demo para habilitar las altas de capacidades.
+
 El formulario permite elegir exclusivamente unidades devueltas por el catálogo,
 normaliza el código a mayúsculas y actualiza los listados de capacidades tras
 crear. Las nuevas capacidades quedan disponibles para lotes y recursos de ONG.

@@ -31,6 +31,7 @@ from app.db.models import (
     RolNacional,
 )
 from app.db.session import SessionLocal
+from app.scripts.seed_admin import asegurar_admin_demo
 
 # Mantener este contrato de fixture alineado con el seed masivo local.
 PASSWORD_PRUEBA = "CargaMasiva2026!"
@@ -183,15 +184,9 @@ def seed_mass_data(
     # Reutilizar hashes de fixtures evita ejecutar Argon2 miles de veces.
     hash_personal = generar_password_hash(PASSWORD_PRUEBA)
     hash_tecnico = generar_password_hash(PASSWORD_TECNICA)
-    admin_id = id_nacional(config.seed, "admin")
-    resultado.cuentas += _cuenta(
-        session,
-        admin_id,
-        f"masivo-{config.seed}-admin@example.test",
-        RolNacional.ADMIN_NACIONAL,
-        hash_personal,
-    )
-    session.flush()
+    admin, creado = asegurar_admin_demo(session)
+    admin_id = admin.id
+    resultado.cuentas += creado
     cert_id = _certificacion(session, config, capacidades)
     fake = Faker("es_AR", use_weighting=False)
     ahora = datetime.now(UTC)

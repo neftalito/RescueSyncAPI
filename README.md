@@ -18,6 +18,10 @@ Para medir consultas con miles de registros, el
 [seed masivo configurable](./docs/seed-masivo.md) genera por defecto 1.000 ONGs y
 20.000 recursos, conserva los datos existentes y comparte referencias con el
 seed masivo de RescueSync.
+Demo y masivo son modalidades alternativas: cada uno funciona por sí solo y crea
+el mismo administrador nacional, `admin.nacional.demo@rescuesync.org` con contraseña
+inicial `admin-nacional-demo123`. El catálogo de RescueSync conserva las mismas
+credenciales de entorno en cualquiera de las dos modalidades.
 La creación administrativa de capacidades y el catálogo base de 56 capacidades,
 31 unidades y cuatro tipos de recurso, instalado por migraciones tanto en
 desarrollo como en producción, se describen en

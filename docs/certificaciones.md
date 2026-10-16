@@ -150,6 +150,11 @@ públicas exclusivamente para desarrollo:
 | Ayuda Sin Fronteras | ONG habilitada; sanitaria vigente (paramédicos `ALTA`, ambulancias `MEDIA`), sanitaria crítica vencida, logística futura y sanitaria revocada. |
 | Red Médica Solidaria | ONG pendiente con credencial sanitaria vigente; no tiene capacidades efectivas hasta verificación institucional. |
 
+Para demostrar alta carga, elegir en su lugar el [seed masivo](./seed-masivo.md).
+Ambas modalidades funcionan por separado y comparten el UUID, login y contraseña
+inicial de la administración demo; no se necesita cargar ambas para acceder al
+catálogo. Si la contraseña administrativa ya fue cambiada, se conserva.
+
 Las fechas se fijan en la primera carga respecto de la hora de ejecución; no
 se desplazan al repetir el seed ni se reviven revocaciones. Los dos mappings de
 ONG siguen coincidiendo con el seed de RescueSync. Los recursos demo se

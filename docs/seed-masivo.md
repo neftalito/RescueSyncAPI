@@ -5,6 +5,11 @@ técnicas, inventario y acreditaciones sintéticas. Es independiente del seed de
 Usa [Faker](https://faker.readthedocs.io/) en español argentino, como dependencia
 de desarrollo. No crea ofertas, proyectos ni compromisos nacionales.
 
+Elegir una modalidad para cada demostración: `app.scripts.seed` carga el escenario
+pequeño y `app.scripts.seed_masivo` carga el de alto volumen. Usar la misma
+modalidad en RescueSync. El masivo funciona por sí solo y comparte el administrador
+del demo; no requiere cargar los datos pequeños previamente.
+
 Desde la raíz de RescueSyncAPI, con PostgreSQL iniciado y migraciones al día:
 
 ```bash
@@ -58,13 +63,33 @@ Las cuentas de prueba con seed 2026 son:
 
 | Propósito | Login | Contraseña de fixture |
 | --- | --- | --- |
-| Administración nacional | `masivo-2026-admin@example.test` | `CargaMasiva2026!` |
+| Administración nacional | `admin.nacional.demo@rescuesync.org` | `admin-nacional-demo123` |
 | Cuenta personal ONG | `masivo-2026-ong-1@example.test` | `CargaMasiva2026!` |
 | Cuenta técnica ONG | `masivo-2026-tecnica-1` | `CargaMasivaTecnica2026!` |
 
 El índice de ONG empieza en 1. Son credenciales públicas de desarrollo y se
 guardan como hashes Argon2; los hashes de fixtures se reutilizan durante la carga
 para evitar que el costo de miles de cálculos domine la generación de datos.
+
+El administrador tiene el mismo UUID, login, contraseña inicial y rol
+`ADMIN_NACIONAL` en demo y masivo, independientemente de `--seed`. Una función
+compartida asegura esa identidad sin restablecer una contraseña cambiada ni
+reactivar una cuenta deshabilitada. Las habilitaciones de ONG y acreditaciones
+masivas referencian a ese administrador. No se crean administradores por seed.
+
+En `RescueSync/.env`, el catálogo usa los mismos valores para cualquiera de las
+dos modalidades:
+
+```dotenv
+NACIONAL_CATALOGO_LOGIN=admin.nacional.demo@rescuesync.org
+NACIONAL_CATALOGO_PASSWORD=admin-nacional-demo123
+```
+
+No se necesita ejecutar el seed demo para poder administrar el catálogo con una
+carga masiva. Si se cambió la contraseña nacional, conservar esa credencial
+actualizada en el backend local: los seeds no la restablecen. Si el backend ya
+estaba iniciado al editar su entorno, recrearlo con
+`docker compose up -d --no-deps --force-recreate backend` desde RescueSync.
 
 ## Correspondencia con RescueSync
 

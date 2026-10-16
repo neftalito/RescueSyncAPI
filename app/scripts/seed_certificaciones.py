@@ -7,19 +7,17 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.config import get_settings
-from app.core.security import generar_password_hash
 from app.db.models import (
     Capacidad,
     Certificacion,
     CertificacionCapacidad,
-    Cuenta,
     EstadoAcreditacion,
     EstadoOng,
     NivelRiesgo,
     Ong,
     OngCertificacion,
-    RolNacional,
 )
+from app.scripts.seed_admin import asegurar_admin_demo
 
 
 def _id(referencia: str) -> UUID:
@@ -31,29 +29,8 @@ def seed_certificaciones(session: Session, *, ahora: datetime | None = None) -> 
     if get_settings().app_env not in {"development", "test"}:
         raise ValueError("El seed sólo está disponible en desarrollo y pruebas.")
     instante = ahora or datetime.now(UTC)
-    admin_id = _id("admin:nacional")
-    admin = session.scalar(
-        select(Cuenta).where(
-            Cuenta.identificador_login == "admin.nacional.demo@rescuesync.org"
-        )
-    )
-    if admin is None:
-        admin = Cuenta(
-            id=admin_id,
-            identificador_login="admin.nacional.demo@rescuesync.org",
-            password_hash=generar_password_hash("admin-nacional-demo123"),
-            rol=RolNacional.ADMIN_NACIONAL,
-        )
-        session.add(admin)
-        session.flush()
-    if (
-        admin.id != admin_id
-        or admin.rol != RolNacional.ADMIN_NACIONAL
-        or not admin.activa
-    ):
-        raise ValueError(
-            "La identidad administrativa demo no coincide o está inactiva."
-        )
+    admin, _ = asegurar_admin_demo(session)
+    admin_id = admin.id
     revisiones: dict[str, UUID] = {}
     for codigo, alcances in (
         (
