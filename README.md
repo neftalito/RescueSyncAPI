@@ -187,7 +187,38 @@ docker run --rm -p 9000:9000 \
 ```
 
 La imagen usa un usuario no privilegiado, escucha en `0.0.0.0` y respeta
-`PORT`. No contiene configuración específica de ningún proveedor.
+`PORT`. Incluye un health check HTTP sobre `/api/v1/health` que usa ese mismo
+puerto. No contiene configuración específica de ningún proveedor.
+
+Para construir y verificar la imagen de producción de T38:
+
+```bash
+bash scripts/verificar-produccion.sh
+```
+
+El script usa `compose.production-test.yaml` con un proyecto independiente,
+PostgreSQL 16 descartable en memoria y sin puertos publicados. Aplica las
+migraciones en un contenedor separado y arranca la API en `APP_ENV=production`,
+con `PORT=9017`, sin montar el código del host. Espera el health check de la
+imagen y consulta liveness, readiness, Swagger y OpenAPI desde otro contenedor,
+para comprobar que la API acepta conexiones por la red Docker. También verifica
+Python 3.13, UID distinto de cero, esquema migrado hasta head y ausencia de
+dependencias de pruebas y archivos de entorno en la imagen. Al finalizar elimina
+los contenedores, la red y la etiqueta de imagen creados para la prueba.
+
+El check `quality` ejecuta esta misma prueba en cada PR. La verificación de T38
+es independiente de Bonita; el despliegue cloud corresponde a T39.
+`DATABASE_URL` y `JWT_SECRET` del archivo de prueba son valores descartables.
+En producción se inyectan desde el entorno; las migraciones se ejecutan por
+separado antes de iniciar las réplicas, usando la misma imagen:
+
+```bash
+docker run --rm \
+  -e APP_ENV=production \
+  -e JWT_SECRET="$JWT_SECRET" \
+  -e DATABASE_URL="$DATABASE_URL" \
+  rescuesync-national-api alembic upgrade head
+```
 
 ## Despliegue en Render
 
