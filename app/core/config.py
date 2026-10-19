@@ -1,10 +1,12 @@
 from functools import lru_cache
-from typing import Literal
-from urllib.parse import urlsplit
+from secrets import token_urlsafe
+from typing import Literal, Self
 
-from pydantic import Field, SecretStr, field_validator
+from pydantic import Field, PrivateAttr, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from sqlalchemy import URL
+
+from app.core.cors import normalizar_origenes
 
 
 class Settings(BaseSettings):
@@ -33,6 +35,38 @@ class Settings(BaseSettings):
     postgres_db: str = "rescuesync_nacional"
     postgres_user: str = "rescuesync_nacional"
     postgres_password: SecretStr = SecretStr("rescuesync_nacional_dev")
+    jwt_secret: SecretStr | None = None
+    jwt_issuer: str = "rescuesync-nacional"
+    jwt_audience: str = "rescuesync"
+    jwt_access_seconds: int = Field(default=1800, ge=60, le=3600)
+    operacion_lock_timeout_ms: int = Field(default=5000, ge=1, le=60_000)
+    operacion_statement_timeout_ms: int = Field(default=15000, ge=1, le=120_000)
+    _jwt_secret_desarrollo: str = PrivateAttr(default_factory=lambda: token_urlsafe(48))
+
+    @field_validator("jwt_secret", mode="before")
+    @classmethod
+    def normalizar_jwt_secret(cls, valor: object) -> object:
+        return None if valor == "" else valor
+
+    @model_validator(mode="after")
+    def validar_jwt_secret(self) -> Self:
+        """Exige una clave propia en producción y suficiente entropía configurada."""
+
+        if self.app_env == "production" and self.jwt_secret is None:
+            raise ValueError("JWT_SECRET es obligatorio en producción")
+        if self.jwt_secret is not None and len(self.jwt_secret.get_secret_value()) < 32:
+            raise ValueError("JWT_SECRET debe tener al menos 32 caracteres")
+        return self
+
+    @property
+    def clave_jwt(self) -> str:
+        """Usa una clave efímera sólo fuera de producción si no se configura."""
+
+        return (
+            self.jwt_secret.get_secret_value()
+            if self.jwt_secret is not None
+            else self._jwt_secret_desarrollo
+        )
 
     @field_validator("database_url_override", mode="before")
     @classmethod
@@ -54,23 +88,8 @@ class Settings(BaseSettings):
     @field_validator("cors_origins")
     @classmethod
     def validar_cors_origins(cls, values: list[str]) -> list[str]:
-        """Exige orígenes HTTP explícitos y elimina barras finales duplicadas."""
-
-        normalized: list[str] = []
-        for value in values:
-            parsed = urlsplit(value)
-            if (
-                parsed.scheme not in {"http", "https"}
-                or not parsed.netloc
-                or parsed.path not in {"", "/"}
-                or parsed.query
-                or parsed.fragment
-            ):
-                raise ValueError(f"origen CORS inválido: {value}")
-            origin = value.rstrip("/")
-            if origin not in normalized:
-                normalized.append(origin)
-        return normalized
+        """Valida la lista explícita recibida desde CORS_ORIGINS."""
+        return normalizar_origenes(values)
 
     @property
     def sqlalchemy_database_uri(self) -> str:

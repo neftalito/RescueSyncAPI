@@ -1,0 +1,126 @@
+%%{init: {"er": {"nodeSpacing": 80, "rankSpacing": 100}}}%%
+erDiagram
+    direction LR
+    SISTEMA_ORIGEN o|--o{ CUENTA : autoriza
+    ONG o|--o{ CUENTA : representa
+    SISTEMA_ORIGEN ||--o{ PROYECTO : registra
+    SISTEMA_ORIGEN ||--o{ OPERACION_IDEMPOTENTE : delimita_claves
+    CUENTA ||--o{ OPERACION_IDEMPOTENTE : ejecuta
+    PROYECTO ||--o{ COMPROMISO : contiene
+    PROYECTO o|--o{ OPERACION_IDEMPOTENTE : correlaciona
+    OPERACION_IDEMPOTENTE ||--o{ COMPROMISO : crea
+    ONG ||--o{ COMPROMISO : asume
+    ONG ||--o{ RECURSO : posee
+    ONG ||--o{ ONG_CERTIFICACION : acredita
+    CERTIFICACION ||--o{ ONG_CERTIFICACION : se_otorga
+    CERTIFICACION ||--|{ CERTIFICACION_CAPACIDAD : define_alcance
+    CAPACIDAD ||--o{ CERTIFICACION_CAPACIDAD : habilita
+    CAPACIDAD ||--o{ RECURSO : clasifica
+    UNIDAD ||--o{ CAPACIDAD : cuantifica
+    COMPROMISO ||--|{ COMPROMISO_ITEM : reserva
+    RECURSO ||--o{ COMPROMISO_ITEM : es_comprometido
+
+    SISTEMA_ORIGEN {
+        uuid id PK
+        varchar codigo UK
+        boolean activo
+    }
+    CUENTA {
+        uuid id PK
+        uuid ong_id FK "nullable"
+        uuid sistema_origen_id FK "nullable"
+        varchar identificador_login UK
+        varchar password_hash
+        rol_nacional rol
+        boolean activa
+    }
+    ONG {
+        uuid id PK
+        varchar identificador_institucional UK
+        varchar nombre
+        estado_ong estado
+        timestamptz habilitada_en "nullable"
+    }
+    UNIDAD {
+        varchar codigo PK
+        varchar nombre
+    }
+    CAPACIDAD {
+        uuid id PK
+        varchar codigo UK
+        tipo_recurso tipo
+        varchar unidad FK
+        boolean admite_fracciones
+        boolean activa
+    }
+    CERTIFICACION {
+        uuid id PK
+        varchar codigo
+        int revision
+        varchar nombre
+        boolean activa
+    }
+    CERTIFICACION_CAPACIDAD {
+        uuid certificacion_id PK,FK
+        uuid capacidad_id PK,FK
+        nivel_riesgo riesgo_maximo
+    }
+    ONG_CERTIFICACION {
+        uuid id PK
+        uuid ong_id FK
+        uuid certificacion_id FK
+        varchar emisor
+        varchar numero_credencial
+        estado_acreditacion estado
+        timestamptz vigente_desde
+        timestamptz vigente_hasta
+    }
+    RECURSO {
+        uuid id PK
+        uuid ong_id FK
+        uuid capacidad_id FK
+        varchar codigo_interno
+        numeric cantidad_total
+        boolean activo
+    }
+    PROYECTO {
+        uuid id PK
+        uuid sistema_origen_id FK
+        varchar emergencia_ref
+        varchar case_ref
+        estado_proyecto estado
+        timestamptz cerrado_en "nullable"
+    }
+    COMPROMISO {
+        uuid id PK
+        uuid proyecto_id FK
+        uuid ong_id FK
+        uuid operacion_creacion_id FK
+        varchar adjudicacion_ref
+        estado_compromiso estado
+        timestamptz liberado_en "nullable"
+    }
+    COMPROMISO_ITEM {
+        uuid id PK
+        uuid compromiso_id FK
+        uuid recurso_id FK
+        uuid ong_id FK "FKs compuestas"
+        varchar convocatoria_ref
+        varchar oferta_ref
+        int oferta_version
+        varchar lote_ref
+        varchar aporte_ref
+        nivel_riesgo riesgo_requerido
+        numeric cantidad
+    }
+    OPERACION_IDEMPOTENTE {
+        uuid id PK
+        uuid sistema_origen_id FK
+        uuid cuenta_id FK
+        uuid proyecto_id FK "nullable al reclamar"
+        tipo_operacion operacion
+        varchar clave
+        char huella_sha256
+        smallint codigo_http
+        jsonb respuesta_minima
+    }

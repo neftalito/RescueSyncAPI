@@ -1,0 +1,59 @@
+{
+  "contratoVersion": 2,
+  "sistemaOrigen": "instalacion-prueba",
+  "idEmergencia": 101,
+  "caseId": "100",
+  "convocatoriaId": 20,
+  "numero": 1,
+  "gravedad": "ALTA",
+  "cerradaEn": "2026-10-14T18:00:00Z",
+  "lotesCubiertos": true,
+  "referenciasNacionalesCompletas": true,
+  "motivosIntegracion": [],
+  "lotes": [{
+    "loteId": 40,
+    "tipoNecesidad": "Paramédicos",
+    "cantidadPublicada": 6,
+    "cantidadOfrecida": 6,
+    "cantidadPublicadaExacta": "6.000",
+    "cantidadOfrecidaExacta": "6.000",
+    "unidad": "persona",
+    "cubierto": true,
+    "capacidadNacionalId": "00000000-0000-4000-8000-000000000102",
+    "codigoCapacidad": "ATENCION",
+    "riesgoRequerido": "MEDIA"
+  }],
+  "ofertas": [{
+    "ofertaId": 30,
+    "ongId": 1,
+    "ongNacionalId": "00000000-0000-4000-8000-000000000101",
+    "estado": "PRESENTADA",
+    "version": 1,
+    "presentadaEn": "2026-10-14T17:00:00Z",
+    "referenciasNacionalesCompletas": true,
+    "motivosIntegracion": [],
+    "participantes": [{
+      "ongId": 1,
+      "ongNacionalId": "00000000-0000-4000-8000-000000000101",
+      "rol": "LIDER"
+    }],
+    "items": [{
+      "itemId": 41,
+      "loteId": 40,
+      "tipo": "PERSONAL",
+      "descripcion": "Paramédicos sede 1",
+      "cantidadOfrecida": 6,
+      "cantidadOfrecidaExacta": "6.000",
+      "unidad": "persona",
+      "aportes": [{
+        "aporteId": 50,
+        "ongId": 1,
+        "ongNacionalId": "00000000-0000-4000-8000-000000000101",
+        "recursoNacionalId": "00000000-0000-4000-8000-000000000103",
+        "capacidadNacionalId": "00000000-0000-4000-8000-000000000102",
+        "cantidad": "6.000",
+        "unidad": "persona"
+      }]
+    }]
+  }]
+}

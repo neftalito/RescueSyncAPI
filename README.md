@@ -4,14 +4,40 @@ Servicio independiente para el Sistema Nacional de Gestión de Recursos y Riesgo
 de RescueSync. Esta base cubre el setup y la dockerización de la Entrega 3 y deja
 preparados PostgreSQL, Alembic, OpenAPI y los controles de calidad.
 
-Este corte todavía no implementa autenticación JWT ni endpoints de cuentas,
-ONGs, certificaciones, inventario, validación, compromiso o liberación. La API
-nacional tampoco almacenará borradores u ofertas preliminares: las ofertas sólo
-se recibirán transitoriamente para su futura validación.
+El esquema nacional incluye 13 tablas de negocio y migraciones Alembic.
+Este corte implementa login JWT, onboarding de ONGs, consulta de cuenta y
+capacidades, alta/consulta/edición de inventario por ONG y consulta de
+certificaciones, acreditaciones y competencia vigente. La carga oficial usa
+comandos administrativos autenticados. Validación de ofertas, compromiso y
+liberación siguen pendientes como servicios HTTP. La API nacional no almacena
+borradores ni ofertas preliminares.
+
+El recorrido de inventario y los datos demo se describen en
+[Inventario nacional](./docs/inventario.md).
+Para medir consultas con miles de registros, el
+[seed masivo configurable](./docs/seed-masivo.md) genera por defecto 1.000 ONGs y
+20.000 recursos, conserva los datos existentes y comparte referencias con el
+seed masivo de RescueSync.
+Demo y masivo son modalidades alternativas: cada uno funciona por sí solo y crea
+el mismo administrador nacional, `admin.nacional.demo@rescuesync.org` con contraseña
+inicial `admin-nacional-demo123`. El catálogo de RescueSync conserva las mismas
+credenciales de entorno en cualquiera de las dos modalidades.
+La creación administrativa de capacidades y el catálogo base de 56 capacidades,
+31 unidades y cuatro tipos de recurso, instalado por migraciones tanto en
+desarrollo como en producción, se describen en
+[Catálogo de capacidades y unidades](./docs/catalogo-capacidades.md).
+El directorio institucional y sus filtros se describen en
+[ONGs habilitadas](./docs/ongs-habilitadas.md).
+La consulta y carga oficial se describen en
+[Certificaciones nacionales](./docs/certificaciones.md), incluidos los cambios
+pendientes de Bonita y el orden de integración con RescueSync.
 
 Las reglas de desarrollo están en [AGENTS.md](./AGENTS.md). La secuencia completa,
 los contratos propuestos y la trazabilidad T22–T42 se describen en el
 [plan de implementación de la Entrega 3](./docs/PLAN_IMPLEMENTACION_ENTREGA_3.md).
+La propuesta del [modelo de base de datos nacional](./docs/modelo-base-datos-nacional.md)
+explica las entidades, restricciones y decisiones, con un diagrama Mermaid y
+su [versión PNG](./docs/generated/modelo-base-datos-nacional.png).
 
 ## Requisitos
 
@@ -50,6 +76,18 @@ docker compose down
 
 ## Arquitectura
 
+Los agregados informativos por capacidad y ONG se describen en
+[Disponibilidad global](./docs/disponibilidad-global.md).
+
+La evaluación transitoria del snapshot T34, perfiles por aporte y sus límites
+se documentan en [Validación de competencias](./docs/validaciones.md).
+
+Las adjudicaciones atómicas, locking e idempotencia se describen en
+[Compromisos nacionales](./docs/compromisos.md).
+
+La devolución independiente por ONG y el cierre sin reservas activas están en
+[Liberación y cierre](./docs/liberacion-y-cierre.md).
+
 ```text
 app/
 ├── api/routes/    # Adaptadores HTTP pequeños
@@ -85,6 +123,10 @@ API y migraciones reciben la misma `DATABASE_URL`, también al usar Compose.
 | `POSTGRES_USER` | `rescuesync_nacional` | Usuario local |
 | `POSTGRES_PASSWORD` | sólo desarrollo | Contraseña local; debe ser secreta en cloud |
 | `CORS_ORIGINS` | `["http://localhost:5173"]` | Lista JSON de orígenes HTTP permitidos |
+| `JWT_SECRET` | vacío, clave efímera | Clave de al menos 32 caracteres, obligatoria en producción |
+| `JWT_ISSUER` | `rescuesync-nacional` | Emisor validado del JWT |
+| `JWT_AUDIENCE` | `rescuesync` | Audiencia validada del JWT |
+| `JWT_ACCESS_SECONDS` | `1800` | Vigencia del acceso, entre 60 y 3600 segundos |
 
 Las URLs `postgres://` y `postgresql://` se normalizan automáticamente al driver
 `postgresql+psycopg://`, por lo que son compatibles con Render, Fly.io y otros
@@ -92,18 +134,24 @@ proveedores que entregan `DATABASE_URL`.
 
 ## Migraciones
 
-Compose ejecuta `alembic upgrade head` antes de iniciar la API. Todavía no existe
-una revisión porque este corte no define tablas de negocio.
+Compose ejecuta `alembic upgrade head` en el servicio separado `migrate`, antes
+de iniciar la API. La revisión `20261004_0001` crea las 12 tablas nacionales,
+enums, índices, restricciones y triggers de integridad. Sus fuentes están en
+`app/db/models/` y `alembic/versions/`; los campos y decisiones se describen en el
+[modelo nacional](./docs/modelo-base-datos-nacional.md).
 
-Al incorporar el modelo nacional:
+Para aplicar y comprobar el esquema:
 
 ```bash
-docker compose run --rm api alembic revision --autogenerate -m "crear esquema nacional"
 docker compose run --rm api alembic upgrade head
+docker compose run --rm api alembic check
 ```
 
-Cada revisión debe incluir `upgrade()` y `downgrade()` viables y ser revisada
-antes de integrarse.
+Cada cambio posterior crea una revisión nueva con `upgrade()` y `downgrade()`
+viables; no se reescribe una revisión aplicada. El SQL de triggers pertenece al
+snapshot de su revisión, no a los modelos actuales. El downgrade inicial elimina
+tablas e historial y debe probarse sólo en bases descartables. En cloud, migrar
+como paso previo separado del despliegue.
 
 ## Calidad y pruebas
 
@@ -112,13 +160,18 @@ Con las imágenes construidas:
 ```bash
 docker compose run --rm api ruff check .
 docker compose run --rm api ruff format --check .
-docker compose run --rm api pytest --cov=app --cov-report=term-missing
+docker compose run --rm -e APP_ENV=test api pytest --cov=app --cov-report=term-missing
 ```
 
 El workflow `quality` ejecuta las mismas verificaciones y aplica las migraciones
 contra PostgreSQL 16 real en cada pull request. Las pruebas incluyen una consulta
 real de readiness; requieren una base accesible, que Compose inicia como
 dependencia al ejecutar los comandos anteriores.
+Las pruebas del esquema crean schemas temporales con nombres aleatorios,
+revierten sus datos y comprueban upgrade/downgrade/upgrade y ausencia de drift.
+También verifican las restricciones diferidas al confirmar, el historial y
+unicidad idempotente con conexiones independientes. Requieren `APP_ENV=test`
+y permisos para crear schemas en una base de pruebas.
 
 ## Imagen de producción
 
@@ -127,22 +180,59 @@ docker build --target production -t rescuesync-national-api .
 docker run --rm -p 9000:9000 \
   -e PORT=9000 \
   -e APP_ENV=production \
+  -e JWT_SECRET="$JWT_SECRET" \
   -e DATABASE_URL='postgresql://usuario:clave@host:5432/base' \
   -e 'CORS_ORIGINS=[]' \
   rescuesync-national-api
 ```
 
 La imagen usa un usuario no privilegiado, escucha en `0.0.0.0` y respeta
-`PORT`. No contiene configuración específica de ningún proveedor.
+`PORT`. Incluye un health check HTTP sobre `/api/v1/health` que usa ese mismo
+puerto. No contiene configuración específica de ningún proveedor.
+
+Para construir y verificar la imagen de producción de T38:
+
+```bash
+bash scripts/verificar-produccion.sh
+```
+
+El script usa `compose.production-test.yaml` con un proyecto independiente,
+PostgreSQL 16 descartable en memoria y sin puertos publicados. Aplica las
+migraciones en un contenedor separado y arranca la API en `APP_ENV=production`,
+con `PORT=9017`, sin montar el código del host. Espera el health check de la
+imagen y consulta liveness, readiness, Swagger y OpenAPI desde otro contenedor,
+para comprobar que la API acepta conexiones por la red Docker. También verifica
+Python 3.13, UID distinto de cero, esquema migrado hasta head y ausencia de
+dependencias de pruebas y archivos de entorno en la imagen. Al finalizar elimina
+los contenedores, la red y la etiqueta de imagen creados para la prueba.
+
+El check `quality` ejecuta esta misma prueba en cada PR. La verificación de T38
+es independiente de Bonita; el despliegue cloud corresponde a T39.
+`DATABASE_URL` y `JWT_SECRET` del archivo de prueba son valores descartables.
+En producción se inyectan desde el entorno; las migraciones se ejecutan por
+separado antes de iniciar las réplicas, usando la misma imagen:
+
+```bash
+docker run --rm \
+  -e APP_ENV=production \
+  -e JWT_SECRET="$JWT_SECRET" \
+  -e DATABASE_URL="$DATABASE_URL" \
+  rescuesync-national-api alembic upgrade head
+```
 
 ## Despliegue en Render
+
+Configurar `CORS_ORIGINS` con la lista JSON de dominios de las apps web que
+accedan desde un navegador. La [guía de CORS y nuevos dominios](docs/cors.md)
+explica la edición del `.env`, la configuración en cloud, el redeploy y la
+verificación del preflight. La integración servidor a servidor no necesita CORS.
 
 1. Crear PostgreSQL y un Web Service en la misma región.
 2. Conectar este repositorio y seleccionar el runtime Docker.
 3. Configurar `APP_ENV=production`, la URL interna como `DATABASE_URL` y los
    secretos futuros, incluido `JWT_SECRET`, desde el panel.
 4. Usar `/api/v1/health` como health check.
-5. Cuando existan revisiones, ejecutar `alembic upgrade head` como tarea previa
+5. Ejecutar `alembic upgrade head` como tarea previa
    al despliegue; no ejecutarla en cada réplica al arrancar.
 
 Render define `PORT` automáticamente y ejecuta el `CMD` del Dockerfile.
@@ -168,6 +258,17 @@ requieren cambios en Python o en el Dockerfile.
 
 ## Próximo corte
 
-El siguiente incremento debe definir mediante una migración el modelo de cuentas,
-ONGs, certificaciones, recursos, disponibilidad y compromisos. Luego incorporará
-`/login` con JWT y la dependencia Bearer para los endpoints protegidos.
+El siguiente incremento integrará estos servicios con Bonita y la aplicación
+local mediante T35–T37. ONGs habilitadas, disponibilidad global, validación
+transitoria, compromiso atómico, liberación por ONG y cierre ya están disponibles.
+El catálogo y las acreditaciones ya aportan reglas de competencia reutilizables.
+Las restricciones de esquema no reemplazan autorización, revalidación de stock
+ni locking.
+
+El aprovisionamiento, rotación y revocación de cuentas técnicas independientes por
+ONG se describe en [Acceso automático](docs/acceso-automatico-ong.md).
+
+Las ONG creadas desde RescueSync se registran con cuenta técnica e identificador
+institucional automáticos mediante `PUT /api/v1/integraciones/ongs/{referenciaLocal}`.
+El correo de contacto es opcional. Configurar el emisor una vez siguiendo
+[Alta automática por ONG](docs/acceso-automatico-ong.md#alta-automática-desde-rescuesync).

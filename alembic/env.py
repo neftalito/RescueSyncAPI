@@ -1,7 +1,7 @@
 from logging.config import fileConfig
 
 from alembic import context
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import Connection, engine_from_config, pool
 
 import app.db.models  # noqa: F401
 from app.core.config import get_settings
@@ -35,8 +35,29 @@ def run_migrations_offline() -> None:
         context.run_migrations()
 
 
+def migrar_con_conexion(connection: Connection) -> None:
+    """Usa también conexiones explícitas para verificar esquemas aislados."""
+
+    context.configure(
+        connection=connection,
+        target_metadata=target_metadata,
+        compare_type=True,
+        compare_server_default=True,
+    )
+
+    with context.begin_transaction():
+        context.run_migrations()
+
+
 def run_migrations_online() -> None:
     """Ejecuta migraciones dentro de una conexión transaccional."""
+
+    supplied_connection = config.attributes.get("connection")
+    if supplied_connection is not None:
+        if not isinstance(supplied_connection, Connection):
+            raise TypeError("La conexión Alembic debe ser SQLAlchemy Connection")
+        migrar_con_conexion(supplied_connection)
+        return
 
     connectable = engine_from_config(
         config.get_section(config.config_ini_section, {}),
@@ -45,14 +66,7 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata,
-            compare_type=True,
-        )
-
-        with context.begin_transaction():
-            context.run_migrations()
+        migrar_con_conexion(connection)
 
 
 if context.is_offline_mode():

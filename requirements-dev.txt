@@ -2,3 +2,4 @@
 pytest>=8.4,<9
 pytest-cov>=7,<8
 ruff>=0.13,<1
+Faker>=40.43,<41

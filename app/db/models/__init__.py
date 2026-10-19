@@ -1,1 +1,55 @@
-"""Modelos nacionales; se incorporarán mediante migraciones posteriores."""
+"""Registra toda la metadata nacional al importarse desde aplicación o Alembic."""
+
+from app.db.models.aprovisionamiento import AprovisionamientoOng
+from app.db.models.catalogos import (
+    Capacidad,
+    Certificacion,
+    CertificacionCapacidad,
+    OngCertificacion,
+    Unidad,
+)
+from app.db.models.compromisos import (
+    Compromiso,
+    CompromisoItem,
+    OperacionIdempotente,
+    Proyecto,
+)
+from app.db.models.enums import (
+    EstadoAcreditacion,
+    EstadoCompromiso,
+    EstadoOng,
+    EstadoProyecto,
+    NivelRiesgo,
+    PropositoCuenta,
+    RolNacional,
+    TipoOperacion,
+    TipoRecurso,
+)
+from app.db.models.identidad import Cuenta, Ong, SistemaOrigen
+from app.db.models.recursos import Recurso
+
+__all__ = [
+    "AprovisionamientoOng",
+    "Capacidad",
+    "Certificacion",
+    "CertificacionCapacidad",
+    "Compromiso",
+    "CompromisoItem",
+    "Cuenta",
+    "EstadoAcreditacion",
+    "EstadoCompromiso",
+    "EstadoOng",
+    "EstadoProyecto",
+    "NivelRiesgo",
+    "Ong",
+    "OngCertificacion",
+    "OperacionIdempotente",
+    "Proyecto",
+    "PropositoCuenta",
+    "Recurso",
+    "RolNacional",
+    "SistemaOrigen",
+    "TipoOperacion",
+    "TipoRecurso",
+    "Unidad",
+]
