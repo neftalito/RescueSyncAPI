@@ -65,3 +65,7 @@ jobs:
 
       - name: Ejecutar pruebas
         run: pytest --cov=app --cov-report=term-missing
+
+      - name: Verificar imagen de producción
+        timeout-minutes: 10
+        run: bash scripts/verificar-produccion.sh

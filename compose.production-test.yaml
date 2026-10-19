@@ -1,0 +1,46 @@
+# Entorno descartable de T38; se ejecuta mediante scripts/verificar-produccion.sh.
+x-production: &production
+  image: rescuesync-national-api-t38:${T38_IMAGE_TAG:-local}
+  build:
+    context: .
+    target: production
+  environment:
+    APP_ENV: production
+    PORT: 9017
+    # Credenciales exclusivas de esta base efímera, sin puertos publicados.
+    JWT_SECRET: t38-clave-descartable-solo-para-pruebas-de-produccion
+    DATABASE_URL: postgresql://t38:t38-descartable@db:5432/t38
+    CORS_ORIGINS: '[]'
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: t38
+      POSTGRES_USER: t38
+      POSTGRES_PASSWORD: t38-descartable
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U t38 -d t38']
+      interval: 1s
+      timeout: 5s
+      retries: 30
+
+  migrate:
+    <<: *production
+    command: [alembic, upgrade, head]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  api:
+    <<: *production
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    # Conserva el comando HEALTHCHECK de la imagen y acorta sólo el intervalo.
+    healthcheck:
+      interval: 1s
+      start_period: 1s
+      retries: 30
