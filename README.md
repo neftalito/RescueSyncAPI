@@ -241,6 +241,37 @@ aplicar las migraciones como un paso separado contra la base antes de publicar
 una versión que dependa del esquema nuevo. Ver la
 [documentación de despliegues](https://render.com/docs/deploys).
 
+### Bootstrap automático de la identidad INTEGRACION en Render
+
+La imagen Docker de producción ejecuta
+`python -m app.scripts.bootstrap_integracion_automatica` **antes** de iniciar
+FastAPI. Al arrancar cada nueva instancia (incluidos los despliegues de Render),
+crea la cuenta INTEGRACION si no existe; de lo contrario valida su rol,
+sistema de origen, estado activo y contraseña sin modificar sus datos.
+La ejecución es transaccional y se serializa mediante advisory lock de PostgreSQL.
+
+En Render → Web Service → Environment, configurar:
+
+```dotenv
+INTEGRACION_AUTO_BOOTSTRAP=true
+INTEGRACION_LOGIN=integracion-rescuesync
+INTEGRACION_SISTEMA_ORIGEN=rescuesync-local
+INTEGRACION_PASSWORD=<secreto-aleatorio-de-al-menos-12-caracteres>
+```
+
+Compartir **el mismo secreto** con RescueSync mediante su variable local
+`NACIONAL_INTEGRACION_PASSWORD`; nunca versionarlo ni exponerlo al navegador.
+El inicio falla de forma explícita si la cuenta existe con otra contraseña, rol,
+sistema de origen o se encuentra inactiva. No se rotan credenciales al desplegar.
+El script no ejecuta migraciones; `alembic upgrade head` debe haberse aplicado
+antes del primer arranque.
+
+El bootstrap está desactivado por defecto: los despliegues que no requieran
+cuenta de integración siguen funcionando sin configurar estos valores.
+Render usa el `CMD` del Dockerfile de forma predeterminada. Si el Web Service
+tiene un «Docker Command» personalizado, se debe quitar ese override o incluir
+allí el comando de bootstrap antes de iniciar FastAPI.
+
 ## Portabilidad a Fly.io
 
 El código y la imagen no requieren cambios. Una migración futura sólo necesita
