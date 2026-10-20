@@ -50,9 +50,7 @@ def asegurar_integracion(
 
     login = datos.login.strip().lower()
     existente = session.scalar(
-        select(Cuenta)
-        .where(Cuenta.identificador_login == login)
-        .with_for_update()
+        select(Cuenta).where(Cuenta.identificador_login == login).with_for_update()
     )
     if existente is None:
         crear_integracion(session, datos, codigo_origen)

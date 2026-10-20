@@ -53,9 +53,7 @@ def test_configuracion_usa_login_y_origen_por_defecto(
 
 def test_aprovisionamiento_es_idempotente(session: Session) -> None:
     assert asegurar_integracion(session, _datos(), ORIGEN)
-    cuenta = session.scalar(
-        select(Cuenta).where(Cuenta.identificador_login == LOGIN)
-    )
+    cuenta = session.scalar(select(Cuenta).where(Cuenta.identificador_login == LOGIN))
     assert cuenta is not None and cuenta.rol == RolNacional.INTEGRACION
     origen = session.get(SistemaOrigen, cuenta.sistema_origen_id)
     assert origen is not None and origen.codigo == ORIGEN
@@ -67,9 +65,7 @@ def test_aprovisionamiento_es_idempotente(session: Session) -> None:
 
 def test_no_rota_contrasena_que_no_coincide(session: Session) -> None:
     asegurar_integracion(session, _datos(), ORIGEN)
-    cuenta = session.scalar(
-        select(Cuenta).where(Cuenta.identificador_login == LOGIN)
-    )
+    cuenta = session.scalar(select(Cuenta).where(Cuenta.identificador_login == LOGIN))
     assert cuenta is not None
     hash_anterior = cuenta.password_hash
     with pytest.raises(ValueError, match="no coincide"):
@@ -79,9 +75,7 @@ def test_no_rota_contrasena_que_no_coincide(session: Session) -> None:
 
 def test_rechaza_cuenta_inactiva(session: Session) -> None:
     asegurar_integracion(session, _datos(), ORIGEN)
-    cuenta = session.scalar(
-        select(Cuenta).where(Cuenta.identificador_login == LOGIN)
-    )
+    cuenta = session.scalar(select(Cuenta).where(Cuenta.identificador_login == LOGIN))
     assert cuenta is not None
     cuenta.activa = False
     session.flush()
