@@ -1,13 +1,15 @@
 """Cierre nacional protegido por emisor, caso e idempotencia."""
 
 import logging
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, Body, HTTPException, Path, Response
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.api import ejemplos
 from app.api.dependencies import CuentaActual, Db, IdempotencyKey
-from app.schemas.inventario import ErrorResponse
+from app.api.documentacion import respuestas
 from app.schemas.proyectos import ConfirmacionCierre, FinalizacionRequest
 from app.services.emisores import EmisorDenegadoError
 from app.services.operaciones import ErrorOperacion
@@ -22,14 +24,27 @@ logger = logging.getLogger(__name__)
     response_model=ConfirmacionCierre,
     summary="Cerrar un proyecto únicamente sin compromisos activos",
     description=(
-        "Comparte el lock de proyecto con el compromiso transaccional. "
-        "No libera recursos ni modifica el cierre confirmado al repetir."
+        "Acceso: INTEGRACION del emisor dueño o ADMIN_NACIONAL; cuentas ONG "
+        "reciben 403. Exige caseId del proyecto e Idempotency-Key. Toma el "
+        "mismo lock de proyecto que comprometer; con compromisos activos "
+        "devuelve 409 sin liberar recursos. Sin activos pasa a TERMINADO, "
+        "estado terminal que impide nuevas reservas. Los reintentos conservan"
+        " el primer cierre; misma clave con otro destino/caso produce 409. "
+        "Tras timeout, reintentar la misma clave."
     ),
-    responses={c: {"model": ErrorResponse} for c in (401, 403, 404, 409, 422, 503)},
+    responses=respuestas(
+        401, 403, 404, 409, 422, 503, ejemplo=ejemplos.CIERRE, exito=200
+    ),
 )
 def cerrar(
-    proyecto_id: UUID,
-    datos: FinalizacionRequest,
+    proyecto_id: Annotated[
+        UUID,
+        Path(
+            description="UUID nacional del proyecto devuelto al comprometer.",
+            examples=[ejemplos.PROYECTO_ID],
+        ),
+    ],
+    datos: Annotated[FinalizacionRequest, Body(examples=[ejemplos.FINALIZACION])],
     clave: IdempotencyKey,
     session: Db,
     cuenta: CuentaActual,

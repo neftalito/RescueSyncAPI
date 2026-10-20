@@ -74,6 +74,23 @@ Para detener el entorno sin borrar los datos:
 docker compose down
 ```
 
+## Documentación OpenAPI (T40)
+
+[Guía de autenticación, permisos, errores y flujo distribuido](./docs/documentacion-openapi.md).
+Incluye la matriz de acceso, ejemplos para Bonita/backend local y comandos para
+regenerar la entrega sin iniciar servidor ni conectar a PostgreSQL.
+
+- [OpenAPI JSON exportado](./docs/generated/openapi.json).
+- [Referencia PDF](./docs/generated/documentacion-api.pdf).
+- [Validación transitoria](./docs/validaciones.md),
+  [compromiso, locking e idempotencia](./docs/compromisos.md) y
+  [liberación por ONG y cierre](./docs/liberacion-y-cierre.md).
+
+```bash
+docker compose run --rm --no-deps --user "$(id -u):$(id -g)" \
+  -e APP_ENV=test api python docs/scripts/exportar_openapi_pdf.py
+```
+
 ## Arquitectura
 
 Los agregados informativos por capacidad y ONG se describen en

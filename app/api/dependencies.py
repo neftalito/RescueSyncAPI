@@ -21,10 +21,33 @@ from app.db.session import get_db, get_db_evaluacion
 
 Db = Annotated[Session, Depends(get_db)]
 DbEvaluacion = Annotated[Session, Depends(get_db_evaluacion)]
-_bearer = HTTPBearer(auto_error=False)
+_bearer = HTTPBearer(
+    auto_error=False,
+    bearerFormat="JWT",
+    description=(
+        "Obtener access_token con POST /api/v1/login (JSON identificadorLogin y "
+        "password). Enviar Authorization: Bearer <access_token>. expires_in indica "
+        "la duración en segundos; al expirar, autenticar de nuevo. No hay refresh "
+        "tokens. Se validan firma HS256, exp, issuer y audience y se recargan "
+        "cuenta, ONG y emisor vigentes; los permisos no se toman de roles del JWT. "
+        "BONITA_CALLBACK_TOKEN es una credencial local distinta."
+    ),
+)
 Credencial = Annotated[HTTPAuthorizationCredentials | None, Depends(_bearer)]
 IdempotencyKey = Annotated[
-    str, Header(alias="Idempotency-Key", min_length=1, max_length=160, pattern=r"\S")
+    str,
+    Header(
+        alias="Idempotency-Key",
+        min_length=1,
+        max_length=160,
+        pattern=r"\S",
+        description=(
+            "Clave estable por emisor y tipo de operación. Misma clave/contenido "
+            "reproduce la confirmación; contenido o destino distintos dan 409. "
+            "Tras timeout o 503, reintentar con esta misma clave."
+        ),
+        examples=["seleccion-101-1"],
+    ),
 ]
 
 

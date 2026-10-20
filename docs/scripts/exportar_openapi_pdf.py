@@ -1,16 +1,17 @@
 #!/usr/bin/env python3
-"""Exporta OpenAPI con un diseño inspirado en Swagger UI.
+"""Exporta OpenAPI en JSON y PDF con un diseño inspirado en Swagger UI.
 
 Desde cualquier carpeta, sin iniciar el servidor ni conectar la base de datos:
     python /ruta/a/RescueSyncAPI/docs/scripts/exportar_openapi_pdf.py
 
-Salida predeterminada: RescueSyncAPI/docs/generated/documentacion-api.pdf.
-Requiere Python 3.13 y las dependencias de la API, además de ReportLab:
-    python -m pip install -r requirements.txt reportlab
+Salidas: docs/generated/documentacion-api.pdf y docs/generated/openapi.json.
+Requiere Python 3.13 y las dependencias de desarrollo:
+    python -m pip install -r requirements-dev.txt
 
 Se conservan las opciones --url, --archivo y --salida para otras especificaciones:
     python docs/scripts/exportar_openapi_pdf.py --url http://localhost:8001/openapi.json
     python docs/scripts/exportar_openapi_pdf.py --archivo openapi.json
+    python docs/scripts/exportar_openapi_pdf.py --solo-json
 """
 
 from __future__ import annotations
@@ -58,6 +59,7 @@ type ObjetoJSON = dict[str, ValorJSON]
 
 RAIZ_PROYECTO = Path(__file__).resolve().parents[2]
 SALIDA_PREDETERMINADA = RAIZ_PROYECTO / "docs/generated/documentacion-api.pdf"
+JSON_PREDETERMINADO = RAIZ_PROYECTO / "docs/generated/openapi.json"
 # Colores de los bloques de operaciones en Swagger UI.
 COLORES_HTTP = {
     "get": "#61affe",
@@ -715,6 +717,15 @@ def generar_pdf(esquema: ObjetoJSON, salida: Path = SALIDA_PREDETERMINADA) -> No
     ExportadorPDF(esquema).construir(salida)
 
 
+def generar_json(esquema: ObjetoJSON, salida: Path = JSON_PREDETERMINADO) -> None:
+    """Conserva el contrato completo en un formato estable para revisión y entrega."""
+    salida.parent.mkdir(parents=True, exist_ok=True)
+    salida.write_text(
+        json.dumps(esquema, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
@@ -730,14 +741,29 @@ def main() -> int:
         default=SALIDA_PREDETERMINADA,
         help="Ruta alternativa del PDF",
     )
+    parser.add_argument(
+        "--salida-json",
+        type=Path,
+        help="Ruta del JSON; por defecto openapi.json junto al PDF",
+    )
+    parser.add_argument(
+        "--solo-json", action="store_true", help="Exportar JSON sin generar el PDF"
+    )
     args = parser.parse_args()
+    salida_json = args.salida_json or args.salida.parent / "openapi.json"
+    if salida_json.resolve() == args.salida.resolve():
+        parser.error("Las salidas JSON y PDF deben tener rutas distintas.")
     try:
         esquema = obtener_openapi(args.url, args.archivo)
-        generar_pdf(esquema, args.salida)
+        if not args.solo_json:
+            generar_pdf(esquema, args.salida)
+        generar_json(esquema, salida_json)
     except Exception as exc:
-        print(f"Error al generar el PDF: {exc}", file=sys.stderr)
+        print(f"Error al exportar OpenAPI: {exc}", file=sys.stderr)
         return 1
-    print(f"PDF generado: {args.salida.resolve()}")
+    if not args.solo_json:
+        print(f"PDF generado: {args.salida.resolve()}")
+    print(f"OpenAPI JSON generado: {salida_json.resolve()}")
     return 0
 
 

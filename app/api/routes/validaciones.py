@@ -1,12 +1,14 @@
 """Validación nacional transitoria del snapshot cerrado que Bonita obtiene de T34."""
 
 import logging
+from typing import Annotated
 
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, Body, HTTPException, Response
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.api import ejemplos
 from app.api.dependencies import CuentaEvaluacion, DbEvaluacion
-from app.schemas.inventario import ErrorResponse
+from app.api.documentacion import respuestas
 from app.schemas.validaciones import ValidacionRequest, ValidacionResponse
 from app.services.disponibilidad import InventarioInconsistenteError
 from app.services.emisores import (
@@ -25,15 +27,21 @@ logger = logging.getLogger(__name__)
     response_model=ValidacionResponse,
     summary="Evaluar competencias y disponibilidad por aporte sin reservar",
     description=(
-        "Recibe el contrato 2 de T34 después del cierre. Devuelve capacidades, "
-        "riesgos, perfiles PRINCIPAL/APOYO/SIN_HABILITACION y motivos por ONG. "
-        "La disponibilidad consultada no garantiza stock al adjudicar. "
-        "No guarda ofertas ni crea proyectos o compromisos."
+        "Acceso: INTEGRACION del sistemaOrigen autenticado o ADMIN_NACIONAL "
+        "seleccionando un emisor activo; cuentas ONG reciben 403. Bonita "
+        "envía el snapshot contratoVersion=2 tras el cierre local. Evaluación"
+        " transitoria READ ONLY / REPEATABLE READ: devuelve capacidades, "
+        "riesgos, clasificación PRINCIPAL/APOYO/SIN_HABILITACION y motivos "
+        "por aporte. No guarda ofertas ni resultados y no crea proyectos o "
+        "reservas. La disponibilidad consultada no garantiza stock al "
+        "adjudicar."
     ),
-    responses={c: {"model": ErrorResponse} for c in (401, 403, 404, 422, 500, 503)},
+    responses=respuestas(
+        401, 403, 404, 422, 500, 503, ejemplo=ejemplos.VALIDACION, exito=200
+    ),
 )
 def validar(
-    snapshot: ValidacionRequest,
+    snapshot: Annotated[ValidacionRequest, Body(examples=[ejemplos.SNAPSHOT_CERRADO])],
     session: DbEvaluacion,
     cuenta: CuentaEvaluacion,
     response: Response,

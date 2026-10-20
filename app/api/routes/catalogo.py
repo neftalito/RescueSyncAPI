@@ -1,11 +1,15 @@
 """Consulta unidades predefinidas y permite al administrador ampliar capacidades."""
 
-from fastapi import APIRouter, HTTPException, Response
+from typing import Annotated
 
+from fastapi import APIRouter, Body, HTTPException, Response
+
+from app.api import ejemplos
 from app.api.dependencies import CuentaActual, Db
+from app.api.documentacion import respuestas
 from app.db.models import RolNacional
 from app.schemas.catalogo import CapacidadCreate, UnidadResponse
-from app.schemas.inventario import CapacidadResponse, ErrorResponse
+from app.schemas.inventario import CapacidadResponse
 from app.services.catalogo import (
     CapacidadDuplicadaError,
     UnidadNoDisponibleError,
@@ -21,9 +25,11 @@ router = APIRouter()
     response_model=list[UnidadResponse],
     summary="Consultar unidades predefinidas",
     description=(
-        "Catálogo de solo lectura cargado por migraciones en todos los entornos."
+        "Acceso: ONG, ADMIN_NACIONAL o INTEGRACION con cuenta vigente. "
+        "Catálogo de solo lectura instalado por migraciones en todos los "
+        "entornos."
     ),
-    responses={codigo: {"model": ErrorResponse} for codigo in (401, 403)},
+    responses=respuestas(401, 403, ejemplo=ejemplos.UNIDADES, exito=200),
 )
 def unidades(session: Db, _: CuentaActual, response: Response) -> list[UnidadResponse]:
     response.headers["Cache-Control"] = "no-store"
@@ -36,13 +42,15 @@ def unidades(session: Db, _: CuentaActual, response: Response) -> list[UnidadRes
     status_code=201,
     summary="Crear una capacidad nacional",
     description=(
-        "Requiere una cuenta ADMIN_NACIONAL activa y una unidad predefinida. "
-        "No crea unidades, certificaciones, acreditaciones ni inventario."
+        "Acceso exclusivo: ADMIN_NACIONAL con cuenta activa. Exige unidad "
+        "predefinida; código duplicado produce 409 y unidad inexistente o "
+        "fracciones incompatibles, 422. No crea unidades, acreditaciones ni "
+        "inventario."
     ),
-    responses={codigo: {"model": ErrorResponse} for codigo in (401, 403, 409, 422)},
+    responses=respuestas(401, 403, 409, 422, ejemplo=ejemplos.CAPACIDAD, exito=201),
 )
 def alta_capacidad(
-    datos: CapacidadCreate,
+    datos: Annotated[CapacidadCreate, Body(examples=[ejemplos.ALTA_CAPACIDAD])],
     session: Db,
     cuenta: CuentaActual,
     response: Response,

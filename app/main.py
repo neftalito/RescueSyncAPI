@@ -13,7 +13,28 @@ app = AplicacionConCORS(
     version=settings.app_version,
     description=(
         "API nacional para gestionar organizaciones, certificaciones y recursos "
-        "de la red RescueSync."
+        "de la red RescueSync.\n\n"
+        "**Autenticación:** POST /api/v1/login recibe identificadorLogin y password; "
+        "usar access_token como Authorization: Bearer <token>. Los roles vigentes "
+        "son ONG, ADMIN_NACIONAL e INTEGRACION; cada operación explica su acceso. "
+        "Los ejemplos son ficticios y sus UUID deben reemplazarse por mappings "
+        "reales. IDs locales y nacionales no son intercambiables.\n\n"
+        "**Flujo distribuido:** Bonita obtiene el snapshot cerrado del backend "
+        "local y llama a validaciones. La evaluación es transitoria, no persiste "
+        "ofertas y no reserva stock. Comprometer revalida permisos, competencias "
+        "y disponibilidad bajo locks PostgreSQL, con confirmación atómica. "
+        "Compromiso, edición de inventario y liberación comparten locking. "
+        "No se mantienen locks durante llamadas HTTP.\n\n"
+        "**Idempotencia y cierre:** conservar Idempotency-Key ante timeouts o 503; "
+        "el commit puede haber ocurrido. Misma clave y contenido reproducen la "
+        "confirmación; contenido distinto da 409. Liberar afecta sólo el compromiso "
+        "de esa ONG y conserva historial. Cerrar exige cero compromisos activos "
+        "y comparte el lock de proyecto con comprometer.\n\n"
+        "**Contratos:** camelCase para DTO de integración; cantidades nacionales "
+        "exactas como strings decimales. Errores JSON con detail seguro: 401 "
+        "autenticación, 403 permisos, 404 referencia inexistente, 409 conflicto, "
+        "422 entrada inválida, 500 inconsistencia, 503 fallo temporal. "
+        "El frontend consume su backend local, no esta API directamente."
     ),
     docs_url="/docs",
     redoc_url="/redoc",
