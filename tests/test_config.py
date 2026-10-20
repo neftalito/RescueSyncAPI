@@ -95,3 +95,21 @@ def test_jwt_exige_clave_propia_en_produccion() -> None:
         Settings(_env_file=None, jwt_secret="corta")
     settings = Settings(_env_file=None, app_env="production", jwt_secret="x" * 48)
     assert settings.clave_jwt == "x" * 48
+
+
+def test_password_mantenimiento_es_optativa_y_no_se_expone() -> None:
+    assert Settings(_env_file=None).db_maintenance_password is None
+    assert (
+        Settings(_env_file=None, db_maintenance_password="").db_maintenance_password
+        is None
+    )
+    settings = Settings(_env_file=None, db_maintenance_password="privada" * 8)
+    assert settings.db_maintenance_password is not None
+    assert settings.db_maintenance_password.get_secret_value() == "privada" * 8
+    assert "privada" not in repr(settings)
+
+
+@pytest.mark.parametrize("password", ["corta", " " * 40])
+def test_password_mantenimiento_debil_se_rechaza(password: str) -> None:
+    with pytest.raises(ValidationError):
+        Settings(_env_file=None, db_maintenance_password=password)

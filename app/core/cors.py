@@ -53,5 +53,6 @@ class AplicacionConCORS(FastAPI):
                 "X-CSRF-Token",
                 "Idempotency-Key",
                 "X-Bonita-Root-Process-Instance-Id",
+                "X-DB-Maintenance-Password",
             ],
         )

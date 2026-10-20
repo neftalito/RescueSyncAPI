@@ -104,9 +104,13 @@ def seed_mass_data(
     config: ConfiguracionSeed,
     *,
     progreso: Callable[[str], None] | None = None,
+    permitir_produccion: bool = False,
 ) -> ResultadoSeed:
     """Agrega filas faltantes; la transacción y su rollback pertenecen al llamador."""
-    if get_settings().app_env not in {"development", "test"}:
+    if not permitir_produccion and get_settings().app_env not in {
+        "development",
+        "test",
+    }:
         raise ValueError("El seed masivo sólo está disponible en desarrollo y pruebas.")
     session.execute(select(func.pg_advisory_xact_lock(73843, config.seed)))
     catalogo = {
@@ -129,7 +133,7 @@ def seed_mass_data(
     # Reutilizar hashes de fixtures evita ejecutar Argon2 miles de veces.
     hash_personal = generar_password_hash(PASSWORD_PRUEBA)
     hash_tecnico = generar_password_hash(PASSWORD_TECNICA)
-    _, creado = asegurar_admin_demo(session)
+    _, creado = asegurar_admin_demo(session, permitir_produccion=permitir_produccion)
     resultado.cuentas += creado
     fake = Faker("es_AR", use_weighting=False)
     for indices in batched(range(1, config.ongs + 1), config.batch_size, strict=False):

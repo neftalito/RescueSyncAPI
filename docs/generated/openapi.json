@@ -1186,6 +1186,30 @@
         "title": "LoteSnapshot",
         "type": "object"
       },
+      "MantenimientoResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "mensaje": {
+            "title": "Mensaje",
+            "type": "string"
+          },
+          "operacion": {
+            "enum": [
+              "seed",
+              "seed-masivo",
+              "flush"
+            ],
+            "title": "Operacion",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operacion",
+          "mensaje"
+        ],
+        "title": "MantenimientoResponse",
+        "type": "object"
+      },
       "MotivoIntegracionSnapshot": {
         "additionalProperties": false,
         "properties": {
@@ -1699,6 +1723,80 @@
         "title": "RolNacional",
         "type": "string"
       },
+      "SeedMasivoRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "batchSize": {
+            "default": 250,
+            "maximum": 1000.0,
+            "minimum": 1.0,
+            "title": "Batchsize",
+            "type": "integer"
+          },
+          "ongs": {
+            "default": 1000,
+            "maximum": 10000.0,
+            "minimum": 1.0,
+            "title": "Ongs",
+            "type": "integer"
+          },
+          "recursosPorOng": {
+            "default": 20,
+            "maximum": 1000.0,
+            "minimum": 4.0,
+            "title": "Recursosporong",
+            "type": "integer"
+          },
+          "seed": {
+            "default": 2026,
+            "maximum": 2147483647.0,
+            "minimum": 0.0,
+            "title": "Seed",
+            "type": "integer"
+          }
+        },
+        "title": "SeedMasivoRequest",
+        "type": "object"
+      },
+      "SeedMasivoResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "cuentas": {
+            "title": "Cuentas",
+            "type": "integer"
+          },
+          "mensaje": {
+            "title": "Mensaje",
+            "type": "string"
+          },
+          "ongs": {
+            "title": "Ongs",
+            "type": "integer"
+          },
+          "operacion": {
+            "enum": [
+              "seed",
+              "seed-masivo",
+              "flush"
+            ],
+            "title": "Operacion",
+            "type": "string"
+          },
+          "recursos": {
+            "title": "Recursos",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "operacion",
+          "mensaje",
+          "ongs",
+          "cuentas",
+          "recursos"
+        ],
+        "title": "SeedMasivoResponse",
+        "type": "object"
+      },
       "TipoRecurso": {
         "enum": [
           "PERSONAL",
@@ -1900,6 +1998,12 @@
       }
     },
     "securitySchemes": {
+      "DBMaintenancePassword": {
+        "description": "Contraseña DB_MAINTENANCE_PASSWORD del entorno de la API. Autoriza seeds y flush incluso en producción. Independiente del JWT y de las cuentas de la base. Enviar sólo por HTTPS fuera del entorno local; nunca en URL. Sin configuración, los endpoints están deshabilitados (403).",
+        "in": "header",
+        "name": "X-DB-Maintenance-Password",
+        "type": "apiKey"
+      },
       "HTTPBearer": {
         "bearerFormat": "JWT",
         "description": "Obtener access_token con POST /api/v1/login (JSON identificadorLogin y password). Enviar Authorization: Bearer <access_token>. expires_in indica la duración en segundos; al expirar, autenticar de nuevo. No hay refresh tokens. Se validan firma HS256, exp, issuer y audience y se recargan cuenta, ONG y emisor vigentes; los permisos no se toman de roles del JWT. BONITA_CALLBACK_TOKEN es una credencial local distinta.",
@@ -2816,6 +2920,281 @@
         "summary": "Iniciar sesión nacional",
         "tags": [
           "cuentas e inventario"
+        ]
+      }
+    },
+    "/api/v1/mantenimiento/flush": {
+      "post": {
+        "description": "Acceso: contraseña DB_MAINTENANCE_PASSWORD en X-DB-Maintenance-Password, independiente del JWT; admite producción. Sin contraseña configurada: 403; ausente o incorrecta: 401. Operación sincrónica, transaccional y serializada con los otros endpoints de mantenimiento. Responde sólo después del commit. Elimina TODAS las filas de las tablas nacionales: cuentas, ONGs, integraciones, inventario, proyectos, compromisos, historial y catálogos. Conserva tablas, restricciones y alembic_version. No repuebla datos; un seed posterior restaura el catálogo y su escenario. No modifica RescueSync ni Bonita. Ejecutar sin tráfico de negocio. Ante timeout, verificar el resultado antes de repetir: el commit puede haber ocurrido.",
+        "operationId": "flush_api_v1_mantenimiento_flush_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "mensaje": "Base nacional vaciada.",
+                  "operacion": "flush"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/MantenimientoResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La contraseña de mantenimiento no es válida."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El mantenimiento de base de datos está deshabilitado."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No se pudo confirmar el mantenimiento. Revisá el estado antes de reintentar."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Fallo temporal de base de datos. En escrituras idempotentes, reintentar con la misma Idempotency-Key: el resultado puede haberse confirmado."
+          }
+        },
+        "security": [
+          {
+            "DBMaintenancePassword": []
+          }
+        ],
+        "summary": "Borrar todos los datos de la base nacional",
+        "tags": [
+          "mantenimiento de base de datos"
+        ]
+      }
+    },
+    "/api/v1/mantenimiento/seed": {
+      "post": {
+        "description": "Acceso: contraseña DB_MAINTENANCE_PASSWORD en X-DB-Maintenance-Password, independiente del JWT; admite producción. Sin contraseña configurada: 403; ausente o incorrecta: 401. Operación sincrónica, transaccional y serializada con los otros endpoints de mantenimiento. Responde sólo después del commit. Agrega dos ONGs, sus cuentas personales y técnicas, cuatro recursos y el administrador demo. Restaura el catálogo base faltante, incluso tras flush. Repetir agrega sólo faltantes; no rota credenciales ni restaura stock.",
+        "operationId": "seed_api_v1_mantenimiento_seed_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "mensaje": "Seed nacional confirmado.",
+                  "operacion": "seed"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/MantenimientoResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La contraseña de mantenimiento no es válida."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El mantenimiento de base de datos está deshabilitado."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El seed entra en conflicto con las identidades o el catálogo existentes."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflicto de estado, stock, versión, unicidad o clave idempotente."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No se pudo confirmar el mantenimiento. Revisá el estado antes de reintentar."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Fallo temporal de base de datos. En escrituras idempotentes, reintentar con la misma Idempotency-Key: el resultado puede haberse confirmado."
+          }
+        },
+        "security": [
+          {
+            "DBMaintenancePassword": []
+          }
+        ],
+        "summary": "Cargar el seed normal nacional",
+        "tags": [
+          "mantenimiento de base de datos"
+        ]
+      }
+    },
+    "/api/v1/mantenimiento/seed-masivo": {
+      "post": {
+        "description": "Acceso: contraseña DB_MAINTENANCE_PASSWORD en X-DB-Maintenance-Password, independiente del JWT; admite producción. Sin contraseña configurada: 403; ausente o incorrecta: 401. Operación sincrónica, transaccional y serializada con los otros endpoints de mantenimiento. Responde sólo después del commit. Cuerpo opcional: por defecto 1.000 ONGs, 2.001 cuentas y 20.000 recursos (seed=2026). Hasta 200.000 recursos por petición. Restaura el catálogo base faltante; devuelve conteos nuevos, sin contar ese catálogo. Repetir con el mismo seed agrega sólo faltantes, sin rotar credenciales ni stock.",
+        "operationId": "seed_masivo_api_v1_mantenimiento_seed_masivo_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeedMasivoRequest",
+                "default": {
+                  "batchSize": 250,
+                  "ongs": 1000,
+                  "recursosPorOng": 20,
+                  "seed": 2026
+                },
+                "examples": [
+                  {
+                    "batchSize": 250,
+                    "ongs": 1000,
+                    "recursosPorOng": 20,
+                    "seed": 2026
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "cuentas": 2001,
+                  "mensaje": "Seed masivo confirmado.",
+                  "ongs": 1000,
+                  "operacion": "seed-masivo",
+                  "recursos": 20000
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/SeedMasivoResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La contraseña de mantenimiento no es válida."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El mantenimiento de base de datos está deshabilitado."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El seed entra en conflicto con las identidades o el catálogo existentes."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflicto de estado, stock, versión, unicidad o clave idempotente."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No se pudo confirmar el mantenimiento. Revisá el estado antes de reintentar."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Fallo temporal de base de datos. En escrituras idempotentes, reintentar con la misma Idempotency-Key: el resultado puede haberse confirmado."
+          }
+        },
+        "security": [
+          {
+            "DBMaintenancePassword": []
+          }
+        ],
+        "summary": "Cargar el seed masivo nacional",
+        "tags": [
+          "mantenimiento de base de datos"
         ]
       }
     },

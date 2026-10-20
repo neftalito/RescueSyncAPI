@@ -6,12 +6,14 @@ from app.api.routes import (
     compromisos,
     health,
     inventario,
+    mantenimiento,
     ongs,
     proyectos,
     validaciones,
 )
 
 api_router = APIRouter()
+api_router.include_router(mantenimiento.router, tags=["mantenimiento de base de datos"])
 api_router.include_router(health.router, prefix="/health", tags=["health"])
 api_router.include_router(catalogo.router, tags=["catálogo nacional"])
 api_router.include_router(inventario.router, tags=["cuentas e inventario"])
