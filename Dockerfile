@@ -35,4 +35,4 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
     CMD python -c "import os, urllib.request; urllib.request.urlopen('http://127.0.0.1:' + os.environ.get('PORT', '8000') + '/api/v1/health', timeout=2)"
 
-CMD ["sh", "-c", "exec fastapi run app/main.py --host 0.0.0.0 --port \"${PORT:-8000}\""]
+CMD ["sh", "-c", "python -m app.scripts.bootstrap_integracion_automatica && exec fastapi run app/main.py --host 0.0.0.0 --port \"${PORT:-8000}\""]

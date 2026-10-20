@@ -74,6 +74,23 @@ Para detener el entorno sin borrar los datos:
 docker compose down
 ```
 
+## Documentación OpenAPI (T40)
+
+[Guía de autenticación, permisos, errores y flujo distribuido](./docs/documentacion-openapi.md).
+Incluye la matriz de acceso, ejemplos para Bonita/backend local y comandos para
+regenerar la entrega sin iniciar servidor ni conectar a PostgreSQL.
+
+- [OpenAPI JSON exportado](./docs/generated/openapi.json).
+- [Referencia PDF](./docs/generated/documentacion-api.pdf).
+- [Validación transitoria](./docs/validaciones.md),
+  [compromiso, locking e idempotencia](./docs/compromisos.md) y
+  [liberación por ONG y cierre](./docs/liberacion-y-cierre.md).
+
+```bash
+docker compose run --rm --no-deps --user "$(id -u):$(id -g)" \
+  -e APP_ENV=test api python docs/scripts/exportar_openapi_pdf.py
+```
+
 ## Arquitectura
 
 Los agregados informativos por capacidad y ONG se describen en
@@ -240,6 +257,37 @@ El comando pre-deploy está disponible para servicios pagos. En el plan gratuito
 aplicar las migraciones como un paso separado contra la base antes de publicar
 una versión que dependa del esquema nuevo. Ver la
 [documentación de despliegues](https://render.com/docs/deploys).
+
+### Bootstrap automático de la identidad INTEGRACION en Render
+
+La imagen Docker de producción ejecuta
+`python -m app.scripts.bootstrap_integracion_automatica` **antes** de iniciar
+FastAPI. Al arrancar cada nueva instancia (incluidos los despliegues de Render),
+crea la cuenta INTEGRACION si no existe; de lo contrario valida su rol,
+sistema de origen, estado activo y contraseña sin modificar sus datos.
+La ejecución es transaccional y se serializa mediante advisory lock de PostgreSQL.
+
+En Render → Web Service → Environment, configurar:
+
+```dotenv
+INTEGRACION_AUTO_BOOTSTRAP=true
+INTEGRACION_LOGIN=integracion-rescuesync
+INTEGRACION_SISTEMA_ORIGEN=rescuesync-local
+INTEGRACION_PASSWORD=<secreto-aleatorio-de-al-menos-12-caracteres>
+```
+
+Compartir **el mismo secreto** con RescueSync mediante su variable local
+`NACIONAL_INTEGRACION_PASSWORD`; nunca versionarlo ni exponerlo al navegador.
+El inicio falla de forma explícita si la cuenta existe con otra contraseña, rol,
+sistema de origen o se encuentra inactiva. No se rotan credenciales al desplegar.
+El script no ejecuta migraciones; `alembic upgrade head` debe haberse aplicado
+antes del primer arranque.
+
+El bootstrap está desactivado por defecto: los despliegues que no requieran
+cuenta de integración siguen funcionando sin configurar estos valores.
+Render usa el `CMD` del Dockerfile de forma predeterminada. Si el Web Service
+tiene un «Docker Command» personalizado, se debe quitar ese override o incluir
+allí el comando de bootstrap antes de iniciar FastAPI.
 
 ## Portabilidad a Fly.io
 

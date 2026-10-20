@@ -1,11 +1,14 @@
 """Operaciones nacionales de cuenta, onboarding, catálogo e inventario."""
 
 from collections.abc import Callable
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, HTTPException, Response
+from fastapi import APIRouter, Body, HTTPException, Path, Response
 
+from app.api import ejemplos
 from app.api.dependencies import CuentaActual, Db, autorizar_inventario
+from app.api.documentacion import respuestas
 from app.api.routes.disponibilidad import router as disponibilidad_router
 from app.core.config import get_settings
 from app.core.security import emitir_token
@@ -13,7 +16,6 @@ from app.db.models import PropositoCuenta
 from app.schemas.inventario import (
     CapacidadResponse,
     CuentaResponse,
-    ErrorResponse,
     LoginRequest,
     OngCreate,
     OngResponse,
@@ -35,7 +37,6 @@ from app.services.inventario import (
 
 router = APIRouter()
 router.include_router(disponibilidad_router, tags=["disponibilidad global"])
-errores = {codigo: {"model": ErrorResponse} for codigo in (401, 403, 404, 409, 422)}
 
 
 def _ejecutar[T](session: Db, operacion: Callable[[], T]) -> T:
@@ -55,10 +56,27 @@ def _ejecutar[T](session: Db, operacion: Callable[[], T]) -> T:
 @router.post(
     "/login",
     response_model=TokenResponse,
-    responses=errores,
     summary="Iniciar sesión nacional",
+    description=(
+        "Acceso público. Recibe identificadorLogin y password; devuelve "
+        "access_token, token_type=bearer y expires_in en segundos. Enviar "
+        "Authorization: Bearer <access_token>. Al expirar, autenticar de "
+        "nuevo; no hay refresh tokens. Cuentas técnicas ONG: 300 segundos; "
+        "otras cuentas: JWT_ACCESS_SECONDS (1800 por defecto)."
+    ),
+    responses=respuestas(
+        401,
+        422,
+        ejemplo=ejemplos.TOKEN,
+        exito=200,
+        detalles={401: "El identificador o la contraseña son incorrectos."},
+    ),
 )
-def login(datos: LoginRequest, session: Db, response: Response) -> TokenResponse:
+def login(
+    datos: Annotated[LoginRequest, Body(examples=[ejemplos.LOGIN])],
+    session: Db,
+    response: Response,
+) -> TokenResponse:
     cuenta = autenticar(
         session, datos.identificador_login, datos.password.get_secret_value()
     )
@@ -85,8 +103,13 @@ def login(datos: LoginRequest, session: Db, response: Response) -> TokenResponse
 @router.get(
     "/me",
     response_model=CuentaResponse,
-    responses=errores,
     summary="Consultar la cuenta nacional vigente",
+    description=(
+        "Acceso: ONG, ADMIN_NACIONAL o INTEGRACION con cuenta vigente. "
+        "Devuelve rol, ONG y propósito actuales, recargados desde la base "
+        "nacional."
+    ),
+    responses=respuestas(401, 403, ejemplo=ejemplos.CUENTA, exito=200),
 )
 def me(cuenta: CuentaActual, response: Response) -> CuentaResponse:
     response.headers["Cache-Control"] = "no-store"
@@ -99,14 +122,17 @@ def me(cuenta: CuentaActual, response: Response) -> CuentaResponse:
     "/ongs",
     response_model=OngResponse,
     status_code=201,
-    responses=errores,
     summary="Registrar una ONG y su cuenta",
     description=(
-        "Alta atómica en estado PENDIENTE, "
-        "sin otorgar habilitaciones ni certificaciones."
+        "Acceso público. Crea atómicamente cuenta y ONG PENDIENTE, sin "
+        "habilitación ni certificaciones. Login o identificador institucional"
+        " duplicados producen 409."
     ),
+    responses=respuestas(409, 422, ejemplo=ejemplos.ONG, exito=201),
 )
-def onboarding(datos: OngCreate, session: Db) -> OngResponse:
+def onboarding(
+    datos: Annotated[OngCreate, Body(examples=[ejemplos.ALTA_ONG])], session: Db
+) -> OngResponse:
     try:
         ong = registrar_ong(session, datos)
     except CuentaDuplicadaError as error:
@@ -119,8 +145,13 @@ def onboarding(datos: OngCreate, session: Db) -> OngResponse:
 @router.get(
     "/capacidades",
     response_model=list[CapacidadResponse],
-    responses=errores,
     summary="Consultar capacidades y unidades activas",
+    description=(
+        "Acceso: ONG, ADMIN_NACIONAL o INTEGRACION con cuenta vigente. Lista "
+        "capacidades activas, tipo, unidad y admisión de fracciones; no "
+        "asigna competencias."
+    ),
+    responses=respuestas(401, 403, ejemplo=[ejemplos.CAPACIDAD], exito=200),
 )
 def capacidades(session: Db, _: CuentaActual) -> list[CapacidadResponse]:
     return listar_capacidades(session)
@@ -129,10 +160,25 @@ def capacidades(session: Db, _: CuentaActual) -> list[CapacidadResponse]:
 @router.get(
     "/ongs/{ong_id}/recursos",
     response_model=list[RecursoResponse],
-    responses=errores,
     summary="Consultar inventario y disponibilidad de una ONG",
+    description=(
+        "Acceso: ONG propietaria, ADMIN_NACIONAL o INTEGRACION. Otra ONG "
+        "recibe 403. Devuelve total, comprometido y disponible en un mismo "
+        "snapshot; consultar no reserva stock."
+    ),
+    responses=respuestas(401, 403, 404, 422, ejemplo=[ejemplos.RECURSO], exito=200),
 )
-def recursos(ong_id: UUID, session: Db, cuenta: CuentaActual) -> list[RecursoResponse]:
+def recursos(
+    ong_id: Annotated[
+        UUID,
+        Path(
+            description="UUID de la ONG en el sistema nacional; no es el ID local.",
+            examples=[ejemplos.ONG_ID],
+        ),
+    ],
+    session: Db,
+    cuenta: CuentaActual,
+) -> list[RecursoResponse]:
     autorizar_inventario(cuenta, ong_id, escritura=False)
     return _ejecutar(session, lambda: listar_recursos(session, ong_id))
 
@@ -141,11 +187,26 @@ def recursos(ong_id: UUID, session: Db, cuenta: CuentaActual) -> list[RecursoRes
     "/ongs/{ong_id}/recursos",
     response_model=RecursoResponse,
     status_code=201,
-    responses=errores,
     summary="Registrar un recurso propio",
+    description=(
+        "Acceso: ONG propietaria o ADMIN_NACIONAL; INTEGRACION no puede "
+        "escribir inventario. Capacidad y propietario son inmutables; "
+        "codigoInterno es único por ONG. Cantidades positivas y compatibles "
+        "con la unidad."
+    ),
+    responses=respuestas(401, 403, 404, 409, 422, ejemplo=ejemplos.RECURSO, exito=201),
 )
 def crear(
-    ong_id: UUID, datos: RecursoCreate, session: Db, cuenta: CuentaActual
+    ong_id: Annotated[
+        UUID,
+        Path(
+            description="UUID de la ONG en el sistema nacional; no es el ID local.",
+            examples=[ejemplos.ONG_ID],
+        ),
+    ],
+    datos: Annotated[RecursoCreate, Body(examples=[ejemplos.ALTA_RECURSO])],
+    session: Db,
+    cuenta: CuentaActual,
 ) -> RecursoResponse:
     autorizar_inventario(cuenta, ong_id, escritura=True)
     return _ejecutar(session, lambda: crear_recurso(session, ong_id, datos))
@@ -154,17 +215,33 @@ def crear(
 @router.patch(
     "/ongs/{ong_id}/recursos/{recurso_id}",
     response_model=RecursoResponse,
-    responses=errores,
     summary="Actualizar el total de un recurso",
     description=(
-        "Bloquea la fila y recalcula compromisos. "
-        "Rechaza stock insuficiente o una versión desactualizada."
+        "Acceso: ONG propietaria o ADMIN_NACIONAL. Bloquea la fila y "
+        "recalcula compromisos activos. Enviar actualizadoEn de la última "
+        "lectura; versión obsoleta o total inferior a lo comprometido "
+        "producen 409. No cambia propietario ni capacidad."
+    ),
+    responses=respuestas(
+        401, 403, 404, 409, 422, ejemplo=ejemplos.RECURSO_EDITADO, exito=200
     ),
 )
 def actualizar(
-    ong_id: UUID,
-    recurso_id: UUID,
-    datos: RecursoUpdate,
+    ong_id: Annotated[
+        UUID,
+        Path(
+            description="UUID de la ONG en el sistema nacional; no es el ID local.",
+            examples=[ejemplos.ONG_ID],
+        ),
+    ],
+    recurso_id: Annotated[
+        UUID,
+        Path(
+            description="UUID nacional del recurso perteneciente a la ONG de la ruta.",
+            examples=[ejemplos.RECURSO_ID],
+        ),
+    ],
+    datos: Annotated[RecursoUpdate, Body(examples=[ejemplos.EDICION_RECURSO])],
     session: Db,
     cuenta: CuentaActual,
 ) -> RecursoResponse:

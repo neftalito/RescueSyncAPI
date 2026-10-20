@@ -6,6 +6,8 @@ from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import Session
 
+from app.api import ejemplos
+from app.api.documentacion import respuestas
 from app.db.session import get_db
 from app.schemas.health import HealthResponse
 
@@ -19,6 +21,8 @@ DatabaseSession = Annotated[Session, Depends(get_db)]
     "",
     response_model=HealthResponse,
     summary="Comprobar el proceso HTTP",
+    description=("Acceso público. Comprueba el proceso HTTP sin consultar PostgreSQL."),
+    responses=respuestas(ejemplo=ejemplos.HEALTH, exito=200),
 )
 def health() -> HealthResponse:
     """Indica que el proceso de la API se encuentra en ejecución."""
@@ -29,12 +33,18 @@ def health() -> HealthResponse:
 @router.get(
     "/database",
     response_model=HealthResponse,
-    responses={
-        status.HTTP_503_SERVICE_UNAVAILABLE: {
-            "description": "PostgreSQL no se encuentra disponible"
-        }
-    },
     summary="Comprobar PostgreSQL",
+    description=(
+        "Acceso público. Comprueba una conexión real a PostgreSQL. Fallo "
+        "temporal devuelve 503 con JSON detail seguro, sin exponer "
+        "infraestructura."
+    ),
+    responses=respuestas(
+        503,
+        ejemplo=ejemplos.HEALTH,
+        exito=200,
+        detalles={503: "PostgreSQL no está disponible"},
+    ),
 )
 def database_health(session: DatabaseSession) -> HealthResponse:
     """Comprueba una conexión real sin publicar detalles de infraestructura."""
