@@ -19,9 +19,15 @@ Para medir consultas con miles de registros, el
 seed masivo de RescueSync.
 
 Los [endpoints de mantenimiento](./docs/mantenimiento-db.md) permiten ejecutar
-ambos seeds y vaciar la base nacional con `DB_MAINTENANCE_PASSWORD`, enviada en
+los seeds y vaciar la base nacional con `DB_MAINTENANCE_PASSWORD`, enviada en
 `X-DB-Maintenance-Password`. Están documentados en Swagger y funcionan también
 en producción; sin la variable configurada permanecen deshabilitados.
+
+El [seed específico de Yaak](./docs/seed-yaak.md),
+`POST /api/v1/mantenimiento/seed-yaak`, primero vacía la base y después crea un
+escenario determinista con cuentas, ONGs y recursos para recorrer los endpoints.
+Ambos pasos se confirman en una única transacción. Requiere un body con
+confirmación explícita y recrea la identidad de integración indicada en él.
 
 Demo y masivo son modalidades alternativas: cada uno funciona por sí solo y crea
 el mismo administrador nacional, `admin.nacional.demo@rescuesync.org` con contraseña

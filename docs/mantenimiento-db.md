@@ -9,7 +9,7 @@ python -c 'import secrets; print(secrets.token_urlsafe(48))'
 ```
 
 El `.env` es privado y no se versiona; `.env.example` declara la variable vacía.
-Sin valor, los tres endpoints devuelven `403` y no ejecutan mantenimiento.
+Sin valor, los cuatro endpoints devuelven `403` y no ejecutan mantenimiento.
 En Compose, después de cambiarla, recrear la API:
 
 ```bash
@@ -40,6 +40,7 @@ destino y `API_URL` su origen, por ejemplo `http://localhost:8001`.
 | --- | --- |
 | `POST /api/v1/mantenimiento/seed` | Escenario normal: dos ONGs, cuatro cuentas ONG, cuatro recursos y el administrador demo. Sin cuerpo. |
 | `POST /api/v1/mantenimiento/seed-masivo` | Escenario masivo configurable. Cuerpo opcional; omitirlo usa los valores de la tabla siguiente. Devuelve conteos de filas nuevas. |
+| `POST /api/v1/mantenimiento/seed-yaak` | Vacía la base y carga exclusivamente el escenario de Yaak. Body obligatorio con confirmación, `runId` y credenciales de integración. [Contrato y datos preparados](./seed-yaak.md). |
 | `POST /api/v1/mantenimiento/flush` | Elimina todas las filas de las tablas de aplicación. Sin cuerpo. |
 
 ```bash
@@ -67,7 +68,7 @@ devuelven `422`. Ejemplo de respuesta de una carga nueva:
 {"operacion":"seed-masivo","mensaje":"Seed masivo confirmado.","ongs":1000,"cuentas":2001,"recursos":20000}
 ```
 
-Ambos seeds restauran unidades y capacidades base faltantes, sin reemplazar
+Los seeds demo y masivo restauran unidades y capacidades base faltantes, sin reemplazar
 referencias existentes. Se pueden ejecutar después de un flush sin volver a
 aplicar migraciones. Repetir un seed agrega sólo faltantes; no restablece stock,
 contraseñas ni cuentas desactivadas. Las credenciales demo y los UUID siguen los
@@ -89,11 +90,12 @@ curl --fail-with-body -X POST "$API_URL/api/v1/mantenimiento/flush" \
 
 Sólo afecta la base nacional configurada para la API. No accede a RescueSync ni
 a Bonita; sus mappings pueden requerir reconciliación después del vaciado.
-Un seed posterior recupera el catálogo y las cuentas de su escenario. La cuenta
-INTEGRACION debe volver a aprovisionarse con el procedimiento de bootstrap
-existente; los seeds no la recrean.
+Un seed posterior recupera el catálogo y las cuentas de su escenario. Los seeds
+demo y masivo no recrean la cuenta INTEGRACION: se debe volver a aprovisionar con
+el procedimiento de bootstrap existente. El nuevo `seed-yaak` sí la recrea en la
+misma transacción, usando las credenciales enviadas en su body, sin reiniciar la API.
 
-Las tres operaciones son sincrónicas y se confirman en una sola transacción.
+Las cuatro operaciones son sincrónicas y se confirman en una sola transacción.
 Un advisory lock PostgreSQL las serializa entre instancias HTTP. El flush toma
 locks exclusivos sobre las tablas: ejecutarlo sin tráfico de negocio.
 Los comandos CLI no participan del lock HTTP de mantenimiento; no ejecutarlos
@@ -103,5 +105,6 @@ Un error de base devuelve `503` con detalle seguro y rollback si la transacción
 no se confirmó. `OPERACION_LOCK_TIMEOUT_MS` y `OPERACION_STATEMENT_TIMEOUT_MS`
 limitan esperas y sentencias; no limitan el tiempo total de una carga por tandas.
 Ante timeout o resultado incierto, comprobar el estado antes de repetir un flush:
-la conexión puede interrumpirse después del commit. Se puede repetir un seed
-con la misma configuración para completar faltantes.
+la conexión puede interrumpirse después del commit. Los seeds demo y masivo
+pueden repetirse para completar faltantes. Repetir `seed-yaak` vuelve a borrar y
+recrear el escenario, incluso con el mismo `runId`; no conserva los avances de las pruebas.

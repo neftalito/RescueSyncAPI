@@ -14,7 +14,7 @@ from app.schemas.aprovisionamiento import AprovisionamientoRequest
 from app.schemas.catalogo import CapacidadCreate
 from app.schemas.compromisos import CompromisoRequest
 from app.schemas.inventario import LoginRequest, OngCreate, RecursoCreate, RecursoUpdate
-from app.schemas.mantenimiento import SeedMasivoRequest
+from app.schemas.mantenimiento import SeedMasivoRequest, SeedYaakRequest
 from app.schemas.proyectos import FinalizacionRequest
 from app.schemas.validaciones import ValidacionRequest
 
@@ -26,6 +26,7 @@ OPERACIONES = [
     if metodo in {"get", "post", "put", "patch", "delete"}
 ]
 CUERPOS = {
+    ("/api/v1/mantenimiento/seed-yaak", "post"): SeedYaakRequest,
     ("/api/v1/mantenimiento/seed-masivo", "post"): SeedMasivoRequest,
     ("/api/v1/login", "post"): LoginRequest,
     ("/api/v1/ongs", "post"): OngCreate,
