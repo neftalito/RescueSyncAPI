@@ -124,8 +124,8 @@ def me(cuenta: CuentaActual, response: Response) -> CuentaResponse:
     status_code=201,
     summary="Registrar una ONG y su cuenta",
     description=(
-        "Acceso público. Crea atómicamente cuenta y ONG PENDIENTE, sin "
-        "habilitación ni certificaciones. Login o identificador institucional"
+        "Acceso público. Crea atómicamente cuenta y ONG operativa, sin "
+        "aprobación previa. Login o identificador institucional"
         " duplicados producen 409."
     ),
     responses=respuestas(409, 422, ejemplo=ejemplos.ONG, exito=201),

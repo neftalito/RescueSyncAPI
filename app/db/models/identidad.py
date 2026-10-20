@@ -36,7 +36,7 @@ class SistemaOrigen(ActualizadoMixin, Base):
 
 
 class Ong(ActualizadoMixin, Base):
-    """Separa habilitación institucional de acreditación por capacidad."""
+    """Identidad operativa con alta automática e historia administrativa opcional."""
 
     __tablename__ = "ong"
     __table_args__ = (
@@ -52,8 +52,7 @@ class Ong(ActualizadoMixin, Base):
             name="ck_ong_telefono",
         ),
         CheckConstraint(
-            "(habilitada_en IS NULL) = (habilitada_por_id IS NULL) "
-            "AND (estado <> 'HABILITADA' OR habilitada_en IS NOT NULL)",
+            "(habilitada_en IS NULL) = (habilitada_por_id IS NULL)",
             name="ck_ong_habilitacion",
         ),
         Index("ix_ong_estado", "estado"),
@@ -65,7 +64,7 @@ class Ong(ActualizadoMixin, Base):
     email_contacto: Mapped[str | None] = mapped_column(String(320))
     telefono_contacto: Mapped[str | None] = mapped_column(String(40))
     estado: Mapped[EstadoOng] = mapped_column(
-        Enum(EstadoOng, name="estado_ong"), server_default="PENDIENTE"
+        Enum(EstadoOng, name="estado_ong"), server_default="HABILITADA"
     )
     habilitada_en: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     habilitada_por_id: Mapped[UUID | None] = mapped_column(

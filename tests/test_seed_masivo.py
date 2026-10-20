@@ -36,7 +36,6 @@ def test_repetir_no_duplica_ni_restaura_stock_o_credenciales(session: Session) -
         "ongs": 5,
         "cuentas": 11,
         "recursos": 35,
-        "acreditaciones": 5,
     }
     recurso = session.get(
         Recurso, uuid5(NAMESPACE_URL, f"rescuesync-masivo:{CONFIG.seed}:recurso:1:1")
@@ -51,13 +50,6 @@ def test_repetir_no_duplica_ni_restaura_stock_o_credenciales(session: Session) -
     cuenta.activa = False
     cuenta.version_credencial += 1
     credencial = (cuenta.password_hash, cuenta.version_credencial)
-    acreditacion = session.scalar(
-        select(OngCertificacion).where(OngCertificacion.ong_id == cuenta.ong_id)
-    )
-    assert acreditacion is not None
-    fechas = (acreditacion.vigente_desde, acreditacion.vigente_hasta)
-    session.flush()
-
     repetido = seed_mass_data(session, replace(CONFIG, batch_size=2))
 
     assert all(valor == 0 for valor in asdict(repetido).values())
@@ -66,7 +58,6 @@ def test_repetir_no_duplica_ni_restaura_stock_o_credenciales(session: Session) -
         not cuenta.activa
         and (cuenta.password_hash, cuenta.version_credencial) == credencial
     )
-    assert (acreditacion.vigente_desde, acreditacion.vigente_hasta) == fechas
     assert (
         session.execute(select(Capacidad.__table__).order_by(Capacidad.codigo)).all()
         == catalogo
@@ -82,7 +73,6 @@ def test_ampliar_cantidad_de_ongs_y_recursos_agrega_solo_faltantes(
         "ongs": 2,
         "cuentas": 4,
         "recursos": 28,
-        "acreditaciones": 2,
     }
     session.execute(text("SET CONSTRAINTS ALL IMMEDIATE"))
     assert session.scalar(select(func.count()).select_from(Recurso)) == 63
@@ -190,10 +180,8 @@ def test_masivo_solo_permite_administrar_catalogo_con_credenciales_demo(
         )
         is None
     )
-    assert set(session.scalars(select(Ong.habilitada_por_id))) == {admin_id}
-    assert set(session.scalars(select(OngCertificacion.registrada_por_id))) == {
-        admin_id
-    }
+    assert set(session.scalars(select(Ong.habilitada_por_id))) == {None}
+    assert list(session.scalars(select(OngCertificacion.registrada_por_id))) == []
 
     login = catalogo_client.post(
         "/api/v1/login",

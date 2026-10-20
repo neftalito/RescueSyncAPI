@@ -11,8 +11,6 @@ CUENTA_ID = "00000000-0000-4000-8000-000000000104"
 PROYECTO_ID = "00000000-0000-4000-8000-000000000105"
 COMPROMISO_ID = "00000000-0000-4000-8000-000000000106"
 OPERACION_ID = "00000000-0000-4000-8000-000000000107"
-CERTIFICACION_ID = "00000000-0000-4000-8000-000000000108"
-ACREDITACION_ID = "00000000-0000-4000-8000-000000000109"
 FECHA = "2026-10-14T18:01:00Z"
 
 LOGIN = {
@@ -31,7 +29,7 @@ ALTA_ONG = {
     "identificadorInstitucional": "ong-ejemplo",
     "emailContacto": "ong@example.org",
 }
-ONG = {"id": ONG_ID, "nombre": "Rescate de ejemplo", "estado": "PENDIENTE"}
+ONG = {"id": ONG_ID, "nombre": "Rescate de ejemplo", "estado": "HABILITADA"}
 UNIDADES = [{"codigo": "persona", "nombre": "Personas"}]
 ALTA_CAPACIDAD = {
     "codigo": "ATENCION",
@@ -89,73 +87,26 @@ DISPONIBILIDAD = {
         }
     ],
 }
-ALCANCE = {
-    "capacidadId": CAPACIDAD_ID,
-    "codigo": "ATENCION",
-    "nombre": "Atención prehospitalaria",
-    "tipo": "PERSONAL",
-    "unidad": "persona",
-    "admiteFracciones": False,
-    "activa": True,
-    "riesgoMaximo": "ALTA",
-}
-CERTIFICACION = {
-    "id": CERTIFICACION_ID,
-    "codigo": "ATENCION",
-    "revision": 1,
-    "nombre": "Atención prehospitalaria",
-    "activa": True,
-    "alcances": [ALCANCE],
-}
-COMPETENCIA = {
-    "capacidadId": CAPACIDAD_ID,
-    "codigo": "ATENCION",
-    "nombre": "Atención prehospitalaria",
-    "unidad": "persona",
-    "riesgoMaximo": "ALTA",
-    "nivelesRiesgoPermitidos": ["BAJA", "MEDIA", "ALTA"],
-    "acreditacionIds": [ACREDITACION_ID],
-}
-ACREDITACION = {
-    "id": ACREDITACION_ID,
-    "certificacion": CERTIFICACION,
-    "emisor": "Autoridad de ejemplo",
-    "numeroCredencial": "CERT-001",
-    "vigenteDesde": "2026-01-01T00:00:00Z",
-    "vigenteHasta": "2027-01-01T00:00:00Z",
-    "estado": "REVOCADA",
-    "estadoVigencia": "REVOCADA",
-    "revocadaEn": "2026-10-15T12:00:00Z",
-    "motivoRevocacion": "Fin del alcance acreditado de ejemplo",
-    "motivos": [
-        {
-            "codigo": "ACREDITACION_REVOCADA",
-            "mensaje": "Acreditación revocada.",
-            "capacidadId": CAPACIDAD_ID,
-        }
-    ],
-}
-CERTIFICACIONES_ONG = {
+PERFIL_COMPETENCIA = {
     "ongId": ONG_ID,
+    "nombre": "ONG de ejemplo",
     "estadoOng": "HABILITADA",
-    "evaluadoEn": "2026-10-15T12:01:00Z",
-    "acreditaciones": [ACREDITACION],
-    "capacidadesHabilitadas": [],
-    "motivosInstitucionales": [],
-}
-ONGS_HABILITADAS = {
     "evaluadoEn": FECHA,
-    "ongs": [
+    "capacidadesDeclaradas": [
         {
-            "ongId": ONG_ID,
-            "nombre": "Rescate de ejemplo",
-            "estadoOng": "HABILITADA",
-            "capacidadesHabilitadas": [COMPETENCIA],
-            "motivosPerfil": [],
+            "capacidadId": CAPACIDAD_ID,
+            "codigo": "ATENCION",
+            "nombre": "Atención prehospitalaria",
+            "tipo": "PERSONAL",
+            "unidad": "persona",
+            "admiteFracciones": False,
+            "cantidadTotal": "10.000",
+            "cantidadComprometida": "0.000",
+            "cantidadDisponible": "10.000",
         }
     ],
 }
-
+DIRECTORIO_ONGS = {"evaluadoEn": FECHA, "ongs": [PERFIL_COMPETENCIA]}
 SNAPSHOT_CERRADO = {
     "contratoVersion": 2,
     "sistemaOrigen": "instalacion-prueba",
@@ -227,7 +178,7 @@ SNAPSHOT_CERRADO = {
 }
 
 VALIDACION = {
-    "contratoVersion": 2,
+    "contratoVersion": 3,
     "sistemaOrigen": "instalacion-prueba",
     "idEmergencia": 101,
     "caseId": "100",
@@ -246,9 +197,7 @@ VALIDACION = {
             "recursoNacionalId": RECURSO_ID,
             "cantidadOfrecida": "6.000",
             "unidad": "persona",
-            "clasificacion": "PRINCIPAL",
-            "capacidadesHabilitadas": [COMPETENCIA],
-            "nivelesRiesgoPermitidos": ["BAJA", "MEDIA", "ALTA"],
+            "perfilCompetencia": PERFIL_COMPETENCIA,
             "cantidadDisponibleConsultada": "10.000",
             "motivos": [],
         }

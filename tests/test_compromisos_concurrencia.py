@@ -247,7 +247,7 @@ def test_edicion_de_total_espera_y_respeta_compromiso(engine_migrado: Engine) ->
         assert cantidad_comprometida(db, e.recurso_id) == Decimal(6)
 
 
-def test_vigencia_se_evalua_despues_de_esperar(
+def test_vencimiento_historico_no_bloquea_reserva_tras_esperar(
     engine_migrado: Engine, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     e = preparar(engine_migrado)
@@ -273,14 +273,14 @@ def test_vigencia_se_evalua_despues_de_esperar(
                 instante[0] = e.vencimiento
             finally:
                 db.rollback()
-            assert futura.result(timeout=10)[0] == 409
+            assert futura.result(timeout=10)[0] == 201
     with Session(engine_migrado) as db:
-        assert cantidad_comprometida(db, e.recurso_id) == Decimal(0)
+        assert cantidad_comprometida(db, e.recurso_id) == Decimal(6)
         assert (
             db.scalar(
                 select(func.count())
                 .select_from(Compromiso)
                 .where(Compromiso.ong_id == e.ong_id)
             )
-            == 0
+            == 1
         )

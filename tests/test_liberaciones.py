@@ -1,20 +1,17 @@
 """Finalización por participante, historial inmutable y devolución exacta de stock."""
 
-from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
+from soporte_nacional import auth, client, cuenta_ong, datos
 from sqlalchemy.orm import Session
-from test_certificaciones import auth, client, cuenta_ong, datos
 from test_compromisos import agregar_participante, headers, peticion
 from test_database_models import DatosNacionales, crear_datos
 
 from app.db.models import Compromiso, EstadoOng, Recurso
-from app.schemas.certificaciones import AcreditacionCreate, RevocacionRequest
 from app.schemas.proyectos import FinalizacionRequest
-from app.services.certificaciones import otorgar_acreditacion, revocar_acreditacion
 from app.services.compromisos import registrar_compromisos
 from app.services.inventario import cantidad_comprometida
 from app.services.liberaciones import liberar_compromiso
@@ -112,9 +109,7 @@ def test_repeticiones_preservan_autor_fecha_items_y_total(
     assert primera.headers["cache-control"] == "no-store"
 
 
-@pytest.mark.parametrize(
-    "situacion", ["suspendida", "baja", "recurso", "capacidad", "revocada", "vencida"]
-)
+@pytest.mark.parametrize("situacion", ["suspendida", "baja", "recurso", "capacidad"])
 def test_perdida_de_habilitacion_no_impide_liberar(
     session: Session, datos: DatosNacionales, situacion: str
 ) -> None:
@@ -127,27 +122,6 @@ def test_perdida_de_habilitacion_no_impide_liberar(
         datos.recurso.activo = False
     elif situacion == "capacidad":
         datos.capacidad.activa = False
-    else:
-        revocar_acreditacion(
-            session,
-            datos.admin.id,
-            RevocacionRequest(
-                ong_id=datos.ong.id, acreditacion_id=datos.acreditacion.id, motivo="Fin"
-            ),
-        )
-        if situacion == "vencida":
-            otorgar_acreditacion(
-                session,
-                datos.admin.id,
-                AcreditacionCreate(
-                    ong_id=datos.ong.id,
-                    certificacion_id=datos.certificacion.id,
-                    emisor="Autoridad",
-                    numero_credencial="historia-vencida",
-                    vigente_desde=datetime.now(UTC) - timedelta(days=2),
-                    vigente_hasta=datetime.now(UTC) - timedelta(days=1),
-                ),
-            )
     session.commit()
     liberar_compromiso(
         session,

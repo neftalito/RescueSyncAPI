@@ -135,7 +135,7 @@ def test_permisos_se_cargan_nuevamente(
     assert inventory_client.get("/api/v1/me", headers=headers).status_code == 401
 
 
-def test_onboarding_atomico_pendiente_y_sin_roles(
+def test_onboarding_atomico_operativo_y_sin_autoasignar_roles(
     inventory_client: TestClient, session: Session
 ) -> None:
     datos = {
@@ -152,7 +152,7 @@ def test_onboarding_atomico_pendiente_y_sin_roles(
         == 422
     )
     response = inventory_client.post("/api/v1/ongs", json=datos)
-    assert response.status_code == 201 and response.json()["estado"] == "PENDIENTE"
+    assert response.status_code == 201 and response.json()["estado"] == "HABILITADA"
     assert (
         inventory_client.post(
             "/api/v1/ongs",

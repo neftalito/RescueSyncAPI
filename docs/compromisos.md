@@ -65,21 +65,20 @@ se verifican también para reproducir confirmaciones anteriores.
 ## Transacción y orden de locks
 
 Usar PostgreSQL READ COMMITTED. Orden: reclamo único → cuenta/emisor compartidos
-→ proyecto exclusivo → ONGs compartidas → capacidades/revisiones compartidas
+→ proyecto exclusivo → ONGs compartidas → capacidades compartidas
 → recursos exclusivos. Cada conjunto se ordena por UUID. Edición/alta de
 inventario toma ONG antes del recurso/capacidad; liberación T33 comparte el orden.
-Los cambios de habilitación/acreditación existentes toman ONG exclusiva.
+La suspensión o baja administrativa debe tomar ONG exclusiva.
 
 Crear/reutilizar proyecto por `(emisor, emergencia)`; otro caso para esa emergencia
 o un proyecto terminado produce `409`. El proyecto sólo nace con una adjudicación
 exitosa, nunca al validar ofertas. Después de adquirir todos los locks, una nueva
 sentencia recalcula compromisos activos y se toma la hora UTC de evaluación.
-Se revalidan pertenencia, actividad, capacidades/unidades/fracciones, competencia
-vigente y cantidades agregadas por recurso, incluso entre ofertas y lotes distintos.
+Se revalidan pertenencia, actividad, capacidades/unidades/fracciones
+y cantidades agregadas por recurso, incluso entre ofertas y lotes distintos.
 
 Las reservas usan `total - SUM(ítems de compromisos ACTIVO)` como única disponibilidad.
 No se guarda un contador adicional, no hay reserva parcial ni HTTP dentro de locks.
-Una credencial que venció durante una espera no habilita la asignación.
 T31 es informativo; su resultado previo no garantiza stock o permisos actuales.
 
 RescueSync/Bonita deben garantizar cierre, consentimiento y cantidades ofrecidas
@@ -104,3 +103,6 @@ independientes. Observan `pg_blocking_pids` para probar esperas reales; cubren d
 emergencias, reintentos simultáneos, recursos en orden inverso, edición de total,
 vencimiento durante espera, multiONG/rollback, permisos y stock repetido.
 Se reutiliza el esquema `20261004_0001`; no hay migración nueva.
+
+El compromiso no consulta certificaciones ni el perfil informativo y no limita
+por riesgo. Ver [alta automática y perfiles](./perfiles-competencia.md).

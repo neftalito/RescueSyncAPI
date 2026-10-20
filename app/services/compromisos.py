@@ -10,13 +10,11 @@ from sqlalchemy.orm import Session
 
 from app.db.models import (
     Capacidad,
-    Certificacion,
     Compromiso,
     CompromisoItem,
     Cuenta,
     EstadoProyecto,
     Ong,
-    OngCertificacion,
     Proyecto,
     Recurso,
     SistemaOrigen,
@@ -28,8 +26,6 @@ from app.schemas.compromisos import (
     ConfirmacionCompromisos,
     ItemCompromisoResponse,
 )
-from app.schemas.validaciones import Clasificacion
-from app.services.certificaciones import consultar_certificaciones_ongs
 from app.services.emisores import autorizar_emisor
 from app.services.operaciones import (
     ErrorOperacion,
@@ -113,7 +109,9 @@ def bloquear_recursos(session: Session, ids: set[UUID]) -> list[Recurso]:
     )
 
 
-def _bloquear_competencias(session: Session, datos: CompromisoRequest) -> None:
+def _bloquear_referencias(
+    session: Session, datos: CompromisoRequest
+) -> dict[UUID, Ong]:
     ongs = {a.ong_nacional_id for a in datos.aportes}
     instituciones = session.scalars(
         select(Ong)
@@ -134,16 +132,8 @@ def _bloquear_competencias(session: Session, datos: CompromisoRequest) -> None:
     ).all()
     if len(capacidades) != len(capacidad_ids):
         raise OperacionNoEncontradaError("Una capacidad nacional no existe.")
-    revision_ids = select(OngCertificacion.certificacion_id).where(
-        OngCertificacion.ong_id.in_(ongs)
-    )
-    session.scalars(
-        select(Certificacion)
-        .where(Certificacion.id.in_(revision_ids))
-        .order_by(Certificacion.id)
-        .with_for_update(read=True)
-        .execution_options(populate_existing=True)
-    ).all()
+
+    return {ong.id: ong for ong in instituciones}
 
 
 def registrar_compromisos(
@@ -180,7 +170,7 @@ def registrar_compromisos(
         if not nueva:
             return ConfirmacionCompromisos.model_validate(operacion.respuesta_minima)
         proyecto = _proyecto_adjudicacion(session, origen.id, datos)
-        _bloquear_competencias(session, datos)
+        instituciones = _bloquear_referencias(session, datos)
         recurso_ids = {a.recurso_nacional_id for a in datos.aportes}
         recursos_bloqueados = bloquear_recursos(session, recurso_ids)
         if len(recursos_bloqueados) != len(recurso_ids):
@@ -188,12 +178,6 @@ def registrar_compromisos(
         # Nueva sentencia y reloj después de todas las esperas de locks.
         ahora = datetime.now(UTC)
         recursos = consultar_recursos(session, recurso_ids)
-        perfiles = {
-            p.ong_id: p
-            for _, p in consultar_certificaciones_ongs(
-                session, ong_ids={a.ong_nacional_id for a in datos.aportes}, ahora=ahora
-            )
-        }
         demanda: dict[UUID, Decimal] = {}
         with localcontext() as contexto:
             contexto.prec = max(28, 14 + len(str(len(datos.aportes))) + 3)
@@ -204,20 +188,15 @@ def registrar_compromisos(
                         aporte.ong_nacional_id,
                         aporte.capacidad_nacional_id,
                         aporte.capacidad_nacional_id,
-                        aporte.riesgo_requerido,
                         aporte.unidad,
                         aporte.cantidad,
                     ),
-                    perfil=perfiles.get(aporte.ong_nacional_id),
+                    ong=instituciones.get(aporte.ong_nacional_id),
                     recurso=recurso,
                     capacidad=capacidad,
                     disponible=disponible,
-                    gravedad=aporte.riesgo_requerido,
                 )
-                if (
-                    perfil.clasificacion == Clasificacion.SIN_HABILITACION
-                    or perfil.motivos
-                ):
+                if perfil.motivos:
                     codigos = ", ".join(m.codigo for m in perfil.motivos)
                     raise ErrorOperacion(
                         f"Un aporte no cumple la validación nacional: {codigos}."
@@ -229,7 +208,7 @@ def registrar_compromisos(
                     "La suma adjudicada excede la disponibilidad de un recurso."
                 )
         compromisos: dict[UUID, Compromiso] = {}
-        for ong_id in sorted(perfiles):
+        for ong_id in sorted(instituciones):
             compromiso = Compromiso(
                 id=uuid4(),
                 proyecto_id=proyecto.id,

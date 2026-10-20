@@ -30,8 +30,7 @@ router = APIRouter()
         " un UUID durable por emisor. Repetir los mismos datos devuelve la "
         "misma identidad sin rotar secretos; contenido distinto produce 409. "
         "El backend emisor genera y conserva el secreto, que nunca se "
-        "devuelve por HTTP. Alta PENDIENTE sin habilitación ni "
-        "certificaciones."
+        "devuelve por HTTP. Alta automática sin aprobación previa."
     ),
     responses=respuestas(
         401, 403, 409, 422, ejemplo=ejemplos.ONG_APROVISIONADA, exito=200

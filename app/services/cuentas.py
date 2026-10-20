@@ -22,7 +22,7 @@ def autenticar(session: Session, login: str, password: str) -> Cuenta | None:
 
 
 def registrar_ong(session: Session, datos: OngCreate) -> Ong:
-    """Crea una ONG pendiente y una cuenta sin habilitarla ni certificarla."""
+    """Crea una ONG operativa y su cuenta sin aprobación previa."""
 
     ong = Ong(
         nombre=datos.nombre,

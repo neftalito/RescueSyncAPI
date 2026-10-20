@@ -4,8 +4,8 @@ from decimal import Decimal
 from uuid import uuid4
 
 from fastapi.testclient import TestClient
+from soporte_nacional import auth, client, datos
 from sqlalchemy.orm import Session
-from test_certificaciones import auth, client, datos
 from test_compromisos import headers, peticion
 from test_database_models import DatosNacionales, crear_datos
 
