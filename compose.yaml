@@ -28,6 +28,7 @@ services:
     environment: &api-environment
       APP_ENV: ${APP_ENV:-development}
       JWT_SECRET: ${JWT_SECRET:-}
+      DB_MAINTENANCE_PASSWORD: ${DB_MAINTENANCE_PASSWORD:-}
       JWT_ISSUER: ${JWT_ISSUER:-rescuesync-nacional}
       JWT_AUDIENCE: ${JWT_AUDIENCE:-rescuesync}
       JWT_ACCESS_SECONDS: ${JWT_ACCESS_SECONDS:-1800}

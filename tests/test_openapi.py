@@ -14,6 +14,7 @@ from app.schemas.aprovisionamiento import AprovisionamientoRequest
 from app.schemas.catalogo import CapacidadCreate
 from app.schemas.compromisos import CompromisoRequest
 from app.schemas.inventario import LoginRequest, OngCreate, RecursoCreate, RecursoUpdate
+from app.schemas.mantenimiento import SeedMasivoRequest
 from app.schemas.proyectos import FinalizacionRequest
 from app.schemas.validaciones import ValidacionRequest
 
@@ -25,6 +26,7 @@ OPERACIONES = [
     if metodo in {"get", "post", "put", "patch", "delete"}
 ]
 CUERPOS = {
+    ("/api/v1/mantenimiento/seed-masivo", "post"): SeedMasivoRequest,
     ("/api/v1/login", "post"): LoginRequest,
     ("/api/v1/ongs", "post"): OngCreate,
     ("/api/v1/capacidades", "post"): CapacidadCreate,
@@ -53,7 +55,12 @@ def test_operaciones_documentan_acceso_errores_y_ejemplos(
     assert operacion["summary"]
     assert "Acceso" in operacion["description"]
     publica = (metodo.upper(), ruta) in PUBLICAS
-    assert operacion.get("security", []) == ([] if publica else [{"HTTPBearer": []}])
+    seguridad = (
+        [{"DBMaintenancePassword": []}]
+        if "/mantenimiento/" in ruta
+        else [{"HTTPBearer": []}]
+    )
+    assert operacion.get("security", []) == ([] if publica else seguridad)
     if not publica:
         assert {"401", "403"} <= operacion["responses"].keys()
     for codigo, respuesta in operacion["responses"].items():

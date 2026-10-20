@@ -23,7 +23,9 @@ docker compose run --rm api python -m app.scripts.seed_masivo --dry-run
 docker compose run --rm api python -m app.scripts.seed_masivo
 ```
 
-Sólo admite `APP_ENV=development` o `test`. Escribe en la base configurada para
+La CLI sólo admite `APP_ENV=development` o `test`. El
+[endpoint de mantenimiento](./mantenimiento-db.md) también permite ejecutarlo
+en producción con la contraseña del entorno. Escribe en la base configurada para
 la API y no requiere acceso a RescueSync ni Bonita.
 
 ## Parámetros

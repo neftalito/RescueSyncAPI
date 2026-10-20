@@ -9,6 +9,7 @@ x-production: &production
     PORT: 9017
     # Credenciales exclusivas de esta base efímera, sin puertos publicados.
     JWT_SECRET: t38-clave-descartable-solo-para-pruebas-de-produccion
+    DB_MAINTENANCE_PASSWORD: t38-mantenimiento-descartable-solo-para-pruebas
     DATABASE_URL: postgresql://t38:t38-descartable@db:5432/t38
     CORS_ORIGINS: '[]'
 

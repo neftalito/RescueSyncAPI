@@ -39,14 +39,25 @@ class Settings(BaseSettings):
     jwt_issuer: str = "rescuesync-nacional"
     jwt_audience: str = "rescuesync"
     jwt_access_seconds: int = Field(default=1800, ge=60, le=3600)
+    db_maintenance_password: SecretStr | None = Field(default=None, min_length=32)
     operacion_lock_timeout_ms: int = Field(default=5000, ge=1, le=60_000)
     operacion_statement_timeout_ms: int = Field(default=15000, ge=1, le=120_000)
     _jwt_secret_desarrollo: str = PrivateAttr(default_factory=lambda: token_urlsafe(48))
 
-    @field_validator("jwt_secret", mode="before")
+    @field_validator("jwt_secret", "db_maintenance_password", mode="before")
     @classmethod
-    def normalizar_jwt_secret(cls, valor: object) -> object:
+    def normalizar_secretos(cls, valor: object) -> object:
         return None if valor == "" else valor
+
+    @field_validator("db_maintenance_password")
+    @classmethod
+    def validar_password_mantenimiento(
+        cls, valor: SecretStr | None
+    ) -> SecretStr | None:
+        """Rechaza contraseñas compuestas sólo de espacios."""
+        if valor is not None and not valor.get_secret_value().strip():
+            raise ValueError("DB_MAINTENANCE_PASSWORD no puede contener sólo espacios")
+        return valor
 
     @model_validator(mode="after")
     def validar_jwt_secret(self) -> Self:

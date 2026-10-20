@@ -17,6 +17,12 @@ Para medir consultas con miles de registros, el
 [seed masivo configurable](./docs/seed-masivo.md) genera por defecto 1.000 ONGs y
 20.000 recursos, conserva los datos existentes y comparte referencias con el
 seed masivo de RescueSync.
+
+Los [endpoints de mantenimiento](./docs/mantenimiento-db.md) permiten ejecutar
+ambos seeds y vaciar la base nacional con `DB_MAINTENANCE_PASSWORD`, enviada en
+`X-DB-Maintenance-Password`. Están documentados en Swagger y funcionan también
+en producción; sin la variable configurada permanecen deshabilitados.
+
 Demo y masivo son modalidades alternativas: cada uno funciona por sí solo y crea
 el mismo administrador nacional, `admin.nacional.demo@rescuesync.org` con contraseña
 inicial `admin-nacional-demo123`. El catálogo de RescueSync conserva las mismas
