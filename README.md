@@ -120,12 +120,57 @@ mezclar sesiones síncronas y asíncronas.
 
 ## Configuración
 
-La configuración se toma de variables de entorno. `DATABASE_URL` tiene prioridad
-sobre las variables PostgreSQL individuales.
+El archivo de este servicio es **`RescueSyncAPI/.env`**, en la misma carpeta que
+`compose.yaml`. Crearlo con `cp .env.example .env` si todavía no existe. El otro
+archivo del sistema es `RescueSync/.env`, para la aplicación local y Bonita; sus
+valores están en el [README de RescueSync](https://github.com/neftalito/RescueSync/blob/develop/README.md#archivos-env-y-valores-de-configuración).
+Cada repositorio usa su propio archivo y sus propias credenciales de base de datos.
+
+### `RescueSyncAPI/.env`: valores completos de desarrollo
+
+```dotenv
+# Aplicación y puertos
+APP_ENV=development
+PORT=8000
+API_PORT=8001
+CORS_ORIGINS=["http://localhost:5173"]
+
+# PostgreSQL nacional
+DATABASE_URL=
+POSTGRES_HOST=db
+POSTGRES_PORT=5432
+POSTGRES_EXPOSED_PORT=5433
+POSTGRES_DB=rescuesync_nacional
+POSTGRES_USER=rescuesync_nacional
+POSTGRES_PASSWORD=rescuesync_nacional_dev
+
+# Firma y vigencia de los JWT
+JWT_SECRET=
+JWT_ISSUER=rescuesync-nacional
+JWT_AUDIENCE=rescuesync
+JWT_ACCESS_SECONDS=1800
+
+# Timeouts de las operaciones transaccionales
+OPERACION_LOCK_TIMEOUT_MS=5000
+OPERACION_STATEMENT_TIMEOUT_MS=15000
+
+# Bootstrap de la imagen de producción; desactivado en desarrollo
+INTEGRACION_AUTO_BOOTSTRAP=false
+INTEGRACION_LOGIN=integracion-rescuesync
+INTEGRACION_SISTEMA_ORIGEN=rescuesync-local
+INTEGRACION_PASSWORD=
+```
+
+Los valores coinciden con [`.env.example`](.env.example). `DATABASE_URL` vacía
+usa `POSTGRES_*`; si se completa, tiene prioridad sobre esas variables.
+`JWT_SECRET` vacía genera una clave efímera en desarrollo/test: para conservar
+tokens entre reinicios, generar una clave estable con `openssl rand -hex 32`.
+En producción es obligatoria y debe tener al menos 32 caracteres.
 
 Compose mantiene el puerto interno de la API en 8000; `API_PORT` cambia el puerto
 del host. Fuera de Compose, el comando del Dockerfile usa `PORT` directamente.
 API y migraciones reciben la misma `DATABASE_URL`, también al usar Compose.
+Compose fija `POSTGRES_HOST=db` y `POSTGRES_PORT=5432` dentro de los contenedores.
 
 | Variable | Valor de desarrollo | Propósito |
 | --- | --- | --- |
@@ -138,16 +183,90 @@ API y migraciones reciben la misma `DATABASE_URL`, también al usar Compose.
 | `POSTGRES_EXPOSED_PORT` | `5433` | Puerto PostgreSQL publicado por Compose |
 | `POSTGRES_DB` | `rescuesync_nacional` | Base nacional |
 | `POSTGRES_USER` | `rescuesync_nacional` | Usuario local |
-| `POSTGRES_PASSWORD` | sólo desarrollo | Contraseña local; debe ser secreta en cloud |
+| `POSTGRES_PASSWORD` | `rescuesync_nacional_dev` | Contraseña local; reemplazar en producción |
 | `CORS_ORIGINS` | `["http://localhost:5173"]` | Lista JSON de orígenes HTTP permitidos |
 | `JWT_SECRET` | vacío, clave efímera | Clave de al menos 32 caracteres, obligatoria en producción |
 | `JWT_ISSUER` | `rescuesync-nacional` | Emisor validado del JWT |
 | `JWT_AUDIENCE` | `rescuesync` | Audiencia validada del JWT |
 | `JWT_ACCESS_SECONDS` | `1800` | Vigencia del acceso, entre 60 y 3600 segundos |
+| `OPERACION_LOCK_TIMEOUT_MS` | `5000` | Espera máxima de locks, en milisegundos; entre 1 y 60000 |
+| `OPERACION_STATEMENT_TIMEOUT_MS` | `15000` | Límite de sentencias de compromiso/liberación/cierre, en milisegundos; entre 1 y 120000 |
+| `INTEGRACION_AUTO_BOOTSTRAP` | `false` | Activa el aprovisionamiento al arrancar la imagen de producción si vale `true` |
+| `INTEGRACION_LOGIN` | `integracion-rescuesync` | Login de la cuenta nacional de rol `INTEGRACION` |
+| `INTEGRACION_SISTEMA_ORIGEN` | `rescuesync-local` | Código del emisor de RescueSync |
+| `INTEGRACION_PASSWORD` | vacío | Contraseña propia de 12 a 128 caracteres; obligatoria si se activa el bootstrap |
 
 Las URLs `postgres://` y `postgresql://` se normalizan automáticamente al driver
 `postgresql+psycopg://`, por lo que son compatibles con Render, Fly.io y otros
 proveedores que entregan `DATABASE_URL`.
+
+### Cuenta compartida con RescueSync y Bonita
+
+Con el Compose de desarrollo, crear la cuenta nacional una vez después de iniciar
+la API y aplicar las migraciones:
+
+```bash
+docker compose run --rm api python -m app.scripts.bootstrap_integracion --login integracion-rescuesync --sistema-origen rescuesync-local
+```
+
+El comando solicita una contraseña propia de al menos 12 caracteres. Guardarla
+en `NACIONAL_INTEGRACION_PASSWORD` de `RescueSync/.env`; ese Compose la comparte
+con el backend y Bonita cuando sus overrides de contraseña están vacíos.
+El seed demo/masivo no reemplaza este paso de aprovisionamiento del emisor.
+
+| API nacional | `RescueSync/.env` | Valor que debe coincidir |
+| --- | --- | --- |
+| `INTEGRACION_LOGIN` o `--login` del bootstrap manual | `NACIONAL_APROVISIONAMIENTO_LOGIN` y `BONITA_NATIONAL_API_LOGIN` | `integracion-rescuesync` |
+| `INTEGRACION_SISTEMA_ORIGEN` o `--sistema-origen` | `NACIONAL_SISTEMA_ORIGEN` | `rescuesync-local` |
+| `INTEGRACION_PASSWORD` o contraseña del bootstrap manual | `NACIONAL_INTEGRACION_PASSWORD` | El mismo secreto privado |
+
+Las variables `INTEGRACION_*` se leen del entorno del proceso con `os.getenv`.
+El `compose.yaml` de desarrollo no las propaga ni ejecuta el bootstrap automático;
+poner `INTEGRACION_AUTO_BOOTSTRAP=true` sólo en ese `.env` no crea la cuenta.
+Para la imagen de producción se inyectan desde el proveedor o con
+`docker run --env-file .env`. Si se invoca el bootstrap automático fuera de
+Docker, exportar las variables `INTEGRACION_*` antes de ejecutarlo.
+
+### Valores de la API nacional en Render
+
+Cargar estas variables en **Environment** del servicio; los marcadores entre
+`<...>` se reemplazan por valores privados del entorno:
+
+```dotenv
+APP_ENV=production
+DATABASE_URL=<URL-interna-PostgreSQL-de-Render>
+JWT_SECRET=<secreto-aleatorio-propio-de-al-menos-32-caracteres>
+CORS_ORIGINS=[]
+JWT_ISSUER=rescuesync-nacional
+JWT_AUDIENCE=rescuesync
+JWT_ACCESS_SECONDS=1800
+OPERACION_LOCK_TIMEOUT_MS=5000
+OPERACION_STATEMENT_TIMEOUT_MS=15000
+INTEGRACION_AUTO_BOOTSTRAP=true
+INTEGRACION_LOGIN=integracion-rescuesync
+INTEGRACION_SISTEMA_ORIGEN=rescuesync-local
+INTEGRACION_PASSWORD=<mismo-secreto-de-NACIONAL_INTEGRACION_PASSWORD-en-RescueSync>
+```
+
+Generar `JWT_SECRET` e `INTEGRACION_PASSWORD` por separado con
+`openssl rand -hex 32` y conservarlos entre despliegues. Si la cuenta ya existe,
+usar su contraseña vigente; el bootstrap no la rota. Render suministra `PORT`.
+`CORS_ORIGINS=[]` corresponde al acceso desde el backend y Bonita; si accede una
+app desde el navegador, indicar sus orígenes HTTP/HTTPS en la lista JSON.
+Aplicar primero las migraciones, como indica la [guía de despliegue](#despliegue-en-render).
+
+### Ejecución de la API directamente en el host
+
+Pydantic busca `.env` en el directorio desde el que se ejecuta el comando.
+Al iniciar FastAPI o Alembic desde la raíz nacional, usar `RescueSyncAPI/.env`.
+Si PostgreSQL sigue en Compose, cambiar `POSTGRES_HOST=localhost` y
+`POSTGRES_PORT=5433` (o el `POSTGRES_EXPOSED_PORT` elegido); alternativamente,
+definir `DATABASE_URL=postgresql+psycopg://rescuesync_nacional:rescuesync_nacional_dev@localhost:5433/rescuesync_nacional`.
+
+Los overrides opcionales `APP_NAME=RescueSync API Nacional`, `APP_VERSION=0.1.0`
+y `API_V1_PREFIX=/api/v1` tienen esos valores por defecto en Pydantic; Compose
+no los propaga. Las variables del entorno del proceso tienen prioridad sobre
+las del archivo `.env`.
 
 ## Migraciones
 
