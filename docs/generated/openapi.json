@@ -954,6 +954,35 @@
         "exclusiveMinimum": 0.0,
         "type": "integer"
       },
+      "IntegracionSeedYaak": {
+        "additionalProperties": false,
+        "properties": {
+          "identificadorLogin": {
+            "maxLength": 320,
+            "minLength": 1,
+            "title": "Identificadorlogin",
+            "type": "string"
+          },
+          "password": {
+            "format": "password",
+            "maxLength": 128,
+            "minLength": 12,
+            "title": "Password",
+            "type": "string",
+            "writeOnly": true
+          },
+          "sistemaOrigen": {
+            "$ref": "#/components/schemas/Codigo"
+          }
+        },
+        "required": [
+          "identificadorLogin",
+          "password",
+          "sistemaOrigen"
+        ],
+        "title": "IntegracionSeedYaak",
+        "type": "object"
+      },
       "ItemCompromisoResponse": {
         "additionalProperties": false,
         "properties": {
@@ -1197,6 +1226,7 @@
             "enum": [
               "seed",
               "seed-masivo",
+              "seed-yaak",
               "flush"
             ],
             "title": "Operacion",
@@ -1714,6 +1744,117 @@
         "minLength": 1,
         "type": "string"
       },
+      "ReferenciasSeedYaak": {
+        "additionalProperties": false,
+        "properties": {
+          "adminId": {
+            "format": "uuid",
+            "title": "Adminid",
+            "type": "string"
+          },
+          "aguaAId": {
+            "format": "uuid",
+            "title": "Aguaaid",
+            "type": "string"
+          },
+          "capacidadAguaId": {
+            "format": "uuid",
+            "title": "Capacidadaguaid",
+            "type": "string"
+          },
+          "capacidadInactivaId": {
+            "format": "uuid",
+            "title": "Capacidadinactivaid",
+            "type": "string"
+          },
+          "capacidadPersonalId": {
+            "format": "uuid",
+            "title": "Capacidadpersonalid",
+            "type": "string"
+          },
+          "integracionId": {
+            "format": "uuid",
+            "title": "Integracionid",
+            "type": "string"
+          },
+          "ongAId": {
+            "format": "uuid",
+            "title": "Ongaid",
+            "type": "string"
+          },
+          "ongBId": {
+            "format": "uuid",
+            "title": "Ongbid",
+            "type": "string"
+          },
+          "ongBajaId": {
+            "format": "uuid",
+            "title": "Ongbajaid",
+            "type": "string"
+          },
+          "ongSuspendidaId": {
+            "format": "uuid",
+            "title": "Ongsuspendidaid",
+            "type": "string"
+          },
+          "ongTecnicaId": {
+            "format": "uuid",
+            "title": "Ongtecnicaid",
+            "type": "string"
+          },
+          "personalAId": {
+            "format": "uuid",
+            "title": "Personalaid",
+            "type": "string"
+          },
+          "personalBId": {
+            "format": "uuid",
+            "title": "Personalbid",
+            "type": "string"
+          },
+          "personalBajaId": {
+            "format": "uuid",
+            "title": "Personalbajaid",
+            "type": "string"
+          },
+          "personalSuspendidaId": {
+            "format": "uuid",
+            "title": "Personalsuspendidaid",
+            "type": "string"
+          },
+          "recursoCapacidadInactivaId": {
+            "format": "uuid",
+            "title": "Recursocapacidadinactivaid",
+            "type": "string"
+          },
+          "recursoInactivoId": {
+            "format": "uuid",
+            "title": "Recursoinactivoid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "adminId",
+          "integracionId",
+          "ongAId",
+          "ongBId",
+          "ongTecnicaId",
+          "ongSuspendidaId",
+          "ongBajaId",
+          "capacidadPersonalId",
+          "capacidadAguaId",
+          "capacidadInactivaId",
+          "personalAId",
+          "personalBId",
+          "aguaAId",
+          "recursoInactivoId",
+          "recursoCapacidadInactivaId",
+          "personalSuspendidaId",
+          "personalBajaId"
+        ],
+        "title": "ReferenciasSeedYaak",
+        "type": "object"
+      },
       "RolNacional": {
         "enum": [
           "ADMIN_NACIONAL",
@@ -1777,6 +1918,7 @@
             "enum": [
               "seed",
               "seed-masivo",
+              "seed-yaak",
               "flush"
             ],
             "title": "Operacion",
@@ -1795,6 +1937,115 @@
           "recursos"
         ],
         "title": "SeedMasivoResponse",
+        "type": "object"
+      },
+      "SeedYaakRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "confirmacion": {
+            "const": "BORRAR_Y_PREPARAR_YAAK",
+            "title": "Confirmacion",
+            "type": "string"
+          },
+          "integracion": {
+            "$ref": "#/components/schemas/IntegracionSeedYaak"
+          },
+          "runId": {
+            "maxLength": 32,
+            "minLength": 1,
+            "pattern": "^[A-Z0-9][A-Z0-9_-]*$",
+            "title": "Runid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "confirmacion",
+          "runId",
+          "integracion"
+        ],
+        "title": "SeedYaakRequest",
+        "type": "object"
+      },
+      "SeedYaakResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "capacidades": {
+            "title": "Capacidades",
+            "type": "integer"
+          },
+          "compromisos": {
+            "title": "Compromisos",
+            "type": "integer"
+          },
+          "cuentas": {
+            "title": "Cuentas",
+            "type": "integer"
+          },
+          "identificadoresLogin": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Identificadoreslogin",
+            "type": "object"
+          },
+          "mensaje": {
+            "title": "Mensaje",
+            "type": "string"
+          },
+          "ongs": {
+            "title": "Ongs",
+            "type": "integer"
+          },
+          "operacion": {
+            "enum": [
+              "seed",
+              "seed-masivo",
+              "seed-yaak",
+              "flush"
+            ],
+            "title": "Operacion",
+            "type": "string"
+          },
+          "proyectos": {
+            "title": "Proyectos",
+            "type": "integer"
+          },
+          "recursos": {
+            "title": "Recursos",
+            "type": "integer"
+          },
+          "referencias": {
+            "$ref": "#/components/schemas/ReferenciasSeedYaak"
+          },
+          "runId": {
+            "title": "Runid",
+            "type": "string"
+          },
+          "sistemaOrigen": {
+            "title": "Sistemaorigen",
+            "type": "string"
+          },
+          "unidades": {
+            "title": "Unidades",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "operacion",
+          "mensaje",
+          "runId",
+          "unidades",
+          "capacidades",
+          "ongs",
+          "cuentas",
+          "recursos",
+          "proyectos",
+          "compromisos",
+          "sistemaOrigen",
+          "identificadoresLogin",
+          "referencias"
+        ],
+        "title": "SeedYaakResponse",
         "type": "object"
       },
       "TipoRecurso": {
@@ -3193,6 +3444,148 @@
           }
         ],
         "summary": "Cargar el seed masivo nacional",
+        "tags": [
+          "mantenimiento de base de datos"
+        ]
+      }
+    },
+    "/api/v1/mantenimiento/seed-yaak": {
+      "post": {
+        "description": "Acceso: contraseña DB_MAINTENANCE_PASSWORD en X-DB-Maintenance-Password, independiente del JWT; admite producción. Sin contraseña configurada: 403; ausente o incorrecta: 401. Operación sincrónica, transaccional y serializada con los otros endpoints de mantenimiento. Responde sólo después del commit. DESTRUCTIVO: hace flush de TODAS las tablas nacionales y carga sólo el escenario Yaak, en una transacción. Requiere confirmación literal y credenciales de integración de 12–128 caracteres para recrear el emisor. Prepara catálogo, cinco ONGs, ocho cuentas y siete recursos; cero proyectos o compromisos. Datos deterministas, sin Faker. Los UUID dependen de runId. Nunca devuelve contraseñas. Repetir reinicia todo el escenario, incluso con el mismo runId. Ejecutar sin tráfico de negocio. Si falla la carga, el flush también se revierte. Ante timeout verificar el resultado antes de repetir.",
+        "operationId": "seed_yaak_api_v1_mantenimiento_seed_yaak_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SeedYaakRequest",
+                "examples": [
+                  {
+                    "confirmacion": "BORRAR_Y_PREPARAR_YAAK",
+                    "integracion": {
+                      "identificadorLogin": "integracion-rescuesync",
+                      "password": "demo-integracion-yaak-2026-123456",
+                      "sistemaOrigen": "rescuesync-local"
+                    },
+                    "runId": "YAAK2026"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "capacidades": 57,
+                  "compromisos": 0,
+                  "cuentas": 8,
+                  "identificadoresLogin": {
+                    "admin": "admin.yaak@example.org",
+                    "baja": "baja.yaak@example.org",
+                    "inactiva": "inactiva.yaak@example.org",
+                    "integracion": "integracion-rescuesync",
+                    "ong_a": "ong-a.yaak@example.org",
+                    "ong_b": "ong-b.yaak@example.org",
+                    "suspendida": "suspendida.yaak@example.org",
+                    "tecnica": "tecnica.yaak@example.org"
+                  },
+                  "mensaje": "Base nacional reiniciada y escenario Yaak preparado.",
+                  "ongs": 5,
+                  "operacion": "seed-yaak",
+                  "proyectos": 0,
+                  "recursos": 7,
+                  "referencias": {
+                    "adminId": "500bed11-1133-590f-a1c7-2fcb19db5265",
+                    "aguaAId": "eecb57c9-9099-55ad-8f39-d1ecfba3c603",
+                    "capacidadAguaId": "6d87d854-2ebd-5eae-abf5-98ed1df1c094",
+                    "capacidadInactivaId": "80c28d6f-27dd-535a-9f8b-09c55c67e750",
+                    "capacidadPersonalId": "18126703-56bd-568a-afd1-420f2a86d06a",
+                    "integracionId": "f63a0530-0d42-58df-b92d-0639368684ea",
+                    "ongAId": "6fb6e636-4ce3-5111-b133-0d8cafe5f4c5",
+                    "ongBId": "2078f29a-c87d-5e38-8bae-6270644f5d47",
+                    "ongBajaId": "5bfe7615-30fe-5c4b-ac41-8354ab88b838",
+                    "ongSuspendidaId": "eaa6e0ab-41bf-5960-82e6-5b8f36fd5a9c",
+                    "ongTecnicaId": "78b41903-45da-50f4-9469-d4d977e8a577",
+                    "personalAId": "5281a5ce-62e5-5162-ac91-61a62a8fbe47",
+                    "personalBId": "d2690b28-637f-5d06-8998-ccd775b17d10",
+                    "personalBajaId": "e78e4e56-fe07-508f-8203-c5ad21c188dd",
+                    "personalSuspendidaId": "61d035eb-8633-5a5f-941d-1cd08ad60394",
+                    "recursoCapacidadInactivaId": "2a36e959-19a1-5ccd-b529-1e8d0d1ff1d1",
+                    "recursoInactivoId": "63c7ba52-6c41-5040-b44c-3236a9216a79"
+                  },
+                  "runId": "YAAK2026",
+                  "sistemaOrigen": "rescuesync-local",
+                  "unidades": 31
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/SeedYaakResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La contraseña de mantenimiento no es válida."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El mantenimiento de base de datos está deshabilitado."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No se pudo confirmar el mantenimiento. Revisá el estado antes de reintentar."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Fallo temporal de base de datos. En escrituras idempotentes, reintentar con la misma Idempotency-Key: el resultado puede haberse confirmado."
+          }
+        },
+        "security": [
+          {
+            "DBMaintenancePassword": []
+          }
+        ],
+        "summary": "Vaciar la base y preparar el escenario de pruebas de Yaak",
         "tags": [
           "mantenimiento de base de datos"
         ]

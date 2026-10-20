@@ -12,8 +12,11 @@ from app.schemas.mantenimiento import (
     MantenimientoResponse,
     SeedMasivoRequest,
     SeedMasivoResponse,
+    SeedYaakRequest,
+    SeedYaakResponse,
 )
 from app.scripts.seed_masivo import ConfiguracionSeed
+from app.scripts.seed_yaak import respuesta_seed_yaak
 from app.services import mantenimiento
 
 router = APIRouter(
@@ -34,6 +37,52 @@ _ACCESO = (
     "con los otros endpoints de mantenimiento. Responde sólo después del commit. "
 )
 _SEED_MASIVO_PREDETERMINADO = SeedMasivoRequest()
+_EJEMPLO_YAAK = {
+    "confirmacion": "BORRAR_Y_PREPARAR_YAAK",
+    "runId": "YAAK2026",
+    "integracion": {
+        "identificadorLogin": "integracion-rescuesync",
+        "password": "demo-integracion-yaak-2026-123456",
+        "sistemaOrigen": "rescuesync-local",
+    },
+}
+
+
+@router.post(
+    "/seed-yaak",
+    response_model=SeedYaakResponse,
+    summary="Vaciar la base y preparar el escenario de pruebas de Yaak",
+    description=_ACCESO
+    + (
+        "DESTRUCTIVO: hace flush de TODAS las tablas nacionales y carga sólo el "
+        "escenario Yaak, en una transacción. Requiere confirmación literal y "
+        "credenciales de integración de 12–128 caracteres para recrear el emisor. "
+        "Prepara catálogo, cinco ONGs, ocho cuentas y siete recursos; cero "
+        "proyectos o compromisos. Datos deterministas, sin Faker. Los UUID "
+        "dependen de runId. Nunca devuelve contraseñas. Repetir reinicia todo "
+        "el escenario, incluso con el mismo runId. Ejecutar sin tráfico de "
+        "negocio. Si falla la carga, el flush también se revierte. Ante timeout "
+        "verificar el resultado antes de repetir."
+    ),
+    responses=respuestas(
+        401,
+        403,
+        422,
+        503,
+        ejemplo=respuesta_seed_yaak(
+            SeedYaakRequest.model_validate(_EJEMPLO_YAAK)
+        ).model_dump(mode="json", by_alias=True),
+        detalles=_ERRORES,
+    ),
+)
+def seed_yaak(
+    datos: Annotated[SeedYaakRequest, Body(examples=[_EJEMPLO_YAAK])],
+    session: Db,
+) -> SeedYaakResponse:
+    try:
+        return mantenimiento.preparar_yaak(session, datos)
+    except SQLAlchemyError as error:
+        raise HTTPException(503, _ERRORES[503]) from error
 
 
 @router.post(
