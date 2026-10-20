@@ -14,9 +14,14 @@ ADMIN_DEMO_LOGIN = "admin.nacional.demo@rescuesync.org"
 ADMIN_DEMO_PASSWORD = "admin-nacional-demo123"
 
 
-def asegurar_admin_demo(session: Session) -> tuple[Cuenta, bool]:
+def asegurar_admin_demo(
+    session: Session, *, permitir_produccion: bool = False
+) -> tuple[Cuenta, bool]:
     """Crea la cuenta faltante sin rotar ni reactivar una identidad existente."""
-    if get_settings().app_env not in {"development", "test"}:
+    if not permitir_produccion and get_settings().app_env not in {
+        "development",
+        "test",
+    }:
         raise ValueError("El seed sólo está disponible en desarrollo y pruebas.")
     # El administrador es compartido incluso entre cargas con distinto --seed.
     session.execute(select(func.pg_advisory_xact_lock(73843, -1)))

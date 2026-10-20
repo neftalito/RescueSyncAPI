@@ -105,6 +105,7 @@ def test_preflight_admite_json_autorizacion_csrf_e_idempotencia(
             "Access-Control-Request-Method": "POST",
             "Access-Control-Request-Headers": (
                 "authorization,content-type,x-csrf-token,idempotency-key"
+                ",x-db-maintenance-password"
             ),
         },
     )

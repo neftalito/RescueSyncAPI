@@ -1,5 +1,10 @@
 # Plan de implementación — Entrega 3 de RescueSync
 
+> Actualización 20/10/2026: [perfiles informativos](./perfiles-competencia.md) reemplaza las
+> reglas de certificación, habilitación previa y clasificación por riesgo de este
+> documento. Las referencias a esas reglas describen el comportamiento anterior.
+
+
 ## Objetivo, fuentes y estado inicial
 
 Entregar en la semana del **22/10/2026** una API nacional REST con JWT,

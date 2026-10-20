@@ -12,7 +12,7 @@ app = AplicacionConCORS(
     title=settings.app_name,
     version=settings.app_version,
     description=(
-        "API nacional para gestionar organizaciones, certificaciones y recursos "
+        "API nacional para gestionar organizaciones, perfiles informativos y recursos "
         "de la red RescueSync.\n\n"
         "**Autenticación:** POST /api/v1/login recibe identificadorLogin y password; "
         "usar access_token como Authorization: Bearer <token>. Los roles vigentes "
@@ -21,7 +21,7 @@ app = AplicacionConCORS(
         "reales. IDs locales y nacionales no son intercambiables.\n\n"
         "**Flujo distribuido:** Bonita obtiene el snapshot cerrado del backend "
         "local y llama a validaciones. La evaluación es transitoria, no persiste "
-        "ofertas y no reserva stock. Comprometer revalida permisos, competencias "
+        "ofertas y no reserva stock. Comprometer revalida permisos, referencias "
         "y disponibilidad bajo locks PostgreSQL, con confirmación atómica. "
         "Compromiso, edición de inventario y liberación comparten locking. "
         "No se mantienen locks durante llamadas HTTP.\n\n"

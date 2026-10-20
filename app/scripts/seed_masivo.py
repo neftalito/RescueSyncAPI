@@ -4,7 +4,6 @@ import argparse
 import sys
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
-from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from itertools import batched
 from time import perf_counter
@@ -19,13 +18,9 @@ from app.core.config import get_settings
 from app.core.security import generar_password_hash
 from app.db.models import (
     Capacidad,
-    Certificacion,
-    CertificacionCapacidad,
     Cuenta,
     EstadoOng,
-    NivelRiesgo,
     Ong,
-    OngCertificacion,
     PropositoCuenta,
     Recurso,
     RolNacional,
@@ -64,7 +59,6 @@ class ResultadoSeed:
     ongs: int = 0
     cuentas: int = 0
     recursos: int = 0
-    acreditaciones: int = 0
 
 
 def id_nacional(seed: int, referencia: str) -> UUID:
@@ -105,63 +99,18 @@ def _cuenta(
     return True
 
 
-def _certificacion(
-    session: Session, config: ConfiguracionSeed, capacidades: list[Capacidad]
-) -> UUID:
-    """Crea una revisión propia, sin modificar el catálogo oficial de capacidades."""
-    cert_id = id_nacional(config.seed, "certificacion:1")
-    codigo = f"MASIVO_{config.seed}"
-    cert = session.scalar(
-        select(Certificacion).where(
-            Certificacion.codigo == codigo, Certificacion.revision == 1
-        )
-    )
-    if cert is None:
-        cert = Certificacion(
-            id=cert_id,
-            codigo=codigo,
-            revision=1,
-            nombre="Competencias sintéticas para pruebas de volumen",
-            activa=False,
-        )
-        session.add(cert)
-        session.flush()
-        session.add_all(
-            [
-                CertificacionCapacidad(
-                    certificacion_id=cert_id,
-                    capacidad_id=cap.id,
-                    riesgo_maximo=NivelRiesgo.CRITICA,
-                )
-                for cap in capacidades
-            ]
-        )
-        session.flush()
-        cert.activa = True
-        session.flush()
-    alcances = dict(
-        session.execute(
-            select(
-                CertificacionCapacidad.capacidad_id,
-                CertificacionCapacidad.riesgo_maximo,
-            ).where(CertificacionCapacidad.certificacion_id == cert.id)
-        ).all()
-    )
-    if cert.id != cert_id or alcances != {
-        cap.id: NivelRiesgo.CRITICA for cap in capacidades
-    }:
-        raise ValueError("La certificación masiva tiene otra identidad o alcances.")
-    return cert_id
-
-
 def seed_mass_data(
     session: Session,
     config: ConfiguracionSeed,
     *,
     progreso: Callable[[str], None] | None = None,
+    permitir_produccion: bool = False,
 ) -> ResultadoSeed:
     """Agrega filas faltantes; la transacción y su rollback pertenecen al llamador."""
-    if get_settings().app_env not in {"development", "test"}:
+    if not permitir_produccion and get_settings().app_env not in {
+        "development",
+        "test",
+    }:
         raise ValueError("El seed masivo sólo está disponible en desarrollo y pruebas.")
     session.execute(select(func.pg_advisory_xact_lock(73843, config.seed)))
     catalogo = {
@@ -184,12 +133,9 @@ def seed_mass_data(
     # Reutilizar hashes de fixtures evita ejecutar Argon2 miles de veces.
     hash_personal = generar_password_hash(PASSWORD_PRUEBA)
     hash_tecnico = generar_password_hash(PASSWORD_TECNICA)
-    admin, creado = asegurar_admin_demo(session)
-    admin_id = admin.id
+    _, creado = asegurar_admin_demo(session, permitir_produccion=permitir_produccion)
     resultado.cuentas += creado
-    cert_id = _certificacion(session, config, capacidades)
     fake = Faker("es_AR", use_weighting=False)
-    ahora = datetime.now(UTC)
     for indices in batched(range(1, config.ongs + 1), config.batch_size, strict=False):
         ids = {i: id_nacional(config.seed, f"ong:{i}") for i in indices}
         existentes = {
@@ -212,8 +158,6 @@ def seed_mass_data(
                     nombre=f"Masivo {config.seed} ONG {i:06d} — {fake.company()}"[:160],
                     email_contacto=f"masivo-{config.seed}-ong-{i}@example.test",
                     estado=EstadoOng.HABILITADA,
-                    habilitada_en=ahora,
-                    habilitada_por_id=admin_id,
                 )
             )
             resultado.ongs += 1
@@ -237,29 +181,6 @@ def seed_mass_data(
                 proposito=PropositoCuenta.TECNICA_ONG,
             )
         session.flush()
-        acreditadas = set(
-            session.scalars(
-                select(OngCertificacion.ong_id).where(
-                    OngCertificacion.ong_id.in_(ids.values()),
-                    OngCertificacion.certificacion_id == cert_id,
-                )
-            )
-        )
-        for i, ong_id in ids.items():
-            if ong_id not in acreditadas:
-                session.add(
-                    OngCertificacion(
-                        id=id_nacional(config.seed, f"acreditacion:{i}"),
-                        ong_id=ong_id,
-                        certificacion_id=cert_id,
-                        emisor="Autoridad sintética de pruebas",
-                        numero_credencial=f"MASIVO-{config.seed}-{i}",
-                        vigente_desde=ahora - timedelta(days=180),
-                        vigente_hasta=ahora + timedelta(days=365),
-                        registrada_por_id=admin_id,
-                    )
-                )
-                resultado.acreditaciones += 1
         # Paginar también los recursos limita la memoria aunque una ONG tenga miles.
         referencias = (
             (i, j) for i in ids for j in range(1, config.recursos_por_ong + 1)
@@ -329,7 +250,7 @@ def main(argv: list[str] | None = None) -> int:
                 f"Simulación sin escrituras: {config.ongs} ONGs, "
                 f"{2 * config.ongs + 1} cuentas, "
                 f"{config.ongs * config.recursos_por_ong} recursos y "
-                f"{config.ongs} acreditaciones. Seed: {config.seed}."
+                f"Alta automática. Seed: {config.seed}."
             )
             return 0
         inicio = perf_counter()

@@ -6,9 +6,9 @@ from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
+from soporte_nacional import auth, client, cuenta_ong, datos
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
-from test_certificaciones import auth, client, cuenta_ong, datos
 from test_database_models import DatosNacionales, crear_compromiso, crear_datos
 
 from app.db.models import (

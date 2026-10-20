@@ -1,5 +1,10 @@
 # Seed nacional masivo
 
+> Actualización 20/10/2026: [perfiles informativos](./perfiles-competencia.md) reemplaza las
+> reglas de certificación, habilitación previa y clasificación por riesgo de este
+> documento. Las referencias a esas reglas describen el comportamiento anterior.
+
+
 El comando `app.scripts.seed_masivo` agrega ONGs habilitadas, cuentas personales y
 técnicas, inventario y acreditaciones sintéticas. Es independiente del seed demo.
 Usa [Faker](https://faker.readthedocs.io/) en español argentino, como dependencia
@@ -18,7 +23,9 @@ docker compose run --rm api python -m app.scripts.seed_masivo --dry-run
 docker compose run --rm api python -m app.scripts.seed_masivo
 ```
 
-Sólo admite `APP_ENV=development` o `test`. Escribe en la base configurada para
+La CLI sólo admite `APP_ENV=development` o `test`. El
+[endpoint de mantenimiento](./mantenimiento-db.md) también permite ejecutarlo
+en producción con la contraseña del entorno. Escribe en la base configurada para
 la API y no requiere acceso a RescueSync ni Bonita.
 
 ## Parámetros

@@ -14,7 +14,7 @@ class UnidadResponse(Contrato):
 
 
 class CapacidadCreate(Contrato):
-    codigo: str = Field(min_length=1, max_length=80, pattern=r"^[A-Z][A-Z0-9_]*$")
+    codigo: str = Field(min_length=1, max_length=80, pattern=r"^[A-Z][A-Z0-9_-]*$")
     nombre: Nombre
     tipo: TipoRecurso
     unidad: str = Field(min_length=1, max_length=40)

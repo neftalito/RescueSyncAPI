@@ -5,9 +5,9 @@ from uuid import UUID, uuid4
 
 import pytest
 from fastapi.testclient import TestClient
+from soporte_nacional import auth, client, cuenta_ong, datos
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
-from test_certificaciones import auth, client, cuenta_ong, datos
 from test_database_models import DatosNacionales, crear_datos
 
 from app.db.models import (
@@ -20,9 +20,7 @@ from app.db.models import (
     Proyecto,
     Recurso,
 )
-from app.schemas.certificaciones import AcreditacionCreate
 from app.schemas.compromisos import AporteCompromiso, CompromisoRequest
-from app.services.certificaciones import otorgar_acreditacion
 from app.services.compromisos import registrar_compromisos
 from app.services.inventario import cantidad_comprometida
 from app.services.operaciones import ErrorOperacion
@@ -156,18 +154,6 @@ def agregar_participante(
     session: Session, datos: DatosNacionales, p: CompromisoRequest
 ) -> Recurso:
     otra = crear_datos(session, f"multi-{uuid4().hex}")
-    otorgar_acreditacion(
-        session,
-        otra.admin.id,
-        AcreditacionCreate(
-            ong_id=otra.ong.id,
-            certificacion_id=datos.certificacion.id,
-            emisor="Autoridad",
-            numero_credencial="rescate-propio",
-            vigente_desde=datos.acreditacion.vigente_desde,
-            vigente_hasta=datos.acreditacion.vigente_hasta,
-        ),
-    )
     r = Recurso(
         ong_id=otra.ong.id,
         capacidad_id=datos.capacidad.id,
@@ -221,7 +207,6 @@ def test_multi_ong_es_atomico(
     [
         "stock",
         "suma",
-        "riesgo",
         "unidad",
         "fraccion",
         "inactivo",
@@ -239,8 +224,6 @@ def test_revalida_y_revierte_la_operacion(
         a.cantidad = Decimal(11)
     elif tipo == "suma":
         p.aportes.append(a.model_copy(update={"aporte_id": "51"}))
-    elif tipo == "riesgo":
-        a.riesgo_requerido = NivelRiesgo.CRITICA
     elif tipo == "unidad":
         a.unidad = "kg"
     elif tipo == "fraccion":

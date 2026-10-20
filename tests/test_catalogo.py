@@ -71,24 +71,27 @@ def auth(cuenta: Cuenta) -> dict[str, str]:
     return {"Authorization": f"Bearer {emitir_token(cuenta.id)}"}
 
 
+@pytest.mark.parametrize("codigo", ["ALIMENTOS_SIN_GLUTEN", "ALIMENTOS-SIN-GLUTEN"])
 def test_administrador_crea_capacidad_y_el_catalogo_la_devuelve(
-    catalogo_client: TestClient, session: Session, cuentas: dict[RolNacional, Cuenta]
+    catalogo_client: TestClient,
+    session: Session,
+    cuentas: dict[RolNacional, Cuenta],
+    codigo: str,
 ) -> None:
+    datos = {**DATOS, "codigo": codigo}
     headers = auth(cuentas[RolNacional.ADMIN_NACIONAL])
     unidades_antes = session.scalar(select(func.count()).select_from(Unidad))
     capacidades_antes = catalogo_client.get(
         "/api/v1/capacidades", headers=headers
     ).json()
 
-    respuesta = catalogo_client.post("/api/v1/capacidades", headers=headers, json=DATOS)
+    respuesta = catalogo_client.post("/api/v1/capacidades", headers=headers, json=datos)
 
     assert respuesta.status_code == 201
     assert respuesta.headers["cache-control"] == "no-store"
     payload = respuesta.json()
-    assert {key: payload[key] for key in DATOS} == DATOS
-    capacidad = session.scalar(
-        select(Capacidad).where(Capacidad.codigo == DATOS["codigo"])
-    )
+    assert {key: payload[key] for key in datos} == datos
+    capacidad = session.scalar(select(Capacidad).where(Capacidad.codigo == codigo))
     assert capacidad is not None and capacidad.activa
     for cuenta in cuentas.values():
         listado = catalogo_client.get("/api/v1/capacidades", headers=auth(cuenta))
@@ -166,19 +169,38 @@ def test_rechaza_datos_invalidos_sin_crear_capacidad_ni_unidad(
     assert session.scalar(select(func.count()).select_from(Unidad)) == total
 
 
+@pytest.mark.parametrize("activa", [True, False])
 def test_codigo_duplicado_devuelve_conflicto_y_conserva_primera_capacidad(
-    catalogo_client: TestClient, session: Session, cuentas: dict[RolNacional, Cuenta]
+    catalogo_client: TestClient,
+    session: Session,
+    cuentas: dict[RolNacional, Cuenta],
+    activa: bool,
 ) -> None:
+    datos = {**DATOS, "codigo": "ALIMENTOS-SIN-GLUTEN"}
     headers = auth(cuentas[RolNacional.ADMIN_NACIONAL])
     total = session.scalar(select(func.count()).select_from(Capacidad))
-    primera = catalogo_client.post("/api/v1/capacidades", headers=headers, json=DATOS)
+    primera = catalogo_client.post("/api/v1/capacidades", headers=headers, json=datos)
+    if not activa:
+        capacidad = session.scalar(
+            select(Capacidad).where(Capacidad.codigo == datos["codigo"])
+        )
+        assert capacidad is not None
+        capacidad.activa = False
+        session.commit()
     segunda = catalogo_client.post(
-        "/api/v1/capacidades", headers=headers, json={**DATOS, "nombre": "Otro nombre"}
+        "/api/v1/capacidades", headers=headers, json={**datos, "nombre": "Otro nombre"}
     )
     assert primera.status_code == 201 and segunda.status_code == 409
     listado = catalogo_client.get("/api/v1/capacidades", headers=headers).json()
-    assert len(listado) == total + 1
-    assert next(c for c in listado if c["codigo"] == DATOS["codigo"]) == primera.json()
+    assert len(listado) == total + int(activa)
+    if activa:
+        assert (
+            next(c for c in listado if c["codigo"] == datos["codigo"]) == primera.json()
+        )
+    capacidad = session.scalar(
+        select(Capacidad).where(Capacidad.codigo == datos["codigo"])
+    )
+    assert capacidad is not None and capacidad.nombre == DATOS["nombre"]
 
 
 def test_unidades_son_consultables_y_no_tienen_operaciones_de_escritura(
@@ -222,7 +244,9 @@ def test_codigos_concurrentes_crean_una_sola_capacidad(engine_migrado: Engine) -
             try:
                 crear_capacidad(
                     session,
-                    CapacidadCreate.model_validate({**DATOS, "codigo": "CONCURRENTE"}),
+                    CapacidadCreate.model_validate(
+                        {**DATOS, "codigo": "CODIGO-CONCURRENTE"}
+                    ),
                 )
                 return "creada"
             except CapacidadDuplicadaError:
@@ -234,11 +258,13 @@ def test_codigos_concurrentes_crean_una_sola_capacidad(engine_migrado: Engine) -
     with engine_migrado.begin() as connection:
         assert (
             connection.scalar(
-                text("SELECT count(*) FROM capacidad WHERE codigo='CONCURRENTE'")
+                text("SELECT count(*) FROM capacidad WHERE codigo='CODIGO-CONCURRENTE'")
             )
             == 1
         )
-        connection.execute(text("DELETE FROM capacidad WHERE codigo='CONCURRENTE'"))
+        connection.execute(
+            text("DELETE FROM capacidad WHERE codigo='CODIGO-CONCURRENTE'")
+        )
 
 
 def test_migracion_carga_unidades_en_produccion_y_preserva_unidades_historicas(

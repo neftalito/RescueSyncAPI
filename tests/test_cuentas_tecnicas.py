@@ -103,7 +103,7 @@ def test_rotar_revocar_y_aislar_ong(
     administrar_cuenta_tecnica(session, admin.id, ong.id, "revocar")
     session.commit()
     assert inventory_client.get("/api/v1/me", headers=headers).status_code == 401
-    assert ong.estado == EstadoOng.PENDIENTE
+    assert ong.estado == EstadoOng.HABILITADA
 
 
 def test_solo_admin_crea_sin_reemplazar_cuentas_personales(session: Session) -> None:

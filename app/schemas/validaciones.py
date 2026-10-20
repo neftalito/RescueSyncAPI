@@ -14,9 +14,9 @@ from pydantic import (
 )
 
 from app.db.models import NivelRiesgo
-from app.schemas.certificaciones import CapacidadHabilitadaResponse
 from app.schemas.disponibilidad import CantidadAgregada, cantidad_exacta
 from app.schemas.inventario import Cantidad, Codigo, Contrato
+from app.schemas.perfiles import PerfilCompetencia
 
 type CantidadExacta = Annotated[
     Cantidad, PlainSerializer(cantidad_exacta, return_type=str, when_used="json")
@@ -156,12 +156,6 @@ class ValidacionRequest(Contrato):
         return self
 
 
-class Clasificacion(StrEnum):
-    PRINCIPAL = "PRINCIPAL"
-    APOYO = "APOYO"
-    SIN_HABILITACION = "SIN_HABILITACION"
-
-
 class CodigoMotivoValidacion(StrEnum):
     ONG_NO_ENCONTRADA = "ONG_NO_ENCONTRADA"
     ONG_NO_HABILITADA = "ONG_NO_HABILITADA"
@@ -175,12 +169,6 @@ class CodigoMotivoValidacion(StrEnum):
     CAPACIDAD_INCOMPATIBLE = "CAPACIDAD_INCOMPATIBLE"
     UNIDAD_INCOMPATIBLE = "UNIDAD_INCOMPATIBLE"
     CANTIDAD_NO_DISCRETA = "CANTIDAD_NO_DISCRETA"
-    SIN_ACREDITACION_VIGENTE = "SIN_ACREDITACION_VIGENTE"
-    ACREDITACION_VENCIDA = "ACREDITACION_VENCIDA"
-    ACREDITACION_REVOCADA = "ACREDITACION_REVOCADA"
-    ACREDITACION_FUTURA = "ACREDITACION_FUTURA"
-    CERTIFICACION_INACTIVA = "CERTIFICACION_INACTIVA"
-    RIESGO_NO_PERMITIDO = "RIESGO_NO_PERMITIDO"
     DISPONIBILIDAD_INSUFICIENTE = "DISPONIBILIDAD_INSUFICIENTE"
 
 
@@ -190,9 +178,7 @@ class MotivoValidacion(Contrato):
 
 
 class PerfilAporte(Contrato):
-    clasificacion: Clasificacion
-    capacidades_habilitadas: list[CapacidadHabilitadaResponse]
-    niveles_riesgo_permitidos: list[NivelRiesgo]
+    perfil_competencia: PerfilCompetencia | None
     cantidad_disponible_consultada: CantidadAgregada | None
     motivos: list[MotivoValidacion]
 
@@ -220,7 +206,7 @@ class RecursoConsultado(Contrato):
 
 
 class ValidacionResponse(Contrato):
-    contrato_version: Literal[2] = 2
+    contrato_version: Literal[3] = 3
     sistema_origen: str
     id_emergencia: int
     case_id: str

@@ -17,7 +17,6 @@ from app.db.models import (
     RolNacional,
 )
 from app.db.session import SessionLocal
-from app.scripts.seed_certificaciones import seed_certificaciones
 
 
 def _cuenta_tecnica_demo(session: Session, ong_id: UUID, referencia: str) -> None:
@@ -48,7 +47,7 @@ def _cuenta_tecnica_demo(session: Session, ong_id: UUID, referencia: str) -> Non
         raise ValueError(
             "La identidad técnica demo ya pertenece a otra cuenta nacional."
         )
-    # Credencial pública exclusiva de development/test, coordinada con el seed local.
+    # Credencial pública de demostración, coordinada con el seed local.
     secreto = f"demo-only-rescuesync-tecnica:{referencia}:2026"
     session.add(
         Cuenta(
@@ -63,10 +62,15 @@ def _cuenta_tecnica_demo(session: Session, ong_id: UUID, referencia: str) -> Non
     session.flush()
 
 
-def seed_development_data(session: Session) -> None:
+def seed_development_data(
+    session: Session, *, permitir_produccion: bool = False
+) -> None:
     """Agrega datos faltantes sin resetear contraseñas, stock ni compromisos."""
 
-    if get_settings().app_env not in {"development", "test"}:
+    if not permitir_produccion and get_settings().app_env not in {
+        "development",
+        "test",
+    }:
         raise ValueError("El seed sólo está disponible en desarrollo y pruebas.")
     # Las migraciones instalan el catálogo común también en producción.
     codigos_demo = {"AGUA", "PARAMEDICOS", "AMBULANCIAS"}
@@ -158,8 +162,6 @@ def seed_development_data(session: Session) -> None:
                 )
         session.flush()
 
-    seed_certificaciones(session)
-
 
 def main() -> int:
     """Carga datos demo sin realizar llamadas a RescueSync ni publicar secretos."""
@@ -169,10 +171,7 @@ def main() -> int:
         return 1
     with SessionLocal.begin() as session:
         seed_development_data(session)
-    print(
-        "Seed nacional listo: dos ONGs, cuentas técnicas, "
-        "inventario y certificaciones demo."
-    )
+    print("Seed nacional listo: dos ONGs, cuentas técnicas, e inventario demo.")
     return 0
 
 

@@ -33,8 +33,14 @@ no sustituye al JWT nacional. Ver [cuentas técnicas](./acceso-automatico-ong.md
 
 Todas las rutas de la tabla llevan `/api/v1`:
 
+Los [endpoints de mantenimiento](./mantenimiento-db.md) usan la contraseña
+`DB_MAINTENANCE_PASSWORD` en `X-DB-Maintenance-Password`, con esquema Swagger
+`DBMaintenancePassword`, independiente del JWT. Funcionan también en producción;
+sin configuración devuelven `403` y con contraseña ausente/incorrecta, `401`.
+
 | Método y ruta | Acceso |
 | --- | --- |
+| `POST /mantenimiento/seed`, `POST /mantenimiento/seed-masivo`, `POST /mantenimiento/flush` | Contraseña de mantenimiento configurada; no requiere cuenta ni JWT |
 | `GET /health`, `GET /health/database` | Público |
 | `POST /login`, `POST /ongs` | Público; onboarding crea una ONG pendiente |
 | `GET /me`, `GET /capacidades`, `GET /unidades` | ONG, ADMIN_NACIONAL o INTEGRACION vigentes |

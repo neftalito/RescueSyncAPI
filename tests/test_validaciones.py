@@ -8,10 +8,10 @@ from uuid import uuid4
 
 import pytest
 from fastapi.testclient import TestClient
+from soporte_nacional import auth, cuenta_ong, datos
 from sqlalchemy import Connection, Engine, event, func, select, text
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy.orm import Session
-from test_certificaciones import auth, cuenta_ong, datos
 from test_database_models import DatosNacionales, crear_compromiso, crear_datos
 
 from app.db import session as db_module
@@ -25,13 +25,10 @@ from app.db.models import (
 )
 from app.db.session import get_db_evaluacion
 from app.main import app
-from app.schemas.certificaciones import RevocacionRequest
 from app.schemas.validaciones import (
-    Clasificacion,
     ParticipanteSnapshot,
     ValidacionRequest,
 )
-from app.services.certificaciones import revocar_acreditacion
 from app.services.validaciones import validar_snapshot
 
 __all__ = ["datos"]
@@ -70,23 +67,14 @@ def client(session: Session) -> Iterator[TestClient]:
     app.dependency_overrides.clear()
 
 
-@pytest.mark.parametrize(
-    "gravedad,riesgo,clasificacion",
-    [
-        (NivelRiesgo.ALTA, NivelRiesgo.MEDIA, "PRINCIPAL"),
-        (NivelRiesgo.CRITICA, NivelRiesgo.MEDIA, "APOYO"),
-        (NivelRiesgo.CRITICA, NivelRiesgo.CRITICA, "SIN_HABILITACION"),
-    ],
-)
-def test_clasifica_el_lote_sin_degradar_riesgo(
+@pytest.mark.parametrize("riesgo", list(NivelRiesgo))
+def test_riesgo_y_vigencia_no_limitan_aportes(
     client: TestClient,
     datos: DatosNacionales,
-    gravedad: NivelRiesgo,
     riesgo: NivelRiesgo,
-    clasificacion: str,
 ) -> None:
     s = snapshot(datos)
-    s.gravedad = gravedad
+    s.gravedad = NivelRiesgo.CRITICA
     s.lotes[0].riesgo_requerido = riesgo
     response = client.post(
         RUTA,
@@ -94,14 +82,16 @@ def test_clasifica_el_lote_sin_degradar_riesgo(
         json=s.model_dump(mode="json", by_alias=True),
     )
     assert response.status_code == 200, response.text
-    perfil = response.json()["aportes"][0]
-    assert perfil["clasificacion"] == clasificacion
-    assert perfil["capacidadesHabilitadas"][0]["riesgoMaximo"] == "ALTA"
-    assert perfil["nivelesRiesgoPermitidos"] == ["BAJA", "MEDIA", "ALTA"]
-    assert perfil["cantidadDisponibleConsultada"] == "10.000"
-    assert response.headers["cache-control"] == "no-store"
-    if clasificacion == "SIN_HABILITACION":
-        assert "RIESGO_NO_PERMITIDO" in {m["codigo"] for m in perfil["motivos"]}
+    body = response.json()
+    assert body["contratoVersion"] == 3
+    aporte = body["aportes"][0]
+    assert "clasificacion" not in aporte and "nivelesRiesgoPermitidos" not in aporte
+    assert (
+        aporte["perfilCompetencia"]["capacidadesDeclaradas"][0]["cantidadTotal"]
+        == "10.000"
+    )
+    assert aporte["cantidadDisponibleConsultada"] == "10.000"
+    assert aporte["motivos"] == []
 
 
 def test_no_reserva_y_stock_insuficiente_conserva_competencia(
@@ -132,7 +122,6 @@ def test_no_reserva_y_stock_insuficiente_conserva_competencia(
     finally:
         event.remove(connection, "before_cursor_execute", registrar)
     p = respuesta.aportes[0]
-    assert p.clasificacion == Clasificacion.PRINCIPAL
     assert p.cantidad_disponible_consultada == Decimal(2)
     assert "DISPONIBILIDAD_INSUFICIENTE" in {m.codigo for m in p.motivos}
     assert all(sql.lstrip().upper().startswith("SELECT") for sql in sentencias)
@@ -152,7 +141,6 @@ def test_institucion_no_habilitada_no_aporta(
     datos.ong.estado = estado
     session.commit()
     p = validar_snapshot(session, snapshot(datos)).aportes[0]
-    assert p.clasificacion == Clasificacion.SIN_HABILITACION
     assert "ONG_NO_HABILITADA" in {m.codigo for m in p.motivos}
 
 
@@ -160,15 +148,6 @@ def test_consorcio_evalua_a_cada_dueno(
     session: Session, datos: DatosNacionales
 ) -> None:
     otra = crear_datos(session, f"miembro-{uuid4().hex}")
-    revocar_acreditacion(
-        session,
-        otra.admin.id,
-        RevocacionRequest(
-            ong_id=otra.ong.id,
-            acreditacion_id=otra.acreditacion.id,
-            motivo="Vencimiento",
-        ),
-    )
     r = Recurso(
         ong_id=otra.ong.id,
         capacidad_id=datos.capacidad.id,
@@ -191,15 +170,12 @@ def test_consorcio_evalua_a_cada_dueno(
     oferta.items[0].aportes.append(aporte)
     oferta.items[0].cantidad_ofrecida_exacta = Decimal(12)
     resultado = validar_snapshot(session, s)
-    assert [p.clasificacion for p in resultado.aportes] == [
-        Clasificacion.PRINCIPAL,
-        Clasificacion.SIN_HABILITACION,
-    ]
-    assert resultado.aportes[1].capacidades_habilitadas == []
+    assert all(not p.motivos for p in resultado.aportes)
+    assert resultado.aportes[1].perfil_competencia.ong_id == otra.ong.id
 
 
 @pytest.mark.parametrize(
-    "tipo", ["ong", "recurso", "capacidad", "unidad", "fraccion", "legacy", "gravedad"]
+    "tipo", ["ong", "recurso", "capacidad", "unidad", "fraccion", "legacy"]
 )
 def test_referencias_incompletas_y_aportes_incompatibles(
     client: TestClient, datos: DatosNacionales, tipo: str
@@ -229,7 +205,6 @@ def test_referencias_incompletas_y_aportes_incompatibles(
         RUTA, headers=auth(datos.admin), json=s.model_dump(mode="json", by_alias=True)
     )
     assert response.status_code == 200, response.text
-    assert response.json()["aportes"][0]["clasificacion"] == "SIN_HABILITACION"
     assert response.json()["aportes"][0]["motivos"]
 
 
@@ -249,9 +224,7 @@ def test_ronda_vacia_y_stock_repetido(session: Session, datos: DatosNacionales) 
     assert respuesta.aportes == [] and respuesta.recursos_consultados == []
 
 
-@pytest.mark.parametrize(
-    "tipo", ["ajeno", "inactivo", "capacidad_inactiva", "revocada"]
-)
+@pytest.mark.parametrize("tipo", ["ajeno", "inactivo", "capacidad_inactiva"])
 def test_propiedad_actividad_y_revocacion(
     session: Session, datos: DatosNacionales, tipo: str
 ) -> None:
@@ -263,44 +236,27 @@ def test_propiedad_actividad_y_revocacion(
         datos.recurso.activo = False
     elif tipo == "capacidad_inactiva":
         datos.capacidad.activa = False
-    else:
-        revocar_acreditacion(
-            session,
-            datos.admin.id,
-            RevocacionRequest(
-                ong_id=datos.ong.id,
-                acreditacion_id=datos.acreditacion.id,
-                motivo="Revocada",
-            ),
-        )
     session.commit()
     p = validar_snapshot(session, s).aportes[0]
-    assert p.clasificacion == Clasificacion.SIN_HABILITACION
     codigo = {
         "ajeno": "RECURSO_AJENO",
         "inactivo": "RECURSO_INACTIVO",
         "capacidad_inactiva": "CAPACIDAD_INACTIVA",
-        "revocada": "ACREDITACION_REVOCADA",
     }[tipo]
     assert codigo in {m.codigo for m in p.motivos}
 
 
-def test_credencial_vencida_y_limites_temporales(
+def test_historial_de_acreditaciones_no_condiciona_la_evaluacion(
     session: Session, datos: DatosNacionales
 ) -> None:
     s = snapshot(datos)
-    desde, hasta = datos.acreditacion.vigente_desde, datos.acreditacion.vigente_hasta
-    assert (
-        validar_snapshot(session, s, ahora=desde).aportes[0].clasificacion
-        == Clasificacion.PRINCIPAL
-    )
-    for instante, codigo in [
-        (desde - timedelta(microseconds=1), "ACREDITACION_FUTURA"),
-        (hasta, "ACREDITACION_VENCIDA"),
+    for instante in [
+        datos.acreditacion.vigente_desde - timedelta(days=1),
+        datos.acreditacion.vigente_hasta,
     ]:
         p = validar_snapshot(session, s, ahora=instante).aportes[0]
-        assert p.clasificacion == Clasificacion.SIN_HABILITACION
-        assert codigo in {m.codigo for m in p.motivos}
+        assert p.motivos == []
+        assert p.perfil_competencia is not None
 
 
 def test_seguridad_y_contrato_malformado(

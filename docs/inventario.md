@@ -1,5 +1,10 @@
 # Inventario nacional de ONGs
 
+> Actualización 20/10/2026: [perfiles informativos](./perfiles-competencia.md) reemplaza las
+> reglas de certificación, habilitación previa y clasificación por riesgo de este
+> documento. Las referencias a esas reglas describen el comportamiento anterior.
+
+
 RescueSync consume estos servicios a través de su backend local. El inventario
 se guarda exclusivamente en PostgreSQL nacional; las ofertas siguen siendo locales.
 

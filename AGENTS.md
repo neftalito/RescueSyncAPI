@@ -4,7 +4,7 @@
 
 Estas reglas se aplican a todo `RescueSyncAPI/`, un repositorio independiente de
 la aplicación local `RescueSync/`. La prioridad es la Entrega 3: cuentas y JWT,
-ONGs, certificaciones, inventario, validación de competencias y
+ONGs, perfiles informativos, inventario, consistencia de aportes y
 compromiso/liberación nacional de recursos.
 
 Antes de implementar una tarea, consultar:
@@ -21,7 +21,9 @@ Antes de implementar una tarea, consultar:
 
 Si el checkout hermano no está disponible, obtener sus documentos del repositorio
 `neftalito/RescueSync` antes de cambiar contratos compartidos. No sustituirlos por
-suposiciones. Las restricciones del enunciado prevalecen; las decisiones nuevas
+suposiciones. El cambio solicitado del 20/10/2026 elimina certificaciones y aprobación previa;
+ver `docs/perfiles-competencia.md`. Para los demás aspectos, las restricciones
+del enunciado prevalecen; las decisiones nuevas
 del plan deben identificarse como propuestas, no como requisitos de la cátedra.
 
 La referencia a la Entrega 2 en `RescueSync/AGENTS.md` corresponde a ese repositorio;
@@ -70,7 +72,7 @@ del repositorio nacional:
 
 - Hay tres fuentes de estado separadas: PostgreSQL local para emergencias,
   convocatorias y ofertas/versiones; Bonita para la orquestación y el timer;
-  PostgreSQL nacional para identidades, certificaciones, inventario y compromisos.
+  PostgreSQL nacional para identidades, inventario y compromisos; certificaciones sólo como historia.
 - La API nacional no persiste borradores, ofertas preliminares ni cuerpos de
   validación. Puede evaluar transitoriamente ofertas consolidadas después del
   cierre y conservar referencias mínimas en compromisos efectivamente adjudicados.
@@ -80,8 +82,8 @@ del repositorio nacional:
   institucionales se consultan/modifican mediante un adaptador del backend local.
 - La API nacional no accede a la base local ni a la base interna de Bonita. No
   declarar claves foráneas entre bases ni suponer que sus IDs numéricos coinciden.
-- La validación devuelve capacidades, niveles de riesgo y motivos; no se reduce
-  a un booleano aprobado/rechazado y no reserva recursos por anticipado.
+- La evaluación devuelve perfiles de recursos declarados y motivos de consistencia;
+  no clasifica por riesgo ni condiciona operaciones al perfil y no reserva stock.
 - Comprometer exige volver a validar disponibilidad y permisos dentro de una
   transacción. Un resultado de validación anterior no garantiza stock actual.
 - Los clientes reciben únicamente errores seguros: no SQL, trazas, secretos ni
@@ -123,8 +125,9 @@ del repositorio nacional:
 - Separar cuentas ONG, administración nacional y cuentas técnicas de integración.
   Cargar la cuenta/ONG vigente para autorizar; no confiar solo en roles del JWT ni
   permitir que una ONG cambie inventario o compromisos de otra.
-- Las ONGs no autoemiten certificaciones ni se habilitan administrativamente a
-  sí mismas. El onboarding no equivale a habilitación para todo nivel de riesgo.
+- Las ONGs operan desde el registro sin aprobación administrativa previa.
+  Conservar suspensión/baja y permisos; no reintroducir certificaciones ni límites
+  por riesgo. Los campos de aprobación y tablas de acreditación son históricos.
 - Emitir JWT de duración limitada; reautenticar ante expiración de forma acotada.
   Refresh tokens, sesiones web y federación no forman parte del corte inicial.
 - Declarar `response_model`, summary/description y respuestas de error útiles
@@ -210,8 +213,8 @@ Estas pruebas requieren PostgreSQL real; Compose inicia las dependencias. Probar
 concurrencia con conexiones/transacciones independientes, no SQLite ni sesiones
 compartidas. Aislar los datos y variables de configuración entre pruebas.
 
-Cubrir permisos permitidos/denegados, JWT inválido o expirado, certificaciones
-vencidas, validación sin persistencia de ofertas, stock insuficiente, rollback,
+Cubrir permisos permitidos/denegados, JWT inválido o expirado, alta automática, perfiles
+informativos, validación sin persistencia de ofertas, stock insuficiente, rollback,
 doble compromiso, reintentos, liberación repetida y cierre prematuro. Integraciones
 HTTP usan dobles/RESPX; Runtime y cloud reales se reservan para E2E controladas.
 

@@ -1,5 +1,10 @@
 # Modelo de base de datos nacional — Entrega 3
 
+> Actualización 20/10/2026: [perfiles informativos](./perfiles-competencia.md) reemplaza las
+> reglas de certificación, habilitación previa y clasificación por riesgo de este
+> documento. Las referencias a esas reglas describen el comportamiento anterior.
+
+
 **Estado:** diseño T22 con modelos y migración inicial implementados en T24;
 integración de esta implementación pendiente de su PR.
 **Fecha del análisis:** 04/10/2026. **Motor propuesto:** PostgreSQL 16, con
