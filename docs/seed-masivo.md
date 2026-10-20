@@ -1,5 +1,10 @@
 # Seed nacional masivo
 
+> Actualización 20/10/2026: [perfiles informativos](./perfiles-competencia.md) reemplaza las
+> reglas de certificación, habilitación previa y clasificación por riesgo de este
+> documento. Las referencias a esas reglas describen el comportamiento anterior.
+
+
 El comando `app.scripts.seed_masivo` agrega ONGs habilitadas, cuentas personales y
 técnicas, inventario y acreditaciones sintéticas. Es independiente del seed demo.
 Usa [Faker](https://faker.readthedocs.io/) en español argentino, como dependencia

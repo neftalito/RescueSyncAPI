@@ -61,7 +61,7 @@ def test_alta_sin_contacto_genera_identificador_y_acceso_inmediato(
     datos = respuesta.json()
     assert "password" not in respuesta.text
     ong = session.get(Ong, datos["ong"]["id"])
-    assert ong is not None and ong.estado == EstadoOng.PENDIENTE
+    assert ong is not None and ong.estado == EstadoOng.HABILITADA
     assert ong.email_contacto is None
     assert (
         ong.identificador_institucional

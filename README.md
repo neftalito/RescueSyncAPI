@@ -4,13 +4,12 @@ Servicio independiente para el Sistema Nacional de Gestión de Recursos y Riesgo
 de RescueSync. Esta base cubre el setup y la dockerización de la Entrega 3 y deja
 preparados PostgreSQL, Alembic, OpenAPI y los controles de calidad.
 
-El esquema nacional incluye 13 tablas de negocio y migraciones Alembic.
-Este corte implementa login JWT, onboarding de ONGs, consulta de cuenta y
-capacidades, alta/consulta/edición de inventario por ONG y consulta de
-certificaciones, acreditaciones y competencia vigente. La carga oficial usa
-comandos administrativos autenticados. Validación de ofertas, compromiso y
-liberación siguen pendientes como servicios HTTP. La API nacional no almacena
-borradores ni ofertas preliminares.
+La API implementa login JWT, alta automática de ONG, inventario, perfiles
+informativos, evaluación de consistencia, compromiso concurrente y liberación.
+No exige certificaciones ni aprobación institucional. El perfil se deriva del
+inventario y no limita actividades ni asigna roles por riesgo. Los datos antiguos
+de certificaciones se conservan como historia. La API no almacena borradores ni
+ofertas preliminares.
 
 El recorrido de inventario y los datos demo se describen en
 [Inventario nacional](./docs/inventario.md).
@@ -26,11 +25,8 @@ La creación administrativa de capacidades y el catálogo base de 56 capacidades
 31 unidades y cuatro tipos de recurso, instalado por migraciones tanto en
 desarrollo como en producción, se describen en
 [Catálogo de capacidades y unidades](./docs/catalogo-capacidades.md).
-El directorio institucional y sus filtros se describen en
-[ONGs habilitadas](./docs/ongs-habilitadas.md).
-La consulta y carga oficial se describen en
-[Certificaciones nacionales](./docs/certificaciones.md), incluidos los cambios
-pendientes de Bonita y el orden de integración con RescueSync.
+El directorio y el cambio de contratos se describen en
+[Perfiles de competencia informativos](./docs/perfiles-competencia.md).
 
 Las reglas de desarrollo están en [AGENTS.md](./AGENTS.md). La secuencia completa,
 los contratos propuestos y la trazabilidad T22–T42 se describen en el

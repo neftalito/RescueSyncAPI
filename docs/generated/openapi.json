@@ -1,136 +1,6 @@
 {
   "components": {
     "schemas": {
-      "AcreditacionResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "certificacion": {
-            "$ref": "#/components/schemas/CertificacionResponse"
-          },
-          "emisor": {
-            "title": "Emisor",
-            "type": "string"
-          },
-          "estado": {
-            "$ref": "#/components/schemas/EstadoAcreditacion"
-          },
-          "estadoVigencia": {
-            "$ref": "#/components/schemas/EstadoVigencia"
-          },
-          "id": {
-            "format": "uuid",
-            "title": "Id",
-            "type": "string"
-          },
-          "motivoRevocacion": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Motivorevocacion"
-          },
-          "motivos": {
-            "items": {
-              "$ref": "#/components/schemas/MotivoResponse"
-            },
-            "title": "Motivos",
-            "type": "array"
-          },
-          "numeroCredencial": {
-            "title": "Numerocredencial",
-            "type": "string"
-          },
-          "revocadaEn": {
-            "anyOf": [
-              {
-                "format": "date-time",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Revocadaen"
-          },
-          "vigenteDesde": {
-            "format": "date-time",
-            "title": "Vigentedesde",
-            "type": "string"
-          },
-          "vigenteHasta": {
-            "format": "date-time",
-            "title": "Vigentehasta",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "certificacion",
-          "emisor",
-          "numeroCredencial",
-          "vigenteDesde",
-          "vigenteHasta",
-          "estado",
-          "estadoVigencia",
-          "revocadaEn",
-          "motivoRevocacion",
-          "motivos"
-        ],
-        "title": "AcreditacionResponse",
-        "type": "object"
-      },
-      "AlcanceResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "activa": {
-            "title": "Activa",
-            "type": "boolean"
-          },
-          "admiteFracciones": {
-            "title": "Admitefracciones",
-            "type": "boolean"
-          },
-          "capacidadId": {
-            "format": "uuid",
-            "title": "Capacidadid",
-            "type": "string"
-          },
-          "codigo": {
-            "title": "Codigo",
-            "type": "string"
-          },
-          "nombre": {
-            "title": "Nombre",
-            "type": "string"
-          },
-          "riesgoMaximo": {
-            "$ref": "#/components/schemas/NivelRiesgo"
-          },
-          "tipo": {
-            "$ref": "#/components/schemas/TipoRecurso"
-          },
-          "unidad": {
-            "title": "Unidad",
-            "type": "string"
-          }
-        },
-        "required": [
-          "capacidadId",
-          "codigo",
-          "nombre",
-          "tipo",
-          "unidad",
-          "admiteFracciones",
-          "activa",
-          "riesgoMaximo"
-        ],
-        "title": "AlcanceResponse",
-        "type": "object"
-      },
       "AporteCompromiso": {
         "additionalProperties": false,
         "properties": {
@@ -218,16 +88,6 @@
           "cantidadOfrecida": {
             "$ref": "#/components/schemas/CantidadExacta-Output"
           },
-          "capacidadesHabilitadas": {
-            "items": {
-              "$ref": "#/components/schemas/CapacidadHabilitadaResponse"
-            },
-            "title": "Capacidadeshabilitadas",
-            "type": "array"
-          },
-          "clasificacion": {
-            "$ref": "#/components/schemas/Clasificacion"
-          },
           "itemId": {
             "title": "Itemid",
             "type": "integer"
@@ -241,13 +101,6 @@
               "$ref": "#/components/schemas/MotivoValidacion"
             },
             "title": "Motivos",
-            "type": "array"
-          },
-          "nivelesRiesgoPermitidos": {
-            "items": {
-              "$ref": "#/components/schemas/NivelRiesgo"
-            },
-            "title": "Nivelesriesgopermitidos",
             "type": "array"
           },
           "ofertaId": {
@@ -269,6 +122,16 @@
               }
             ],
             "title": "Ongnacionalid"
+          },
+          "perfilCompetencia": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PerfilCompetencia"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "recursoNacionalId": {
             "anyOf": [
@@ -292,9 +155,7 @@
           }
         },
         "required": [
-          "clasificacion",
-          "capacidadesHabilitadas",
-          "nivelesRiesgoPermitidos",
+          "perfilCompetencia",
           "cantidadDisponibleConsultada",
           "motivos",
           "ofertaId",
@@ -504,16 +365,21 @@
         "title": "CapacidadCreate",
         "type": "object"
       },
-      "CapacidadHabilitadaResponse": {
+      "CapacidadDeclarada": {
         "additionalProperties": false,
         "properties": {
-          "acreditacionIds": {
-            "items": {
-              "format": "uuid",
-              "type": "string"
-            },
-            "title": "Acreditacionids",
-            "type": "array"
+          "admiteFracciones": {
+            "title": "Admitefracciones",
+            "type": "boolean"
+          },
+          "cantidadComprometida": {
+            "$ref": "#/components/schemas/CantidadAgregada-Output"
+          },
+          "cantidadDisponible": {
+            "$ref": "#/components/schemas/CantidadAgregada-Output"
+          },
+          "cantidadTotal": {
+            "$ref": "#/components/schemas/CantidadAgregada-Output"
           },
           "capacidadId": {
             "format": "uuid",
@@ -524,19 +390,12 @@
             "title": "Codigo",
             "type": "string"
           },
-          "nivelesRiesgoPermitidos": {
-            "items": {
-              "$ref": "#/components/schemas/NivelRiesgo"
-            },
-            "title": "Nivelesriesgopermitidos",
-            "type": "array"
-          },
           "nombre": {
             "title": "Nombre",
             "type": "string"
           },
-          "riesgoMaximo": {
-            "$ref": "#/components/schemas/NivelRiesgo"
+          "tipo": {
+            "$ref": "#/components/schemas/TipoRecurso"
           },
           "unidad": {
             "title": "Unidad",
@@ -547,12 +406,14 @@
           "capacidadId",
           "codigo",
           "nombre",
+          "tipo",
           "unidad",
-          "riesgoMaximo",
-          "nivelesRiesgoPermitidos",
-          "acreditacionIds"
+          "admiteFracciones",
+          "cantidadTotal",
+          "cantidadComprometida",
+          "cantidadDisponible"
         ],
-        "title": "CapacidadHabilitadaResponse",
+        "title": "CapacidadDeclarada",
         "type": "object"
       },
       "CapacidadResponse": {
@@ -594,131 +455,9 @@
         "title": "CapacidadResponse",
         "type": "object"
       },
-      "CertificacionResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "activa": {
-            "title": "Activa",
-            "type": "boolean"
-          },
-          "alcances": {
-            "items": {
-              "$ref": "#/components/schemas/AlcanceResponse"
-            },
-            "title": "Alcances",
-            "type": "array"
-          },
-          "codigo": {
-            "title": "Codigo",
-            "type": "string"
-          },
-          "id": {
-            "format": "uuid",
-            "title": "Id",
-            "type": "string"
-          },
-          "nombre": {
-            "title": "Nombre",
-            "type": "string"
-          },
-          "revision": {
-            "title": "Revision",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "id",
-          "codigo",
-          "revision",
-          "nombre",
-          "activa",
-          "alcances"
-        ],
-        "title": "CertificacionResponse",
-        "type": "object"
-      },
-      "CertificacionesOngResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "acreditaciones": {
-            "items": {
-              "$ref": "#/components/schemas/AcreditacionResponse"
-            },
-            "title": "Acreditaciones",
-            "type": "array"
-          },
-          "capacidadesHabilitadas": {
-            "items": {
-              "$ref": "#/components/schemas/CapacidadHabilitadaResponse"
-            },
-            "title": "Capacidadeshabilitadas",
-            "type": "array"
-          },
-          "estadoOng": {
-            "$ref": "#/components/schemas/EstadoOng"
-          },
-          "evaluadoEn": {
-            "format": "date-time",
-            "title": "Evaluadoen",
-            "type": "string"
-          },
-          "motivosInstitucionales": {
-            "items": {
-              "$ref": "#/components/schemas/MotivoResponse"
-            },
-            "title": "Motivosinstitucionales",
-            "type": "array"
-          },
-          "ongId": {
-            "format": "uuid",
-            "title": "Ongid",
-            "type": "string"
-          }
-        },
-        "required": [
-          "ongId",
-          "estadoOng",
-          "evaluadoEn",
-          "acreditaciones",
-          "capacidadesHabilitadas",
-          "motivosInstitucionales"
-        ],
-        "title": "CertificacionesOngResponse",
-        "type": "object"
-      },
-      "Clasificacion": {
-        "enum": [
-          "PRINCIPAL",
-          "APOYO",
-          "SIN_HABILITACION"
-        ],
-        "title": "Clasificacion",
-        "type": "string"
-      },
       "Codigo": {
         "maxLength": 80,
         "minLength": 1,
-        "type": "string"
-      },
-      "CodigoMotivo": {
-        "enum": [
-          "ACREDITACION_FUTURA",
-          "ACREDITACION_VENCIDA",
-          "ACREDITACION_REVOCADA",
-          "CERTIFICACION_INACTIVA",
-          "CAPACIDAD_INACTIVA",
-          "ONG_PENDIENTE",
-          "ONG_SUSPENDIDA",
-          "ONG_BAJA"
-        ],
-        "title": "CodigoMotivo",
-        "type": "string"
-      },
-      "CodigoMotivoPerfil": {
-        "enum": [
-          "SIN_COMPETENCIAS_VIGENTES"
-        ],
-        "title": "CodigoMotivoPerfil",
         "type": "string"
       },
       "CodigoMotivoValidacion": {
@@ -735,12 +474,6 @@
           "CAPACIDAD_INCOMPATIBLE",
           "UNIDAD_INCOMPATIBLE",
           "CANTIDAD_NO_DISCRETA",
-          "SIN_ACREDITACION_VIGENTE",
-          "ACREDITACION_VENCIDA",
-          "ACREDITACION_REVOCADA",
-          "ACREDITACION_FUTURA",
-          "CERTIFICACION_INACTIVA",
-          "RIESGO_NO_PERMITIDO",
           "DISPONIBILIDAD_INSUFICIENTE"
         ],
         "title": "CodigoMotivoValidacion",
@@ -1013,6 +746,29 @@
         "title": "CuentaResponse",
         "type": "object"
       },
+      "DirectorioOngs": {
+        "additionalProperties": false,
+        "properties": {
+          "evaluadoEn": {
+            "format": "date-time",
+            "title": "Evaluadoen",
+            "type": "string"
+          },
+          "ongs": {
+            "items": {
+              "$ref": "#/components/schemas/PerfilCompetencia"
+            },
+            "title": "Ongs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "evaluadoEn",
+          "ongs"
+        ],
+        "title": "DirectorioOngs",
+        "type": "object"
+      },
       "DisponibilidadCapacidadResponse": {
         "additionalProperties": false,
         "properties": {
@@ -1144,14 +900,6 @@
         "title": "ErrorResponse",
         "type": "object"
       },
-      "EstadoAcreditacion": {
-        "enum": [
-          "OTORGADA",
-          "REVOCADA"
-        ],
-        "title": "EstadoAcreditacion",
-        "type": "string"
-      },
       "EstadoCompromiso": {
         "enum": [
           "ACTIVO",
@@ -1168,16 +916,6 @@
           "BAJA"
         ],
         "title": "EstadoOng",
-        "type": "string"
-      },
-      "EstadoVigencia": {
-        "enum": [
-          "FUTURA",
-          "VIGENTE",
-          "VENCIDA",
-          "REVOCADA"
-        ],
-        "title": "EstadoVigencia",
         "type": "string"
       },
       "FinalizacionRequest": {
@@ -1522,54 +1260,6 @@
         "title": "MotivoIntegracionSnapshot",
         "type": "object"
       },
-      "MotivoPerfilResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "codigo": {
-            "$ref": "#/components/schemas/CodigoMotivoPerfil"
-          },
-          "mensaje": {
-            "title": "Mensaje",
-            "type": "string"
-          }
-        },
-        "required": [
-          "codigo",
-          "mensaje"
-        ],
-        "title": "MotivoPerfilResponse",
-        "type": "object"
-      },
-      "MotivoResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "capacidadId": {
-            "anyOf": [
-              {
-                "format": "uuid",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Capacidadid"
-          },
-          "codigo": {
-            "$ref": "#/components/schemas/CodigoMotivo"
-          },
-          "mensaje": {
-            "title": "Mensaje",
-            "type": "string"
-          }
-        },
-        "required": [
-          "codigo",
-          "mensaje"
-        ],
-        "title": "MotivoResponse",
-        "type": "object"
-      },
       "MotivoValidacion": {
         "additionalProperties": false,
         "properties": {
@@ -1721,46 +1411,6 @@
         "title": "OngCreate",
         "type": "object"
       },
-      "OngHabilitadaResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "capacidadesHabilitadas": {
-            "items": {
-              "$ref": "#/components/schemas/CapacidadHabilitadaResponse"
-            },
-            "title": "Capacidadeshabilitadas",
-            "type": "array"
-          },
-          "estadoOng": {
-            "$ref": "#/components/schemas/EstadoOng"
-          },
-          "motivosPerfil": {
-            "items": {
-              "$ref": "#/components/schemas/MotivoPerfilResponse"
-            },
-            "title": "Motivosperfil",
-            "type": "array"
-          },
-          "nombre": {
-            "title": "Nombre",
-            "type": "string"
-          },
-          "ongId": {
-            "format": "uuid",
-            "title": "Ongid",
-            "type": "string"
-          }
-        },
-        "required": [
-          "ongId",
-          "nombre",
-          "estadoOng",
-          "capacidadesHabilitadas",
-          "motivosPerfil"
-        ],
-        "title": "OngHabilitadaResponse",
-        "type": "object"
-      },
       "OngResponse": {
         "additionalProperties": false,
         "properties": {
@@ -1783,29 +1433,6 @@
           "estado"
         ],
         "title": "OngResponse",
-        "type": "object"
-      },
-      "OngsHabilitadasResponse": {
-        "additionalProperties": false,
-        "properties": {
-          "evaluadoEn": {
-            "format": "date-time",
-            "title": "Evaluadoen",
-            "type": "string"
-          },
-          "ongs": {
-            "items": {
-              "$ref": "#/components/schemas/OngHabilitadaResponse"
-            },
-            "title": "Ongs",
-            "type": "array"
-          }
-        },
-        "required": [
-          "evaluadoEn",
-          "ongs"
-        ],
-        "title": "OngsHabilitadasResponse",
         "type": "object"
       },
       "ParticipanteSnapshot": {
@@ -1841,6 +1468,44 @@
           "rol"
         ],
         "title": "ParticipanteSnapshot",
+        "type": "object"
+      },
+      "PerfilCompetencia": {
+        "additionalProperties": false,
+        "properties": {
+          "capacidadesDeclaradas": {
+            "items": {
+              "$ref": "#/components/schemas/CapacidadDeclarada"
+            },
+            "title": "Capacidadesdeclaradas",
+            "type": "array"
+          },
+          "estadoOng": {
+            "$ref": "#/components/schemas/EstadoOng"
+          },
+          "evaluadoEn": {
+            "format": "date-time",
+            "title": "Evaluadoen",
+            "type": "string"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "ongId": {
+            "format": "uuid",
+            "title": "Ongid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ongId",
+          "nombre",
+          "estadoOng",
+          "evaluadoEn",
+          "capacidadesDeclaradas"
+        ],
+        "title": "PerfilCompetencia",
         "type": "object"
       },
       "PropositoCuenta": {
@@ -2186,8 +1851,8 @@
             "type": "string"
           },
           "contratoVersion": {
-            "const": 2,
-            "default": 2,
+            "const": 3,
+            "default": 3,
             "title": "Contratoversion",
             "type": "integer"
           },
@@ -2244,7 +1909,7 @@
     }
   },
   "info": {
-    "description": "API nacional para gestionar organizaciones, certificaciones y recursos de la red RescueSync.\n\n**Autenticación:** POST /api/v1/login recibe identificadorLogin y password; usar access_token como Authorization: Bearer <token>. Los roles vigentes son ONG, ADMIN_NACIONAL e INTEGRACION; cada operación explica su acceso. Los ejemplos son ficticios y sus UUID deben reemplazarse por mappings reales. IDs locales y nacionales no son intercambiables.\n\n**Flujo distribuido:** Bonita obtiene el snapshot cerrado del backend local y llama a validaciones. La evaluación es transitoria, no persiste ofertas y no reserva stock. Comprometer revalida permisos, competencias y disponibilidad bajo locks PostgreSQL, con confirmación atómica. Compromiso, edición de inventario y liberación comparten locking. No se mantienen locks durante llamadas HTTP.\n\n**Idempotencia y cierre:** conservar Idempotency-Key ante timeouts o 503; el commit puede haber ocurrido. Misma clave y contenido reproducen la confirmación; contenido distinto da 409. Liberar afecta sólo el compromiso de esa ONG y conserva historial. Cerrar exige cero compromisos activos y comparte el lock de proyecto con comprometer.\n\n**Contratos:** camelCase para DTO de integración; cantidades nacionales exactas como strings decimales. Errores JSON con detail seguro: 401 autenticación, 403 permisos, 404 referencia inexistente, 409 conflicto, 422 entrada inválida, 500 inconsistencia, 503 fallo temporal. El frontend consume su backend local, no esta API directamente.",
+    "description": "API nacional para gestionar organizaciones, perfiles informativos y recursos de la red RescueSync.\n\n**Autenticación:** POST /api/v1/login recibe identificadorLogin y password; usar access_token como Authorization: Bearer <token>. Los roles vigentes son ONG, ADMIN_NACIONAL e INTEGRACION; cada operación explica su acceso. Los ejemplos son ficticios y sus UUID deben reemplazarse por mappings reales. IDs locales y nacionales no son intercambiables.\n\n**Flujo distribuido:** Bonita obtiene el snapshot cerrado del backend local y llama a validaciones. La evaluación es transitoria, no persiste ofertas y no reserva stock. Comprometer revalida permisos, referencias y disponibilidad bajo locks PostgreSQL, con confirmación atómica. Compromiso, edición de inventario y liberación comparten locking. No se mantienen locks durante llamadas HTTP.\n\n**Idempotencia y cierre:** conservar Idempotency-Key ante timeouts o 503; el commit puede haber ocurrido. Misma clave y contenido reproducen la confirmación; contenido distinto da 409. Liberar afecta sólo el compromiso de esa ONG y conserva historial. Cerrar exige cero compromisos activos y comparte el lock de proyecto con comprometer.\n\n**Contratos:** camelCase para DTO de integración; cantidades nacionales exactas como strings decimales. Errores JSON con detail seguro: 401 autenticación, 403 permisos, 404 referencia inexistente, 409 conflicto, 422 entrada inválida, 500 inconsistencia, 503 fallo temporal. El frontend consume su backend local, no esta API directamente.",
     "title": "RescueSync API Nacional",
     "version": "0.1.0"
   },
@@ -2418,157 +2083,6 @@
         "summary": "Crear una capacidad nacional",
         "tags": [
           "catálogo nacional"
-        ]
-      }
-    },
-    "/api/v1/certificaciones": {
-      "get": {
-        "description": "Acceso: ONG, ADMIN_NACIONAL o INTEGRACION. Sólo ADMIN_NACIONAL admite incluirInactivas=true; otros roles reciben 403. Los filtros seleccionan alcances compatibles y no acreditan a la cuenta consultante.",
-        "operationId": "catalogo_api_v1_certificaciones_get",
-        "parameters": [
-          {
-            "description": "UUID de capacidad nacional; filtra recursos o alcances.",
-            "in": "query",
-            "name": "capacidadId",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "format": "uuid",
-                  "type": "string"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "UUID de capacidad nacional; filtra recursos o alcances.",
-              "examples": [
-                "00000000-0000-4000-8000-000000000102"
-              ],
-              "title": "Capacidadid"
-            }
-          },
-          {
-            "description": "Riesgo requerido: BAJA, MEDIA, ALTA o CRITICA.",
-            "in": "query",
-            "name": "nivelRiesgo",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "$ref": "#/components/schemas/NivelRiesgo"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Riesgo requerido: BAJA, MEDIA, ALTA o CRITICA.",
-              "examples": [
-                "MEDIA"
-              ],
-              "title": "Nivelriesgo"
-            }
-          },
-          {
-            "description": "Revisiones inactivas: sólo ADMIN_NACIONAL.",
-            "in": "query",
-            "name": "incluirInactivas",
-            "required": false,
-            "schema": {
-              "default": false,
-              "description": "Revisiones inactivas: sólo ADMIN_NACIONAL.",
-              "examples": [
-                false
-              ],
-              "title": "Incluirinactivas",
-              "type": "boolean"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "example": [
-                  {
-                    "activa": true,
-                    "alcances": [
-                      {
-                        "activa": true,
-                        "admiteFracciones": false,
-                        "capacidadId": "00000000-0000-4000-8000-000000000102",
-                        "codigo": "ATENCION",
-                        "nombre": "Atención prehospitalaria",
-                        "riesgoMaximo": "ALTA",
-                        "tipo": "PERSONAL",
-                        "unidad": "persona"
-                      }
-                    ],
-                    "codigo": "ATENCION",
-                    "id": "00000000-0000-4000-8000-000000000108",
-                    "nombre": "Atención prehospitalaria",
-                    "revision": 1
-                  }
-                ],
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/CertificacionResponse"
-                  },
-                  "title": "Response Catalogo Api V1 Certificaciones Get",
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Operación confirmada correctamente."
-          },
-          "401": {
-            "content": {
-              "application/json": {
-                "example": {
-                  "detail": "La credencial nacional no es válida o expiró."
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
-          },
-          "403": {
-            "content": {
-              "application/json": {
-                "example": {
-                  "detail": "No tenés permisos para acceder a ese inventario."
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "example": {
-                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "summary": "Consultar catálogo de certificaciones y alcances",
-        "tags": [
-          "certificaciones"
         ]
       }
     },
@@ -3116,7 +2630,7 @@
     },
     "/api/v1/integraciones/ongs/{referencia_local}": {
       "put": {
-        "description": "Acceso exclusivo: INTEGRACION con emisor activo. referencia_local es un UUID durable por emisor. Repetir los mismos datos devuelve la misma identidad sin rotar secretos; contenido distinto produce 409. El backend emisor genera y conserva el secreto, que nunca se devuelve por HTTP. Alta PENDIENTE sin habilitación ni certificaciones.",
+        "description": "Acceso exclusivo: INTEGRACION con emisor activo. referencia_local es un UUID durable por emisor. Repetir los mismos datos devuelve la misma identidad sin rotar secretos; contenido distinto produce 409. El backend emisor genera y conserva el secreto, que nunca se devuelve por HTTP. Alta automática sin aprobación previa.",
         "operationId": "aprovisionar_api_v1_integraciones_ongs__referencia_local__put",
         "parameters": [
           {
@@ -3160,7 +2674,7 @@
                   "cuentaId": "00000000-0000-4000-8000-000000000104",
                   "identificadorLogin": "ong-ejemplo-generado-por-el-emisor",
                   "ong": {
-                    "estado": "PENDIENTE",
+                    "estado": "HABILITADA",
                     "id": "00000000-0000-4000-8000-000000000101",
                     "nombre": "Rescate de ejemplo"
                   }
@@ -3365,84 +2879,12 @@
       }
     },
     "/api/v1/ongs": {
-      "post": {
-        "description": "Acceso público. Crea atómicamente cuenta y ONG PENDIENTE, sin habilitación ni certificaciones. Login o identificador institucional duplicados producen 409.",
-        "operationId": "onboarding_api_v1_ongs_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/OngCreate",
-                "examples": [
-                  {
-                    "emailContacto": "ong@example.org",
-                    "identificadorInstitucional": "ong-ejemplo",
-                    "identificadorLogin": "ong@example.org",
-                    "nombre": "Rescate de ejemplo",
-                    "password": "Ejemplo-no-utilizable-123"
-                  }
-                ]
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "example": {
-                  "estado": "PENDIENTE",
-                  "id": "00000000-0000-4000-8000-000000000101",
-                  "nombre": "Rescate de ejemplo"
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/OngResponse"
-                }
-              }
-            },
-            "description": "Operación confirmada correctamente."
-          },
-          "409": {
-            "content": {
-              "application/json": {
-                "example": {
-                  "detail": "La operación entra en conflicto con el estado actual."
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Conflicto de estado, stock, versión, unicidad o clave idempotente."
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "example": {
-                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
-                },
-                "schema": {
-                  "$ref": "#/components/schemas/ErrorResponse"
-                }
-              }
-            },
-            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
-          }
-        },
-        "summary": "Registrar una ONG y su cuenta",
-        "tags": [
-          "cuentas e inventario"
-        ]
-      }
-    },
-    "/api/v1/ongs/habilitadas": {
       "get": {
-        "description": "Acceso: ONG, ADMIN_NACIONAL o INTEGRACION con cuenta vigente. Directorio resumido sin datos de contacto. Sin filtros incluye instituciones habilitadas sin competencias. Capacidad y riesgo coinciden en un mismo alcance; devuelve perfil completo. No consulta stock ni reserva recursos.",
-        "operationId": "ongs_habilitadas_api_v1_ongs_habilitadas_get",
+        "description": "Acceso: ONG, administración o integración. Incluye ONG sin inventario. El filtro por capacidad no reserva recursos.",
+        "operationId": "directorio_api_v1_ongs_get",
         "parameters": [
           {
-            "description": "UUID de capacidad nacional; filtra recursos o alcances.",
+            "description": "Capacidad declarada para filtrar el directorio.",
             "in": "query",
             "name": "capacidadId",
             "required": false,
@@ -3456,32 +2898,11 @@
                   "type": "null"
                 }
               ],
-              "description": "UUID de capacidad nacional; filtra recursos o alcances.",
+              "description": "Capacidad declarada para filtrar el directorio.",
               "examples": [
                 "00000000-0000-4000-8000-000000000102"
               ],
               "title": "Capacidadid"
-            }
-          },
-          {
-            "description": "Riesgo requerido: BAJA, MEDIA, ALTA o CRITICA.",
-            "in": "query",
-            "name": "nivelRiesgo",
-            "required": false,
-            "schema": {
-              "anyOf": [
-                {
-                  "$ref": "#/components/schemas/NivelRiesgo"
-                },
-                {
-                  "type": "null"
-                }
-              ],
-              "description": "Riesgo requerido: BAJA, MEDIA, ALTA o CRITICA.",
-              "examples": [
-                "MEDIA"
-              ],
-              "title": "Nivelriesgo"
             }
           }
         ],
@@ -3493,32 +2914,28 @@
                   "evaluadoEn": "2026-10-14T18:01:00Z",
                   "ongs": [
                     {
-                      "capacidadesHabilitadas": [
+                      "capacidadesDeclaradas": [
                         {
-                          "acreditacionIds": [
-                            "00000000-0000-4000-8000-000000000109"
-                          ],
+                          "admiteFracciones": false,
+                          "cantidadComprometida": "0.000",
+                          "cantidadDisponible": "10.000",
+                          "cantidadTotal": "10.000",
                           "capacidadId": "00000000-0000-4000-8000-000000000102",
                           "codigo": "ATENCION",
-                          "nivelesRiesgoPermitidos": [
-                            "BAJA",
-                            "MEDIA",
-                            "ALTA"
-                          ],
                           "nombre": "Atención prehospitalaria",
-                          "riesgoMaximo": "ALTA",
+                          "tipo": "PERSONAL",
                           "unidad": "persona"
                         }
                       ],
                       "estadoOng": "HABILITADA",
-                      "motivosPerfil": [],
-                      "nombre": "Rescate de ejemplo",
+                      "evaluadoEn": "2026-10-14T18:01:00Z",
+                      "nombre": "ONG de ejemplo",
                       "ongId": "00000000-0000-4000-8000-000000000101"
                     }
                   ]
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/OngsHabilitadasResponse"
+                  "$ref": "#/components/schemas/DirectorioOngs"
                 }
               }
             },
@@ -3569,24 +2986,94 @@
             "HTTPBearer": []
           }
         ],
-        "summary": "Consultar ONGs habilitadas y sus competencias vigentes",
+        "summary": "Consultar ONG activas y sus recursos declarados",
         "tags": [
-          "ONGs habilitadas"
+          "ONGs y perfiles informativos"
+        ]
+      },
+      "post": {
+        "description": "Acceso público. Crea atómicamente cuenta y ONG operativa, sin aprobación previa. Login o identificador institucional duplicados producen 409.",
+        "operationId": "onboarding_api_v1_ongs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OngCreate",
+                "examples": [
+                  {
+                    "emailContacto": "ong@example.org",
+                    "identificadorInstitucional": "ong-ejemplo",
+                    "identificadorLogin": "ong@example.org",
+                    "nombre": "Rescate de ejemplo",
+                    "password": "Ejemplo-no-utilizable-123"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "estado": "HABILITADA",
+                  "id": "00000000-0000-4000-8000-000000000101",
+                  "nombre": "Rescate de ejemplo"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/OngResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La operación entra en conflicto con el estado actual."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflicto de estado, stock, versión, unicidad o clave idempotente."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          }
+        },
+        "summary": "Registrar una ONG y su cuenta",
+        "tags": [
+          "cuentas e inventario"
         ]
       }
     },
-    "/api/v1/ongs/{ong_id}/certificaciones": {
+    "/api/v1/ongs/{ong_id}/perfil-competencia": {
       "get": {
-        "description": "Acceso: ONG propia, ADMIN_NACIONAL o INTEGRACION. Otra ONG recibe 403. Incluye historia, vigencia UTC [desde,hasta), capacidades y motivos. No garantiza disponibilidad ni reserva futura.",
-        "operationId": "acreditaciones_api_v1_ongs__ong_id__certificaciones_get",
+        "description": "Acceso: ONG propia, administración o integración. Perfil informativo sin límites por riesgo.",
+        "operationId": "perfil_competencia_api_v1_ongs__ong_id__perfil_competencia_get",
         "parameters": [
           {
-            "description": "UUID de la ONG en el sistema nacional; no es el ID local.",
+            "description": "Identificador nacional de la ONG.",
             "in": "path",
             "name": "ong_id",
             "required": true,
             "schema": {
-              "description": "UUID de la ONG en el sistema nacional; no es el ID local.",
+              "description": "Identificador nacional de la ONG.",
               "examples": [
                 "00000000-0000-4000-8000-000000000101"
               ],
@@ -3601,53 +3088,26 @@
             "content": {
               "application/json": {
                 "example": {
-                  "acreditaciones": [
+                  "capacidadesDeclaradas": [
                     {
-                      "certificacion": {
-                        "activa": true,
-                        "alcances": [
-                          {
-                            "activa": true,
-                            "admiteFracciones": false,
-                            "capacidadId": "00000000-0000-4000-8000-000000000102",
-                            "codigo": "ATENCION",
-                            "nombre": "Atención prehospitalaria",
-                            "riesgoMaximo": "ALTA",
-                            "tipo": "PERSONAL",
-                            "unidad": "persona"
-                          }
-                        ],
-                        "codigo": "ATENCION",
-                        "id": "00000000-0000-4000-8000-000000000108",
-                        "nombre": "Atención prehospitalaria",
-                        "revision": 1
-                      },
-                      "emisor": "Autoridad de ejemplo",
-                      "estado": "REVOCADA",
-                      "estadoVigencia": "REVOCADA",
-                      "id": "00000000-0000-4000-8000-000000000109",
-                      "motivoRevocacion": "Fin del alcance acreditado de ejemplo",
-                      "motivos": [
-                        {
-                          "capacidadId": "00000000-0000-4000-8000-000000000102",
-                          "codigo": "ACREDITACION_REVOCADA",
-                          "mensaje": "Acreditación revocada."
-                        }
-                      ],
-                      "numeroCredencial": "CERT-001",
-                      "revocadaEn": "2026-10-15T12:00:00Z",
-                      "vigenteDesde": "2026-01-01T00:00:00Z",
-                      "vigenteHasta": "2027-01-01T00:00:00Z"
+                      "admiteFracciones": false,
+                      "cantidadComprometida": "0.000",
+                      "cantidadDisponible": "10.000",
+                      "cantidadTotal": "10.000",
+                      "capacidadId": "00000000-0000-4000-8000-000000000102",
+                      "codigo": "ATENCION",
+                      "nombre": "Atención prehospitalaria",
+                      "tipo": "PERSONAL",
+                      "unidad": "persona"
                     }
                   ],
-                  "capacidadesHabilitadas": [],
                   "estadoOng": "HABILITADA",
-                  "evaluadoEn": "2026-10-15T12:01:00Z",
-                  "motivosInstitucionales": [],
+                  "evaluadoEn": "2026-10-14T18:01:00Z",
+                  "nombre": "ONG de ejemplo",
                   "ongId": "00000000-0000-4000-8000-000000000101"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/CertificacionesOngResponse"
+                  "$ref": "#/components/schemas/PerfilCompetencia"
                 }
               }
             },
@@ -3711,9 +3171,9 @@
             "HTTPBearer": []
           }
         ],
-        "summary": "Consultar acreditaciones y competencia de una ONG",
+        "summary": "Analizar los recursos declarados de una ONG",
         "tags": [
-          "certificaciones"
+          "ONGs y perfiles informativos"
         ]
       }
     },
@@ -4505,7 +3965,7 @@
     },
     "/api/v1/validaciones": {
       "post": {
-        "description": "Acceso: INTEGRACION del sistemaOrigen autenticado o ADMIN_NACIONAL seleccionando un emisor activo; cuentas ONG reciben 403. Bonita envía el snapshot contratoVersion=2 tras el cierre local. Evaluación transitoria READ ONLY / REPEATABLE READ: devuelve capacidades, riesgos, clasificación PRINCIPAL/APOYO/SIN_HABILITACION y motivos por aporte. No guarda ofertas ni resultados y no crea proyectos o reservas. La disponibilidad consultada no garantiza stock al adjudicar.",
+        "description": "Acceso: INTEGRACION del sistemaOrigen autenticado o ADMIN_NACIONAL seleccionando un emisor activo; cuentas ONG reciben 403. Bonita envía el snapshot contratoVersion=2 tras el cierre local. Evaluación transitoria READ ONLY / REPEATABLE READ: devuelve contratoVersion=3, perfiles informativos y motivos de consistencia por aporte. No guarda ofertas ni resultados y no crea proyectos o reservas. La disponibilidad consultada no garantiza stock al adjudicar.",
         "operationId": "validar_api_v1_validaciones_post",
         "requestBody": {
           "content": {
@@ -4598,42 +4058,38 @@
                       "aporteId": 50,
                       "cantidadDisponibleConsultada": "10.000",
                       "cantidadOfrecida": "6.000",
-                      "capacidadesHabilitadas": [
-                        {
-                          "acreditacionIds": [
-                            "00000000-0000-4000-8000-000000000109"
-                          ],
-                          "capacidadId": "00000000-0000-4000-8000-000000000102",
-                          "codigo": "ATENCION",
-                          "nivelesRiesgoPermitidos": [
-                            "BAJA",
-                            "MEDIA",
-                            "ALTA"
-                          ],
-                          "nombre": "Atención prehospitalaria",
-                          "riesgoMaximo": "ALTA",
-                          "unidad": "persona"
-                        }
-                      ],
-                      "clasificacion": "PRINCIPAL",
                       "itemId": 41,
                       "loteId": 40,
                       "motivos": [],
-                      "nivelesRiesgoPermitidos": [
-                        "BAJA",
-                        "MEDIA",
-                        "ALTA"
-                      ],
                       "ofertaId": 30,
                       "ongId": 1,
                       "ongNacionalId": "00000000-0000-4000-8000-000000000101",
+                      "perfilCompetencia": {
+                        "capacidadesDeclaradas": [
+                          {
+                            "admiteFracciones": false,
+                            "cantidadComprometida": "0.000",
+                            "cantidadDisponible": "10.000",
+                            "cantidadTotal": "10.000",
+                            "capacidadId": "00000000-0000-4000-8000-000000000102",
+                            "codigo": "ATENCION",
+                            "nombre": "Atención prehospitalaria",
+                            "tipo": "PERSONAL",
+                            "unidad": "persona"
+                          }
+                        ],
+                        "estadoOng": "HABILITADA",
+                        "evaluadoEn": "2026-10-14T18:01:00Z",
+                        "nombre": "ONG de ejemplo",
+                        "ongId": "00000000-0000-4000-8000-000000000101"
+                      },
                       "recursoNacionalId": "00000000-0000-4000-8000-000000000103",
                       "unidad": "persona",
                       "version": 1
                     }
                   ],
                   "caseId": "100",
-                  "contratoVersion": 2,
+                  "contratoVersion": 3,
                   "convocatoriaId": 20,
                   "evaluadoEn": "2026-10-14T18:01:00Z",
                   "idEmergencia": 101,
@@ -4741,9 +4197,9 @@
             "HTTPBearer": []
           }
         ],
-        "summary": "Evaluar competencias y disponibilidad por aporte sin reservar",
+        "summary": "Consultar perfiles y comprobar inventario por aporte sin reservar",
         "tags": [
-          "validación de competencias"
+          "consistencia e inventario"
         ]
       }
     }

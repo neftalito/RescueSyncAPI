@@ -1,55 +1,81 @@
-"""Consulta JWT del directorio nacional resumido de instituciones habilitadas."""
+"""Directorio operativo y análisis de recursos declarados con autorización JWT."""
 
+from datetime import UTC, datetime
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Query, Response
+from fastapi import APIRouter, HTTPException, Path, Query, Response
 
 from app.api import ejemplos
-from app.api.dependencies import CuentaActual, Db
+from app.api.dependencies import CuentaEvaluacion, DbEvaluacion, autorizar_inventario
 from app.api.documentacion import respuestas
-from app.db.models import NivelRiesgo
-from app.schemas.ongs import OngsHabilitadasResponse
-from app.services.ongs import listar_ongs_habilitadas
+from app.schemas.perfiles import DirectorioOngs, PerfilCompetencia
+from app.services.perfiles import consultar_perfiles
 
 router = APIRouter()
 
 
 @router.get(
-    "/ongs/habilitadas",
-    response_model=OngsHabilitadasResponse,
-    summary="Consultar ONGs habilitadas y sus competencias vigentes",
+    "/ongs",
+    response_model=DirectorioOngs,
+    summary="Consultar ONG activas y sus recursos declarados",
     description=(
-        "Acceso: ONG, ADMIN_NACIONAL o INTEGRACION con cuenta vigente. "
-        "Directorio resumido sin datos de contacto. Sin filtros incluye "
-        "instituciones habilitadas sin competencias. Capacidad y riesgo "
-        "coinciden en un mismo alcance; devuelve perfil completo. No consulta"
-        " stock ni reserva recursos."
+        "Acceso: ONG, administración o integración. Incluye ONG sin "
+        "inventario. El filtro por capacidad no reserva recursos."
     ),
-    responses=respuestas(401, 403, 422, ejemplo=ejemplos.ONGS_HABILITADAS, exito=200),
+    responses=respuestas(401, 403, 422, ejemplo=ejemplos.DIRECTORIO_ONGS),
 )
-def ongs_habilitadas(
-    session: Db,
-    cuenta: CuentaActual,
+def directorio(
+    session: DbEvaluacion,
+    cuenta: CuentaEvaluacion,
     response: Response,
     capacidad_id: Annotated[
         UUID | None,
         Query(
             alias="capacidadId",
-            description="UUID de capacidad nacional; filtra recursos o alcances.",
+            description="Capacidad declarada para filtrar el directorio.",
             examples=[ejemplos.CAPACIDAD_ID],
         ),
     ] = None,
-    nivel_riesgo: Annotated[
-        NivelRiesgo | None,
-        Query(
-            alias="nivelRiesgo",
-            description="Riesgo requerido: BAJA, MEDIA, ALTA o CRITICA.",
-            examples=["MEDIA"],
-        ),
-    ] = None,
-) -> OngsHabilitadasResponse:
+) -> DirectorioOngs:
     response.headers["Cache-Control"] = "no-store"
-    return listar_ongs_habilitadas(
-        session, capacidad_id=capacidad_id, nivel_riesgo=nivel_riesgo
+    ahora = datetime.now(UTC)
+    perfiles = consultar_perfiles(session, solo_activas=True, ahora=ahora)
+    return DirectorioOngs(
+        evaluado_en=ahora,
+        ongs=[
+            p
+            for p in perfiles.values()
+            if capacidad_id is None
+            or any(c.capacidad_id == capacidad_id for c in p.capacidades_declaradas)
+        ],
     )
+
+
+@router.get(
+    "/ongs/{ong_id}/perfil-competencia",
+    response_model=PerfilCompetencia,
+    summary="Analizar los recursos declarados de una ONG",
+    description=(
+        "Acceso: ONG propia, administración o integración. "
+        "Perfil informativo sin límites por riesgo."
+    ),
+    responses=respuestas(401, 403, 404, 422, ejemplo=ejemplos.PERFIL_COMPETENCIA),
+)
+def perfil_competencia(
+    ong_id: Annotated[
+        UUID,
+        Path(
+            description="Identificador nacional de la ONG.", examples=[ejemplos.ONG_ID]
+        ),
+    ],
+    session: DbEvaluacion,
+    cuenta: CuentaEvaluacion,
+    response: Response,
+) -> PerfilCompetencia:
+    autorizar_inventario(cuenta, ong_id, escritura=False)
+    response.headers["Cache-Control"] = "no-store"
+    perfil = consultar_perfiles(session, ong_ids={ong_id}).get(ong_id)
+    if perfil is None:
+        raise HTTPException(404, "La ONG nacional no existe.")
+    return perfil

@@ -8,11 +8,10 @@ from uuid import UUID
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from app.db.models import Capacidad, EstadoOng, NivelRiesgo, Recurso
-from app.schemas.certificaciones import CertificacionesOngResponse
+from app.db.models import Capacidad, EstadoOng, Ong, Recurso
+from app.schemas.perfiles import PerfilCompetencia
 from app.schemas.validaciones import (
     AporteEvaluado,
-    Clasificacion,
     CodigoMotivoValidacion,
     MotivoValidacion,
     PerfilAporte,
@@ -20,9 +19,9 @@ from app.schemas.validaciones import (
     ValidacionRequest,
     ValidacionResponse,
 )
-from app.services.certificaciones import ORDEN_RIESGO, consultar_certificaciones_ongs
 from app.services.disponibilidad import InventarioInconsistenteError
 from app.services.inventario import compromisos_activos_por_recurso
+from app.services.perfiles import consultar_perfiles
 
 
 @dataclass(frozen=True, slots=True)
@@ -32,7 +31,6 @@ class RequerimientoAporte:
     ong_id: UUID | None
     capacidad_id: UUID | None
     capacidad_declarada_id: UUID | None
-    riesgo: NivelRiesgo | None
     unidad: str
     cantidad: Decimal
 
@@ -52,12 +50,6 @@ def motivo(codigo: CodigoMotivoValidacion) -> MotivoValidacion:
         CodigoMotivoValidacion.CAPACIDAD_INCOMPATIBLE: "La capacidad no coincide.",
         CodigoMotivoValidacion.UNIDAD_INCOMPATIBLE: "La unidad no coincide.",
         CodigoMotivoValidacion.CANTIDAD_NO_DISCRETA: "La capacidad requiere enteros.",
-        CodigoMotivoValidacion.SIN_ACREDITACION_VIGENTE: "No hay acreditación vigente.",
-        CodigoMotivoValidacion.ACREDITACION_VENCIDA: "La acreditación venció.",
-        CodigoMotivoValidacion.ACREDITACION_REVOCADA: "La acreditación fue revocada.",
-        CodigoMotivoValidacion.ACREDITACION_FUTURA: "La acreditación no inició.",
-        CodigoMotivoValidacion.CERTIFICACION_INACTIVA: "Certificación inactiva.",
-        CodigoMotivoValidacion.RIESGO_NO_PERMITIDO: "Riesgo fuera de alcance.",
         CodigoMotivoValidacion.DISPONIBILIDAD_INSUFICIENTE: "Stock insuficiente.",
     }
     return MotivoValidacion(codigo=codigo, mensaje=mensajes[codigo])
@@ -66,20 +58,20 @@ def motivo(codigo: CodigoMotivoValidacion) -> MotivoValidacion:
 def evaluar_aporte(
     requerimiento: RequerimientoAporte,
     *,
-    perfil: CertificacionesOngResponse | None,
+    ong: Ong | None,
+    perfil: PerfilCompetencia | None = None,
     recurso: Recurso | None,
     capacidad: Capacidad | None,
     disponible: Decimal | None,
-    gravedad: NivelRiesgo | None,
 ) -> PerfilAporte:
-    """La competencia no desaparece por falta de stock; nunca reserva cantidades."""
+    """Comprueba identidad e inventario, sin usar el perfil para autorizar."""
     req = requerimiento
     codigos: list[CodigoMotivoValidacion] = []
-    if req.ong_id is None or req.capacidad_id is None or req.riesgo is None:
+    if req.ong_id is None or req.capacidad_id is None:
         codigos.append(CodigoMotivoValidacion.REFERENCIAS_INCOMPLETAS)
-    if perfil is None:
+    if ong is None:
         codigos.append(CodigoMotivoValidacion.ONG_NO_ENCONTRADA)
-    elif perfil.estado_ong != EstadoOng.HABILITADA:
+    elif ong.estado != EstadoOng.HABILITADA:
         codigos.append(CodigoMotivoValidacion.ONG_NO_HABILITADA)
     if recurso is None:
         codigos.append(CodigoMotivoValidacion.RECURSO_NO_ENCONTRADO)
@@ -105,39 +97,10 @@ def evaluar_aporte(
             and req.cantidad != req.cantidad.to_integral()
         ):
             codigos.append(CodigoMotivoValidacion.CANTIDAD_NO_DISCRETA)
-    capacidades = perfil.capacidades_habilitadas if perfil else []
-    habilitada = next(
-        (c for c in capacidades if c.capacidad_id == req.capacidad_id), None
-    )
-    niveles = habilitada.niveles_riesgo_permitidos if habilitada else []
-    if habilitada is None:
-        codigos.append(CodigoMotivoValidacion.SIN_ACREDITACION_VIGENTE)
-        if perfil is not None:
-            for credencial in perfil.acreditaciones:
-                if any(
-                    a.capacidad_id == req.capacidad_id
-                    for a in credencial.certificacion.alcances
-                ):
-                    for razon in credencial.motivos:
-                        if razon.codigo.value in CodigoMotivoValidacion:
-                            codigos.append(CodigoMotivoValidacion(razon.codigo.value))
-    elif req.riesgo not in niveles:
-        codigos.append(CodigoMotivoValidacion.RIESGO_NO_PERMITIDO)
-    if gravedad is None:
-        codigos.append(CodigoMotivoValidacion.REFERENCIAS_INCOMPLETAS)
-    clasificacion = Clasificacion.SIN_HABILITACION
-    if not codigos and habilitada is not None and gravedad is not None:
-        clasificacion = (
-            Clasificacion.PRINCIPAL
-            if ORDEN_RIESGO[habilitada.riesgo_maximo] >= ORDEN_RIESGO[gravedad]
-            else Clasificacion.APOYO
-        )
     if disponible is not None and disponible < req.cantidad:
         codigos.append(CodigoMotivoValidacion.DISPONIBILIDAD_INSUFICIENTE)
     return PerfilAporte(
-        clasificacion=clasificacion,
-        capacidades_habilitadas=capacidades,
-        niveles_riesgo_permitidos=niveles,
+        perfil_competencia=perfil,
         cantidad_disponible_consultada=disponible,
         motivos=[motivo(c) for c in dict.fromkeys(codigos)],
     )
@@ -176,12 +139,10 @@ def validar_snapshot(
         for p in o.participantes
         if p.ong_nacional_id is not None
     }
-    perfiles = {
-        p.ong_id: p
-        for _, p in consultar_certificaciones_ongs(
-            session, ong_ids=ong_ids, ahora=evaluado_en
-        )
+    instituciones = {
+        o.id: o for o in session.scalars(select(Ong).where(Ong.id.in_(ong_ids)))
     }
+    perfiles = consultar_perfiles(session, ong_ids=ong_ids, ahora=evaluado_en)
     aportes = [a for o in snapshot.ofertas for i in o.items for a in i.aportes]
     recursos = consultar_recursos(session, {a.recurso_nacional_id for a in aportes})
     capacidad_ids = {
@@ -216,9 +177,7 @@ def validar_snapshot(
                             recurso_nacional_id=None,
                             cantidad_ofrecida=item.cantidad_ofrecida_exacta,
                             unidad=item.unidad,
-                            clasificacion=Clasificacion.SIN_HABILITACION,
-                            capacidades_habilitadas=[],
-                            niveles_riesgo_permitidos=[],
+                            perfil_competencia=perfiles.get(oferta.ong_nacional_id),
                             cantidad_disponible_consultada=None,
                             motivos=[
                                 motivo(CodigoMotivoValidacion.DESGLOSE_NACIONAL_AUSENTE)
@@ -233,23 +192,20 @@ def validar_snapshot(
                             aporte.ong_nacional_id,
                             lote.capacidad_nacional_id,
                             aporte.capacidad_nacional_id,
-                            lote.riesgo_requerido,
                             aporte.unidad,
                             aporte.cantidad,
                         ),
+                        ong=instituciones.get(aporte.ong_nacional_id),
                         perfil=perfiles.get(aporte.ong_nacional_id),
                         recurso=datos[0] if datos else None,
                         capacidad=capacidad,
                         disponible=datos[2] if datos else None,
-                        gravedad=snapshot.gravedad,
                     )
                     if item.unidad != lote.unidad or aporte.unidad != lote.unidad:
-                        perfil.clasificacion = Clasificacion.SIN_HABILITACION
                         perfil.motivos.append(
                             motivo(CodigoMotivoValidacion.UNIDAD_INCOMPATIBLE)
                         )
                     if capacidad and lote.codigo_capacidad != capacidad.codigo:
-                        perfil.clasificacion = Clasificacion.SIN_HABILITACION
                         perfil.motivos.append(
                             motivo(CodigoMotivoValidacion.CAPACIDAD_INCOMPATIBLE)
                         )

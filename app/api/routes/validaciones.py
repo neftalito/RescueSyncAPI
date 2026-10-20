@@ -25,13 +25,13 @@ logger = logging.getLogger(__name__)
 @router.post(
     "/validaciones",
     response_model=ValidacionResponse,
-    summary="Evaluar competencias y disponibilidad por aporte sin reservar",
+    summary="Consultar perfiles y comprobar inventario por aporte sin reservar",
     description=(
         "Acceso: INTEGRACION del sistemaOrigen autenticado o ADMIN_NACIONAL "
         "seleccionando un emisor activo; cuentas ONG reciben 403. Bonita "
         "envía el snapshot contratoVersion=2 tras el cierre local. Evaluación"
-        " transitoria READ ONLY / REPEATABLE READ: devuelve capacidades, "
-        "riesgos, clasificación PRINCIPAL/APOYO/SIN_HABILITACION y motivos "
+        " transitoria READ ONLY / REPEATABLE READ: devuelve contratoVersion=3, "
+        "perfiles informativos y motivos de consistencia "
         "por aporte. No guarda ofertas ni resultados y no crea proyectos o "
         "reservas. La disponibilidad consultada no garantiza stock al "
         "adjudicar."

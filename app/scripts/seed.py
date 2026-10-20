@@ -17,7 +17,6 @@ from app.db.models import (
     RolNacional,
 )
 from app.db.session import SessionLocal
-from app.scripts.seed_certificaciones import seed_certificaciones
 
 
 def _cuenta_tecnica_demo(session: Session, ong_id: UUID, referencia: str) -> None:
@@ -158,8 +157,6 @@ def seed_development_data(session: Session) -> None:
                 )
         session.flush()
 
-    seed_certificaciones(session)
-
 
 def main() -> int:
     """Carga datos demo sin realizar llamadas a RescueSync ni publicar secretos."""
@@ -169,10 +166,7 @@ def main() -> int:
         return 1
     with SessionLocal.begin() as session:
         seed_development_data(session)
-    print(
-        "Seed nacional listo: dos ONGs, cuentas técnicas, "
-        "inventario y certificaciones demo."
-    )
+    print("Seed nacional listo: dos ONGs, cuentas técnicas, e inventario demo.")
     return 0
 
 

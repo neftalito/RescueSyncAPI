@@ -1,5 +1,10 @@
 # Implementación de T28: certificaciones e integración con RescueSync y Bonita
 
+> Actualización 20/10/2026: [perfiles informativos](./perfiles-competencia.md) reemplaza las
+> reglas de certificación, habilitación previa y clasificación por riesgo de este
+> documento. Las referencias a esas reglas describen el comportamiento anterior.
+
+
 Propuesta elaborada el **13/10/2026** para el
 [issue #7 — T28](https://github.com/neftalito/RescueSyncAPI/issues/7).
 Este documento describe la implementación pendiente; no acredita que los

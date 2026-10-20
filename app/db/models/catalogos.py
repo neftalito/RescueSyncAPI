@@ -1,4 +1,4 @@
-"""Catálogo versionado y acreditaciones institucionales con vigencia explícita."""
+"""Catálogo operativo y acreditaciones históricas sin uso en autorizaciones."""
 
 from datetime import datetime
 from uuid import UUID, uuid4

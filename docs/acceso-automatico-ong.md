@@ -1,5 +1,10 @@
 # Cuentas técnicas por ONG
 
+> Actualización 20/10/2026: [perfiles informativos](./perfiles-competencia.md) reemplaza las
+> reglas de certificación, habilitación previa y clasificación por riesgo de este
+> documento. Las referencias a esas reglas describen el comportamiento anterior.
+
+
 Cada ONG puede tener una cuenta `TECNICA_ONG`, con rol `ONG`, además de sus
 cuentas personales. Su secreto aleatorio se guarda como hash Argon2. No cambia
 el estado institucional ni las certificaciones. Una ONG `PENDIENTE` puede usar
