@@ -339,7 +339,7 @@
           "codigo": {
             "maxLength": 80,
             "minLength": 1,
-            "pattern": "^[A-Z][A-Z0-9_]*$",
+            "pattern": "^[A-Z][A-Z0-9_-]*$",
             "title": "Codigo",
             "type": "string"
           },

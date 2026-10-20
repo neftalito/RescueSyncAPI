@@ -70,7 +70,7 @@ Ejemplo de alta:
 
 ```json
 {
-  "codigo": "ALIMENTOS_SIN_GLUTEN",
+  "codigo": "ALIMENTOS-SIN-GLUTEN",
   "nombre": "Alimentos sin gluten",
   "tipo": "SUMINISTRO",
   "unidad": "kg",
@@ -79,7 +79,7 @@ Ejemplo de alta:
 ```
 
 El código es único, de hasta 80 caracteres: comienza con una letra mayúscula y
-continúa con mayúsculas, números o guion bajo. El nombre admite hasta 160
+continúa con mayúsculas, números, guiones o guion bajo. El nombre admite hasta 160
 caracteres. Los tipos son `PERSONAL`, `VEHICULO`, `EQUIPAMIENTO` y `SUMINISTRO`.
 Personal y vehículos requieren cantidades enteras. `unidad` es el código exacto
 devuelto por `GET /unidades`, no un objeto que permita crear otra unidad.
@@ -87,7 +87,9 @@ devuelto por `GET /unidades`, no un objeto que permita crear otra unidad.
 Respuestas: `201` con el mismo DTO de capacidad que usa el listado, `401` sin
 cuenta vigente, `403` para ONG/integración, `409` por código duplicado y `422`
 por datos o unidad inválidos. El código único se exige en PostgreSQL incluso
-ante altas concurrentes. Crear una capacidad no acredita ONGs ni crea stock.
+ante altas concurrentes y aunque la capacidad anterior esté inactiva. Los códigos
+anteriores con guion bajo se conservan sin cambios; no se necesita una migración.
+Crear una capacidad no acredita ONGs ni crea stock.
 
 ## Unidades instaladas en desarrollo y producción
 
@@ -138,5 +140,8 @@ backend local puede conservar estos valores en `NACIONAL_CATALOGO_LOGIN` y
 ejecutar antes el demo para habilitar las altas de capacidades.
 
 El formulario permite elegir exclusivamente unidades devueltas por el catálogo,
-normaliza el código a mayúsculas y actualiza los listados de capacidades tras
+genera el código a partir del nombre en mayúsculas, sin tildes y con guiones
+en lugar de espacios, sin permitir su edición manual. Comprueba duplicados en
+el catálogo y conserva el formulario ante un `409` nacional, incluso para una
+capacidad inactiva. Actualiza los listados de capacidades tras
 crear. Las nuevas capacidades quedan disponibles para lotes y recursos de ONG.
