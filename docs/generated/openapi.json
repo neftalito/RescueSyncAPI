@@ -1,0 +1,4751 @@
+{
+  "components": {
+    "schemas": {
+      "AcreditacionResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "certificacion": {
+            "$ref": "#/components/schemas/CertificacionResponse"
+          },
+          "emisor": {
+            "title": "Emisor",
+            "type": "string"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/EstadoAcreditacion"
+          },
+          "estadoVigencia": {
+            "$ref": "#/components/schemas/EstadoVigencia"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "motivoRevocacion": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Motivorevocacion"
+          },
+          "motivos": {
+            "items": {
+              "$ref": "#/components/schemas/MotivoResponse"
+            },
+            "title": "Motivos",
+            "type": "array"
+          },
+          "numeroCredencial": {
+            "title": "Numerocredencial",
+            "type": "string"
+          },
+          "revocadaEn": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revocadaen"
+          },
+          "vigenteDesde": {
+            "format": "date-time",
+            "title": "Vigentedesde",
+            "type": "string"
+          },
+          "vigenteHasta": {
+            "format": "date-time",
+            "title": "Vigentehasta",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "certificacion",
+          "emisor",
+          "numeroCredencial",
+          "vigenteDesde",
+          "vigenteHasta",
+          "estado",
+          "estadoVigencia",
+          "revocadaEn",
+          "motivoRevocacion",
+          "motivos"
+        ],
+        "title": "AcreditacionResponse",
+        "type": "object"
+      },
+      "AlcanceResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "activa": {
+            "title": "Activa",
+            "type": "boolean"
+          },
+          "admiteFracciones": {
+            "title": "Admitefracciones",
+            "type": "boolean"
+          },
+          "capacidadId": {
+            "format": "uuid",
+            "title": "Capacidadid",
+            "type": "string"
+          },
+          "codigo": {
+            "title": "Codigo",
+            "type": "string"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "riesgoMaximo": {
+            "$ref": "#/components/schemas/NivelRiesgo"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/TipoRecurso"
+          },
+          "unidad": {
+            "title": "Unidad",
+            "type": "string"
+          }
+        },
+        "required": [
+          "capacidadId",
+          "codigo",
+          "nombre",
+          "tipo",
+          "unidad",
+          "admiteFracciones",
+          "activa",
+          "riesgoMaximo"
+        ],
+        "title": "AlcanceResponse",
+        "type": "object"
+      },
+      "AporteCompromiso": {
+        "additionalProperties": false,
+        "properties": {
+          "aporteId": {
+            "$ref": "#/components/schemas/Referencia"
+          },
+          "cantidad": {
+            "$ref": "#/components/schemas/CantidadExacta-Input"
+          },
+          "capacidadNacionalId": {
+            "format": "uuid",
+            "title": "Capacidadnacionalid",
+            "type": "string"
+          },
+          "loteId": {
+            "$ref": "#/components/schemas/Referencia"
+          },
+          "ofertaId": {
+            "$ref": "#/components/schemas/Referencia"
+          },
+          "ongNacionalId": {
+            "format": "uuid",
+            "title": "Ongnacionalid",
+            "type": "string"
+          },
+          "recursoNacionalId": {
+            "format": "uuid",
+            "title": "Recursonacionalid",
+            "type": "string"
+          },
+          "riesgoRequerido": {
+            "$ref": "#/components/schemas/NivelRiesgo"
+          },
+          "unidad": {
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Unidad",
+            "type": "string"
+          },
+          "version": {
+            "exclusiveMinimum": 0.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ofertaId",
+          "version",
+          "loteId",
+          "aporteId",
+          "ongNacionalId",
+          "recursoNacionalId",
+          "capacidadNacionalId",
+          "riesgoRequerido",
+          "cantidad",
+          "unidad"
+        ],
+        "title": "AporteCompromiso",
+        "type": "object"
+      },
+      "AporteEvaluado": {
+        "additionalProperties": false,
+        "properties": {
+          "aporteId": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Aporteid"
+          },
+          "cantidadDisponibleConsultada": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/CantidadAgregada-Output"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cantidadOfrecida": {
+            "$ref": "#/components/schemas/CantidadExacta-Output"
+          },
+          "capacidadesHabilitadas": {
+            "items": {
+              "$ref": "#/components/schemas/CapacidadHabilitadaResponse"
+            },
+            "title": "Capacidadeshabilitadas",
+            "type": "array"
+          },
+          "clasificacion": {
+            "$ref": "#/components/schemas/Clasificacion"
+          },
+          "itemId": {
+            "title": "Itemid",
+            "type": "integer"
+          },
+          "loteId": {
+            "title": "Loteid",
+            "type": "integer"
+          },
+          "motivos": {
+            "items": {
+              "$ref": "#/components/schemas/MotivoValidacion"
+            },
+            "title": "Motivos",
+            "type": "array"
+          },
+          "nivelesRiesgoPermitidos": {
+            "items": {
+              "$ref": "#/components/schemas/NivelRiesgo"
+            },
+            "title": "Nivelesriesgopermitidos",
+            "type": "array"
+          },
+          "ofertaId": {
+            "title": "Ofertaid",
+            "type": "integer"
+          },
+          "ongId": {
+            "title": "Ongid",
+            "type": "integer"
+          },
+          "ongNacionalId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ongnacionalid"
+          },
+          "recursoNacionalId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Recursonacionalid"
+          },
+          "unidad": {
+            "title": "Unidad",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "clasificacion",
+          "capacidadesHabilitadas",
+          "nivelesRiesgoPermitidos",
+          "cantidadDisponibleConsultada",
+          "motivos",
+          "ofertaId",
+          "version",
+          "itemId",
+          "loteId",
+          "aporteId",
+          "ongId",
+          "ongNacionalId",
+          "recursoNacionalId",
+          "cantidadOfrecida",
+          "unidad"
+        ],
+        "title": "AporteEvaluado",
+        "type": "object"
+      },
+      "AporteSnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "aporteId": {
+            "$ref": "#/components/schemas/IdLocal"
+          },
+          "cantidad": {
+            "$ref": "#/components/schemas/CantidadExacta-Input"
+          },
+          "capacidadNacionalId": {
+            "format": "uuid",
+            "title": "Capacidadnacionalid",
+            "type": "string"
+          },
+          "ongId": {
+            "$ref": "#/components/schemas/IdLocal"
+          },
+          "ongNacionalId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ongnacionalid"
+          },
+          "recursoNacionalId": {
+            "format": "uuid",
+            "title": "Recursonacionalid",
+            "type": "string"
+          },
+          "unidad": {
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Unidad",
+            "type": "string"
+          }
+        },
+        "required": [
+          "aporteId",
+          "ongId",
+          "ongNacionalId",
+          "recursoNacionalId",
+          "capacidadNacionalId",
+          "cantidad",
+          "unidad"
+        ],
+        "title": "AporteSnapshot",
+        "type": "object"
+      },
+      "AprovisionamientoRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "emailContacto": {
+            "anyOf": [
+              {
+                "format": "email",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Emailcontacto"
+          },
+          "nombre": {
+            "$ref": "#/components/schemas/Nombre"
+          },
+          "password": {
+            "format": "password",
+            "maxLength": 128,
+            "minLength": 32,
+            "title": "Password",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "nombre",
+          "password"
+        ],
+        "title": "AprovisionamientoRequest",
+        "type": "object"
+      },
+      "AprovisionamientoResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "cuentaId": {
+            "format": "uuid",
+            "title": "Cuentaid",
+            "type": "string"
+          },
+          "identificadorLogin": {
+            "title": "Identificadorlogin",
+            "type": "string"
+          },
+          "ong": {
+            "$ref": "#/components/schemas/OngResponse"
+          }
+        },
+        "required": [
+          "ong",
+          "cuentaId",
+          "identificadorLogin"
+        ],
+        "title": "AprovisionamientoResponse",
+        "type": "object"
+      },
+      "Cantidad-Input": {
+        "anyOf": [
+          {
+            "exclusiveMinimum": 0.0,
+            "type": "number"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "Cantidad-Output": {
+        "type": "string"
+      },
+      "CantidadAgregada-Input": {
+        "anyOf": [
+          {
+            "minimum": 0.0,
+            "type": "number"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "CantidadAgregada-Output": {
+        "type": "string"
+      },
+      "CantidadExacta-Input": {
+        "$ref": "#/components/schemas/Cantidad-Input"
+      },
+      "CantidadExacta-Output": {
+        "type": "string"
+      },
+      "CantidadLegacy": {
+        "anyOf": [
+          {
+            "minimum": 0.0,
+            "type": "number"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      },
+      "CapacidadCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "admiteFracciones": {
+            "default": false,
+            "title": "Admitefracciones",
+            "type": "boolean"
+          },
+          "codigo": {
+            "maxLength": 80,
+            "minLength": 1,
+            "pattern": "^[A-Z][A-Z0-9_]*$",
+            "title": "Codigo",
+            "type": "string"
+          },
+          "nombre": {
+            "$ref": "#/components/schemas/Nombre"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/TipoRecurso"
+          },
+          "unidad": {
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Unidad",
+            "type": "string"
+          }
+        },
+        "required": [
+          "codigo",
+          "nombre",
+          "tipo",
+          "unidad"
+        ],
+        "title": "CapacidadCreate",
+        "type": "object"
+      },
+      "CapacidadHabilitadaResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "acreditacionIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Acreditacionids",
+            "type": "array"
+          },
+          "capacidadId": {
+            "format": "uuid",
+            "title": "Capacidadid",
+            "type": "string"
+          },
+          "codigo": {
+            "title": "Codigo",
+            "type": "string"
+          },
+          "nivelesRiesgoPermitidos": {
+            "items": {
+              "$ref": "#/components/schemas/NivelRiesgo"
+            },
+            "title": "Nivelesriesgopermitidos",
+            "type": "array"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "riesgoMaximo": {
+            "$ref": "#/components/schemas/NivelRiesgo"
+          },
+          "unidad": {
+            "title": "Unidad",
+            "type": "string"
+          }
+        },
+        "required": [
+          "capacidadId",
+          "codigo",
+          "nombre",
+          "unidad",
+          "riesgoMaximo",
+          "nivelesRiesgoPermitidos",
+          "acreditacionIds"
+        ],
+        "title": "CapacidadHabilitadaResponse",
+        "type": "object"
+      },
+      "CapacidadResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "admiteFracciones": {
+            "title": "Admitefracciones",
+            "type": "boolean"
+          },
+          "codigo": {
+            "title": "Codigo",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/TipoRecurso"
+          },
+          "unidad": {
+            "title": "Unidad",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "codigo",
+          "nombre",
+          "tipo",
+          "unidad",
+          "admiteFracciones"
+        ],
+        "title": "CapacidadResponse",
+        "type": "object"
+      },
+      "CertificacionResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "activa": {
+            "title": "Activa",
+            "type": "boolean"
+          },
+          "alcances": {
+            "items": {
+              "$ref": "#/components/schemas/AlcanceResponse"
+            },
+            "title": "Alcances",
+            "type": "array"
+          },
+          "codigo": {
+            "title": "Codigo",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "codigo",
+          "revision",
+          "nombre",
+          "activa",
+          "alcances"
+        ],
+        "title": "CertificacionResponse",
+        "type": "object"
+      },
+      "CertificacionesOngResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "acreditaciones": {
+            "items": {
+              "$ref": "#/components/schemas/AcreditacionResponse"
+            },
+            "title": "Acreditaciones",
+            "type": "array"
+          },
+          "capacidadesHabilitadas": {
+            "items": {
+              "$ref": "#/components/schemas/CapacidadHabilitadaResponse"
+            },
+            "title": "Capacidadeshabilitadas",
+            "type": "array"
+          },
+          "estadoOng": {
+            "$ref": "#/components/schemas/EstadoOng"
+          },
+          "evaluadoEn": {
+            "format": "date-time",
+            "title": "Evaluadoen",
+            "type": "string"
+          },
+          "motivosInstitucionales": {
+            "items": {
+              "$ref": "#/components/schemas/MotivoResponse"
+            },
+            "title": "Motivosinstitucionales",
+            "type": "array"
+          },
+          "ongId": {
+            "format": "uuid",
+            "title": "Ongid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ongId",
+          "estadoOng",
+          "evaluadoEn",
+          "acreditaciones",
+          "capacidadesHabilitadas",
+          "motivosInstitucionales"
+        ],
+        "title": "CertificacionesOngResponse",
+        "type": "object"
+      },
+      "Clasificacion": {
+        "enum": [
+          "PRINCIPAL",
+          "APOYO",
+          "SIN_HABILITACION"
+        ],
+        "title": "Clasificacion",
+        "type": "string"
+      },
+      "Codigo": {
+        "maxLength": 80,
+        "minLength": 1,
+        "type": "string"
+      },
+      "CodigoMotivo": {
+        "enum": [
+          "ACREDITACION_FUTURA",
+          "ACREDITACION_VENCIDA",
+          "ACREDITACION_REVOCADA",
+          "CERTIFICACION_INACTIVA",
+          "CAPACIDAD_INACTIVA",
+          "ONG_PENDIENTE",
+          "ONG_SUSPENDIDA",
+          "ONG_BAJA"
+        ],
+        "title": "CodigoMotivo",
+        "type": "string"
+      },
+      "CodigoMotivoPerfil": {
+        "enum": [
+          "SIN_COMPETENCIAS_VIGENTES"
+        ],
+        "title": "CodigoMotivoPerfil",
+        "type": "string"
+      },
+      "CodigoMotivoValidacion": {
+        "enum": [
+          "ONG_NO_ENCONTRADA",
+          "ONG_NO_HABILITADA",
+          "REFERENCIAS_INCOMPLETAS",
+          "DESGLOSE_NACIONAL_AUSENTE",
+          "RECURSO_NO_ENCONTRADO",
+          "RECURSO_INACTIVO",
+          "RECURSO_AJENO",
+          "CAPACIDAD_NO_ENCONTRADA",
+          "CAPACIDAD_INACTIVA",
+          "CAPACIDAD_INCOMPATIBLE",
+          "UNIDAD_INCOMPATIBLE",
+          "CANTIDAD_NO_DISCRETA",
+          "SIN_ACREDITACION_VIGENTE",
+          "ACREDITACION_VENCIDA",
+          "ACREDITACION_REVOCADA",
+          "ACREDITACION_FUTURA",
+          "CERTIFICACION_INACTIVA",
+          "RIESGO_NO_PERMITIDO",
+          "DISPONIBILIDAD_INSUFICIENTE"
+        ],
+        "title": "CodigoMotivoValidacion",
+        "type": "string"
+      },
+      "CompromisoRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "adjudicacionId": {
+            "$ref": "#/components/schemas/Referencia"
+          },
+          "aportes": {
+            "items": {
+              "$ref": "#/components/schemas/AporteCompromiso"
+            },
+            "minItems": 1,
+            "title": "Aportes",
+            "type": "array"
+          },
+          "caseId": {
+            "$ref": "#/components/schemas/ReferenciaCaso"
+          },
+          "convocatoriaId": {
+            "$ref": "#/components/schemas/Referencia"
+          },
+          "idEmergencia": {
+            "$ref": "#/components/schemas/Referencia"
+          },
+          "sistemaOrigen": {
+            "$ref": "#/components/schemas/Codigo"
+          }
+        },
+        "required": [
+          "sistemaOrigen",
+          "idEmergencia",
+          "caseId",
+          "convocatoriaId",
+          "adjudicacionId",
+          "aportes"
+        ],
+        "title": "CompromisoRequest",
+        "type": "object"
+      },
+      "CompromisoResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "adjudicacionId": {
+            "title": "Adjudicacionid",
+            "type": "string"
+          },
+          "caseId": {
+            "title": "Caseid",
+            "type": "string"
+          },
+          "creadoEn": {
+            "format": "date-time",
+            "title": "Creadoen",
+            "type": "string"
+          },
+          "estado": {
+            "$ref": "#/components/schemas/EstadoCompromiso"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "idEmergencia": {
+            "title": "Idemergencia",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ItemCompromisoResponse"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "liberadoEn": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Liberadoen"
+          },
+          "liberadoPorId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Liberadoporid"
+          },
+          "ongNacionalId": {
+            "format": "uuid",
+            "title": "Ongnacionalid",
+            "type": "string"
+          },
+          "proyectoId": {
+            "format": "uuid",
+            "title": "Proyectoid",
+            "type": "string"
+          },
+          "sistemaOrigen": {
+            "title": "Sistemaorigen",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "proyectoId",
+          "sistemaOrigen",
+          "idEmergencia",
+          "caseId",
+          "adjudicacionId",
+          "ongNacionalId",
+          "estado",
+          "creadoEn",
+          "liberadoEn",
+          "liberadoPorId",
+          "items"
+        ],
+        "title": "CompromisoResponse",
+        "type": "object"
+      },
+      "ConfirmacionCierre": {
+        "additionalProperties": false,
+        "properties": {
+          "cerradoEn": {
+            "format": "date-time",
+            "title": "Cerradoen",
+            "type": "string"
+          },
+          "operacionId": {
+            "format": "uuid",
+            "title": "Operacionid",
+            "type": "string"
+          },
+          "proyectoId": {
+            "format": "uuid",
+            "title": "Proyectoid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operacionId",
+          "proyectoId",
+          "cerradoEn"
+        ],
+        "title": "ConfirmacionCierre",
+        "type": "object"
+      },
+      "ConfirmacionCompromisos": {
+        "additionalProperties": false,
+        "properties": {
+          "compromisoIds": {
+            "items": {
+              "format": "uuid",
+              "type": "string"
+            },
+            "title": "Compromisoids",
+            "type": "array"
+          },
+          "operacionId": {
+            "format": "uuid",
+            "title": "Operacionid",
+            "type": "string"
+          },
+          "proyectoId": {
+            "format": "uuid",
+            "title": "Proyectoid",
+            "type": "string"
+          },
+          "registradoEn": {
+            "format": "date-time",
+            "title": "Registradoen",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operacionId",
+          "proyectoId",
+          "compromisoIds",
+          "registradoEn"
+        ],
+        "title": "ConfirmacionCompromisos",
+        "type": "object"
+      },
+      "ConfirmacionLiberacion": {
+        "additionalProperties": false,
+        "properties": {
+          "compromisoId": {
+            "format": "uuid",
+            "title": "Compromisoid",
+            "type": "string"
+          },
+          "liberadoEn": {
+            "format": "date-time",
+            "title": "Liberadoen",
+            "type": "string"
+          },
+          "ongNacionalId": {
+            "format": "uuid",
+            "title": "Ongnacionalid",
+            "type": "string"
+          },
+          "operacionId": {
+            "format": "uuid",
+            "title": "Operacionid",
+            "type": "string"
+          },
+          "proyectoId": {
+            "format": "uuid",
+            "title": "Proyectoid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "operacionId",
+          "proyectoId",
+          "compromisoId",
+          "ongNacionalId",
+          "liberadoEn"
+        ],
+        "title": "ConfirmacionLiberacion",
+        "type": "object"
+      },
+      "CuentaResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "ongId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ongid"
+          },
+          "proposito": {
+            "$ref": "#/components/schemas/PropositoCuenta"
+          },
+          "rol": {
+            "$ref": "#/components/schemas/RolNacional"
+          }
+        },
+        "required": [
+          "id",
+          "rol",
+          "ongId",
+          "proposito"
+        ],
+        "title": "CuentaResponse",
+        "type": "object"
+      },
+      "DisponibilidadCapacidadResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "admiteFracciones": {
+            "title": "Admitefracciones",
+            "type": "boolean"
+          },
+          "cantidadComprometida": {
+            "$ref": "#/components/schemas/CantidadAgregada-Output"
+          },
+          "cantidadDisponible": {
+            "$ref": "#/components/schemas/CantidadAgregada-Output"
+          },
+          "cantidadTotal": {
+            "$ref": "#/components/schemas/CantidadAgregada-Output"
+          },
+          "capacidadId": {
+            "format": "uuid",
+            "title": "Capacidadid",
+            "type": "string"
+          },
+          "codigo": {
+            "title": "Codigo",
+            "type": "string"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "ongs": {
+            "items": {
+              "$ref": "#/components/schemas/DisponibilidadOngResponse"
+            },
+            "title": "Ongs",
+            "type": "array"
+          },
+          "tipo": {
+            "$ref": "#/components/schemas/TipoRecurso"
+          },
+          "unidad": {
+            "title": "Unidad",
+            "type": "string"
+          }
+        },
+        "required": [
+          "cantidadTotal",
+          "cantidadComprometida",
+          "cantidadDisponible",
+          "capacidadId",
+          "codigo",
+          "nombre",
+          "tipo",
+          "unidad",
+          "admiteFracciones",
+          "ongs"
+        ],
+        "title": "DisponibilidadCapacidadResponse",
+        "type": "object"
+      },
+      "DisponibilidadOngResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "cantidadComprometida": {
+            "$ref": "#/components/schemas/CantidadAgregada-Output"
+          },
+          "cantidadDisponible": {
+            "$ref": "#/components/schemas/CantidadAgregada-Output"
+          },
+          "cantidadTotal": {
+            "$ref": "#/components/schemas/CantidadAgregada-Output"
+          },
+          "estadoOng": {
+            "$ref": "#/components/schemas/EstadoOng"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "ongId": {
+            "format": "uuid",
+            "title": "Ongid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "cantidadTotal",
+          "cantidadComprometida",
+          "cantidadDisponible",
+          "ongId",
+          "nombre",
+          "estadoOng"
+        ],
+        "title": "DisponibilidadOngResponse",
+        "type": "object"
+      },
+      "DisponibilidadResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "consultadoEn": {
+            "format": "date-time",
+            "title": "Consultadoen",
+            "type": "string"
+          },
+          "recursos": {
+            "items": {
+              "$ref": "#/components/schemas/DisponibilidadCapacidadResponse"
+            },
+            "title": "Recursos",
+            "type": "array"
+          }
+        },
+        "required": [
+          "consultadoEn",
+          "recursos"
+        ],
+        "title": "DisponibilidadResponse",
+        "type": "object"
+      },
+      "ErrorResponse": {
+        "properties": {
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "ErrorResponse",
+        "type": "object"
+      },
+      "EstadoAcreditacion": {
+        "enum": [
+          "OTORGADA",
+          "REVOCADA"
+        ],
+        "title": "EstadoAcreditacion",
+        "type": "string"
+      },
+      "EstadoCompromiso": {
+        "enum": [
+          "ACTIVO",
+          "LIBERADO"
+        ],
+        "title": "EstadoCompromiso",
+        "type": "string"
+      },
+      "EstadoOng": {
+        "enum": [
+          "PENDIENTE",
+          "HABILITADA",
+          "SUSPENDIDA",
+          "BAJA"
+        ],
+        "title": "EstadoOng",
+        "type": "string"
+      },
+      "EstadoVigencia": {
+        "enum": [
+          "FUTURA",
+          "VIGENTE",
+          "VENCIDA",
+          "REVOCADA"
+        ],
+        "title": "EstadoVigencia",
+        "type": "string"
+      },
+      "FinalizacionRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "caseId": {
+            "$ref": "#/components/schemas/ReferenciaCaso"
+          }
+        },
+        "required": [
+          "caseId"
+        ],
+        "title": "FinalizacionRequest",
+        "type": "object"
+      },
+      "HealthResponse": {
+        "description": "Respuesta estable de los controles de salud.",
+        "properties": {
+          "service": {
+            "const": "national-api",
+            "default": "national-api",
+            "title": "Service",
+            "type": "string"
+          },
+          "status": {
+            "const": "ok",
+            "default": "ok",
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "title": "HealthResponse",
+        "type": "object"
+      },
+      "IdLocal": {
+        "exclusiveMinimum": 0.0,
+        "type": "integer"
+      },
+      "ItemCompromisoResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "aporteId": {
+            "$ref": "#/components/schemas/Referencia"
+          },
+          "cantidad": {
+            "$ref": "#/components/schemas/CantidadExacta-Output"
+          },
+          "capacidadNacionalId": {
+            "format": "uuid",
+            "title": "Capacidadnacionalid",
+            "type": "string"
+          },
+          "convocatoriaId": {
+            "title": "Convocatoriaid",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "loteId": {
+            "$ref": "#/components/schemas/Referencia"
+          },
+          "ofertaId": {
+            "$ref": "#/components/schemas/Referencia"
+          },
+          "ongNacionalId": {
+            "format": "uuid",
+            "title": "Ongnacionalid",
+            "type": "string"
+          },
+          "recursoNacionalId": {
+            "format": "uuid",
+            "title": "Recursonacionalid",
+            "type": "string"
+          },
+          "riesgoRequerido": {
+            "$ref": "#/components/schemas/NivelRiesgo"
+          },
+          "unidad": {
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Unidad",
+            "type": "string"
+          },
+          "version": {
+            "exclusiveMinimum": 0.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "ofertaId",
+          "version",
+          "loteId",
+          "aporteId",
+          "ongNacionalId",
+          "recursoNacionalId",
+          "capacidadNacionalId",
+          "riesgoRequerido",
+          "cantidad",
+          "unidad",
+          "id",
+          "convocatoriaId"
+        ],
+        "title": "ItemCompromisoResponse",
+        "type": "object"
+      },
+      "ItemSnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "aportes": {
+            "items": {
+              "$ref": "#/components/schemas/AporteSnapshot"
+            },
+            "title": "Aportes",
+            "type": "array"
+          },
+          "cantidadOfrecida": {
+            "$ref": "#/components/schemas/CantidadLegacy"
+          },
+          "cantidadOfrecidaExacta": {
+            "$ref": "#/components/schemas/CantidadExacta-Input"
+          },
+          "descripcion": {
+            "title": "Descripcion",
+            "type": "string"
+          },
+          "itemId": {
+            "$ref": "#/components/schemas/IdLocal"
+          },
+          "loteId": {
+            "$ref": "#/components/schemas/IdLocal"
+          },
+          "tipo": {
+            "enum": [
+              "RECURSO",
+              "PERSONAL",
+              "MIXTO"
+            ],
+            "title": "Tipo",
+            "type": "string"
+          },
+          "unidad": {
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Unidad",
+            "type": "string"
+          }
+        },
+        "required": [
+          "itemId",
+          "loteId",
+          "tipo",
+          "descripcion",
+          "cantidadOfrecida",
+          "cantidadOfrecidaExacta",
+          "unidad"
+        ],
+        "title": "ItemSnapshot",
+        "type": "object"
+      },
+      "LoginRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "identificadorLogin": {
+            "maxLength": 320,
+            "minLength": 1,
+            "title": "Identificadorlogin",
+            "type": "string"
+          },
+          "password": {
+            "format": "password",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Password",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "identificadorLogin",
+          "password"
+        ],
+        "title": "LoginRequest",
+        "type": "object"
+      },
+      "LoteSnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "cantidadOfrecida": {
+            "$ref": "#/components/schemas/CantidadLegacy"
+          },
+          "cantidadOfrecidaExacta": {
+            "$ref": "#/components/schemas/CantidadAgregada-Input"
+          },
+          "cantidadPublicada": {
+            "$ref": "#/components/schemas/CantidadLegacy"
+          },
+          "cantidadPublicadaExacta": {
+            "$ref": "#/components/schemas/CantidadExacta-Input"
+          },
+          "capacidadNacionalId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacidadnacionalid"
+          },
+          "codigoCapacidad": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Codigocapacidad"
+          },
+          "cubierto": {
+            "title": "Cubierto",
+            "type": "boolean"
+          },
+          "loteId": {
+            "$ref": "#/components/schemas/IdLocal"
+          },
+          "riesgoRequerido": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NivelRiesgo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tipoNecesidad": {
+            "title": "Tiponecesidad",
+            "type": "string"
+          },
+          "unidad": {
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Unidad",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loteId",
+          "tipoNecesidad",
+          "cantidadPublicada",
+          "cantidadOfrecida",
+          "cantidadPublicadaExacta",
+          "cantidadOfrecidaExacta",
+          "unidad",
+          "cubierto",
+          "capacidadNacionalId",
+          "codigoCapacidad",
+          "riesgoRequerido"
+        ],
+        "title": "LoteSnapshot",
+        "type": "object"
+      },
+      "MotivoIntegracionSnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "codigo": {
+            "title": "Codigo",
+            "type": "string"
+          },
+          "itemId": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Itemid"
+          },
+          "loteId": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Loteid"
+          },
+          "mensaje": {
+            "title": "Mensaje",
+            "type": "string"
+          },
+          "ofertaId": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ofertaid"
+          },
+          "ongId": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ongid"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Version"
+          }
+        },
+        "required": [
+          "codigo",
+          "mensaje"
+        ],
+        "title": "MotivoIntegracionSnapshot",
+        "type": "object"
+      },
+      "MotivoPerfilResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "codigo": {
+            "$ref": "#/components/schemas/CodigoMotivoPerfil"
+          },
+          "mensaje": {
+            "title": "Mensaje",
+            "type": "string"
+          }
+        },
+        "required": [
+          "codigo",
+          "mensaje"
+        ],
+        "title": "MotivoPerfilResponse",
+        "type": "object"
+      },
+      "MotivoResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "capacidadId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Capacidadid"
+          },
+          "codigo": {
+            "$ref": "#/components/schemas/CodigoMotivo"
+          },
+          "mensaje": {
+            "title": "Mensaje",
+            "type": "string"
+          }
+        },
+        "required": [
+          "codigo",
+          "mensaje"
+        ],
+        "title": "MotivoResponse",
+        "type": "object"
+      },
+      "MotivoValidacion": {
+        "additionalProperties": false,
+        "properties": {
+          "codigo": {
+            "$ref": "#/components/schemas/CodigoMotivoValidacion"
+          },
+          "mensaje": {
+            "title": "Mensaje",
+            "type": "string"
+          }
+        },
+        "required": [
+          "codigo",
+          "mensaje"
+        ],
+        "title": "MotivoValidacion",
+        "type": "object"
+      },
+      "NivelRiesgo": {
+        "enum": [
+          "BAJA",
+          "MEDIA",
+          "ALTA",
+          "CRITICA"
+        ],
+        "title": "NivelRiesgo",
+        "type": "string"
+      },
+      "Nombre": {
+        "maxLength": 160,
+        "minLength": 1,
+        "type": "string"
+      },
+      "OfertaSnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "estado": {
+            "enum": [
+              "PRESENTADA",
+              "EN_VALIDACION",
+              "VALIDADA",
+              "ADJUDICADA",
+              "NO_ADJUDICADA"
+            ],
+            "title": "Estado",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ItemSnapshot"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "motivosIntegracion": {
+            "items": {
+              "$ref": "#/components/schemas/MotivoIntegracionSnapshot"
+            },
+            "title": "Motivosintegracion",
+            "type": "array"
+          },
+          "ofertaId": {
+            "$ref": "#/components/schemas/IdLocal"
+          },
+          "ongId": {
+            "$ref": "#/components/schemas/IdLocal"
+          },
+          "ongNacionalId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ongnacionalid"
+          },
+          "participantes": {
+            "items": {
+              "$ref": "#/components/schemas/ParticipanteSnapshot"
+            },
+            "title": "Participantes",
+            "type": "array"
+          },
+          "presentadaEn": {
+            "format": "date-time",
+            "title": "Presentadaen",
+            "type": "string"
+          },
+          "referenciasNacionalesCompletas": {
+            "title": "Referenciasnacionalescompletas",
+            "type": "boolean"
+          },
+          "version": {
+            "$ref": "#/components/schemas/IdLocal"
+          }
+        },
+        "required": [
+          "ofertaId",
+          "ongId",
+          "ongNacionalId",
+          "estado",
+          "version",
+          "presentadaEn",
+          "items",
+          "referenciasNacionalesCompletas"
+        ],
+        "title": "OfertaSnapshot",
+        "type": "object"
+      },
+      "OngCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "emailContacto": {
+            "format": "email",
+            "title": "Emailcontacto",
+            "type": "string"
+          },
+          "identificadorInstitucional": {
+            "$ref": "#/components/schemas/Codigo"
+          },
+          "identificadorLogin": {
+            "maxLength": 320,
+            "minLength": 1,
+            "title": "Identificadorlogin",
+            "type": "string"
+          },
+          "nombre": {
+            "$ref": "#/components/schemas/Nombre"
+          },
+          "password": {
+            "format": "password",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Password",
+            "type": "string",
+            "writeOnly": true
+          }
+        },
+        "required": [
+          "identificadorLogin",
+          "password",
+          "nombre",
+          "identificadorInstitucional",
+          "emailContacto"
+        ],
+        "title": "OngCreate",
+        "type": "object"
+      },
+      "OngHabilitadaResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "capacidadesHabilitadas": {
+            "items": {
+              "$ref": "#/components/schemas/CapacidadHabilitadaResponse"
+            },
+            "title": "Capacidadeshabilitadas",
+            "type": "array"
+          },
+          "estadoOng": {
+            "$ref": "#/components/schemas/EstadoOng"
+          },
+          "motivosPerfil": {
+            "items": {
+              "$ref": "#/components/schemas/MotivoPerfilResponse"
+            },
+            "title": "Motivosperfil",
+            "type": "array"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "ongId": {
+            "format": "uuid",
+            "title": "Ongid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ongId",
+          "nombre",
+          "estadoOng",
+          "capacidadesHabilitadas",
+          "motivosPerfil"
+        ],
+        "title": "OngHabilitadaResponse",
+        "type": "object"
+      },
+      "OngResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "estado": {
+            "$ref": "#/components/schemas/EstadoOng"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "nombre",
+          "estado"
+        ],
+        "title": "OngResponse",
+        "type": "object"
+      },
+      "OngsHabilitadasResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "evaluadoEn": {
+            "format": "date-time",
+            "title": "Evaluadoen",
+            "type": "string"
+          },
+          "ongs": {
+            "items": {
+              "$ref": "#/components/schemas/OngHabilitadaResponse"
+            },
+            "title": "Ongs",
+            "type": "array"
+          }
+        },
+        "required": [
+          "evaluadoEn",
+          "ongs"
+        ],
+        "title": "OngsHabilitadasResponse",
+        "type": "object"
+      },
+      "ParticipanteSnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "ongId": {
+            "$ref": "#/components/schemas/IdLocal"
+          },
+          "ongNacionalId": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ongnacionalid"
+          },
+          "rol": {
+            "enum": [
+              "LIDER",
+              "MIEMBRO"
+            ],
+            "title": "Rol",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ongId",
+          "ongNacionalId",
+          "rol"
+        ],
+        "title": "ParticipanteSnapshot",
+        "type": "object"
+      },
+      "PropositoCuenta": {
+        "enum": [
+          "PERSONAL",
+          "TECNICA_ONG"
+        ],
+        "title": "PropositoCuenta",
+        "type": "string"
+      },
+      "RecursoConsultado": {
+        "additionalProperties": false,
+        "properties": {
+          "cantidadDisponible": {
+            "$ref": "#/components/schemas/CantidadAgregada-Output"
+          },
+          "cantidadSolicitadaSnapshot": {
+            "$ref": "#/components/schemas/CantidadAgregada-Output"
+          },
+          "capacidadNacionalId": {
+            "format": "uuid",
+            "title": "Capacidadnacionalid",
+            "type": "string"
+          },
+          "ongNacionalId": {
+            "format": "uuid",
+            "title": "Ongnacionalid",
+            "type": "string"
+          },
+          "recursoNacionalId": {
+            "format": "uuid",
+            "title": "Recursonacionalid",
+            "type": "string"
+          },
+          "unidad": {
+            "title": "Unidad",
+            "type": "string"
+          }
+        },
+        "required": [
+          "recursoNacionalId",
+          "ongNacionalId",
+          "capacidadNacionalId",
+          "unidad",
+          "cantidadDisponible",
+          "cantidadSolicitadaSnapshot"
+        ],
+        "title": "RecursoConsultado",
+        "type": "object"
+      },
+      "RecursoCreate": {
+        "additionalProperties": false,
+        "properties": {
+          "cantidadTotal": {
+            "$ref": "#/components/schemas/Cantidad-Input"
+          },
+          "capacidadId": {
+            "format": "uuid",
+            "title": "Capacidadid",
+            "type": "string"
+          },
+          "codigoInterno": {
+            "$ref": "#/components/schemas/Codigo"
+          },
+          "nombre": {
+            "$ref": "#/components/schemas/Nombre"
+          }
+        },
+        "required": [
+          "capacidadId",
+          "codigoInterno",
+          "nombre",
+          "cantidadTotal"
+        ],
+        "title": "RecursoCreate",
+        "type": "object"
+      },
+      "RecursoResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "activo": {
+            "title": "Activo",
+            "type": "boolean"
+          },
+          "actualizadoEn": {
+            "format": "date-time",
+            "title": "Actualizadoen",
+            "type": "string"
+          },
+          "admiteFracciones": {
+            "title": "Admitefracciones",
+            "type": "boolean"
+          },
+          "cantidadComprometida": {
+            "title": "Cantidadcomprometida",
+            "type": "string"
+          },
+          "cantidadDisponible": {
+            "title": "Cantidaddisponible",
+            "type": "string"
+          },
+          "cantidadTotal": {
+            "title": "Cantidadtotal",
+            "type": "string"
+          },
+          "capacidad": {
+            "title": "Capacidad",
+            "type": "string"
+          },
+          "capacidadId": {
+            "format": "uuid",
+            "title": "Capacidadid",
+            "type": "string"
+          },
+          "codigoInterno": {
+            "title": "Codigointerno",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          },
+          "ongId": {
+            "format": "uuid",
+            "title": "Ongid",
+            "type": "string"
+          },
+          "unidad": {
+            "title": "Unidad",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "ongId",
+          "capacidadId",
+          "codigoInterno",
+          "nombre",
+          "capacidad",
+          "unidad",
+          "admiteFracciones",
+          "cantidadTotal",
+          "cantidadComprometida",
+          "cantidadDisponible",
+          "activo",
+          "actualizadoEn"
+        ],
+        "title": "RecursoResponse",
+        "type": "object"
+      },
+      "RecursoUpdate": {
+        "additionalProperties": false,
+        "properties": {
+          "actualizadoEn": {
+            "format": "date-time",
+            "title": "Actualizadoen",
+            "type": "string"
+          },
+          "cantidadTotal": {
+            "$ref": "#/components/schemas/Cantidad-Input"
+          }
+        },
+        "required": [
+          "cantidadTotal",
+          "actualizadoEn"
+        ],
+        "title": "RecursoUpdate",
+        "type": "object"
+      },
+      "Referencia": {
+        "maxLength": 120,
+        "minLength": 1,
+        "type": "string"
+      },
+      "ReferenciaCaso": {
+        "maxLength": 120,
+        "minLength": 1,
+        "type": "string"
+      },
+      "RolNacional": {
+        "enum": [
+          "ADMIN_NACIONAL",
+          "ONG",
+          "INTEGRACION"
+        ],
+        "title": "RolNacional",
+        "type": "string"
+      },
+      "TipoRecurso": {
+        "enum": [
+          "PERSONAL",
+          "VEHICULO",
+          "EQUIPAMIENTO",
+          "SUMINISTRO"
+        ],
+        "title": "TipoRecurso",
+        "type": "string"
+      },
+      "TokenResponse": {
+        "properties": {
+          "access_token": {
+            "title": "Access Token",
+            "type": "string"
+          },
+          "expires_in": {
+            "title": "Expires In",
+            "type": "integer"
+          },
+          "token_type": {
+            "default": "bearer",
+            "title": "Token Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "access_token",
+          "expires_in"
+        ],
+        "title": "TokenResponse",
+        "type": "object"
+      },
+      "UnidadResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "codigo": {
+            "title": "Codigo",
+            "type": "string"
+          },
+          "nombre": {
+            "title": "Nombre",
+            "type": "string"
+          }
+        },
+        "required": [
+          "codigo",
+          "nombre"
+        ],
+        "title": "UnidadResponse",
+        "type": "object"
+      },
+      "ValidacionRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "caseId": {
+            "$ref": "#/components/schemas/ReferenciaCaso"
+          },
+          "cerradaEn": {
+            "format": "date-time",
+            "title": "Cerradaen",
+            "type": "string"
+          },
+          "contratoVersion": {
+            "const": 2,
+            "title": "Contratoversion",
+            "type": "integer"
+          },
+          "convocatoriaId": {
+            "$ref": "#/components/schemas/IdLocal"
+          },
+          "gravedad": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/NivelRiesgo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "idEmergencia": {
+            "$ref": "#/components/schemas/IdLocal"
+          },
+          "lotes": {
+            "items": {
+              "$ref": "#/components/schemas/LoteSnapshot"
+            },
+            "title": "Lotes",
+            "type": "array"
+          },
+          "lotesCubiertos": {
+            "title": "Lotescubiertos",
+            "type": "boolean"
+          },
+          "motivosIntegracion": {
+            "items": {
+              "$ref": "#/components/schemas/MotivoIntegracionSnapshot"
+            },
+            "title": "Motivosintegracion",
+            "type": "array"
+          },
+          "numero": {
+            "$ref": "#/components/schemas/IdLocal"
+          },
+          "ofertas": {
+            "items": {
+              "$ref": "#/components/schemas/OfertaSnapshot"
+            },
+            "title": "Ofertas",
+            "type": "array"
+          },
+          "referenciasNacionalesCompletas": {
+            "title": "Referenciasnacionalescompletas",
+            "type": "boolean"
+          },
+          "sistemaOrigen": {
+            "$ref": "#/components/schemas/Codigo"
+          }
+        },
+        "required": [
+          "contratoVersion",
+          "sistemaOrigen",
+          "idEmergencia",
+          "caseId",
+          "convocatoriaId",
+          "numero",
+          "gravedad",
+          "cerradaEn",
+          "lotesCubiertos",
+          "referenciasNacionalesCompletas",
+          "lotes",
+          "ofertas"
+        ],
+        "title": "ValidacionRequest",
+        "type": "object"
+      },
+      "ValidacionResponse": {
+        "additionalProperties": false,
+        "properties": {
+          "aportes": {
+            "items": {
+              "$ref": "#/components/schemas/AporteEvaluado"
+            },
+            "title": "Aportes",
+            "type": "array"
+          },
+          "caseId": {
+            "title": "Caseid",
+            "type": "string"
+          },
+          "contratoVersion": {
+            "const": 2,
+            "default": 2,
+            "title": "Contratoversion",
+            "type": "integer"
+          },
+          "convocatoriaId": {
+            "title": "Convocatoriaid",
+            "type": "integer"
+          },
+          "evaluadoEn": {
+            "format": "date-time",
+            "title": "Evaluadoen",
+            "type": "string"
+          },
+          "idEmergencia": {
+            "title": "Idemergencia",
+            "type": "integer"
+          },
+          "numero": {
+            "title": "Numero",
+            "type": "integer"
+          },
+          "recursosConsultados": {
+            "items": {
+              "$ref": "#/components/schemas/RecursoConsultado"
+            },
+            "title": "Recursosconsultados",
+            "type": "array"
+          },
+          "sistemaOrigen": {
+            "title": "Sistemaorigen",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sistemaOrigen",
+          "idEmergencia",
+          "caseId",
+          "convocatoriaId",
+          "numero",
+          "evaluadoEn",
+          "aportes",
+          "recursosConsultados"
+        ],
+        "title": "ValidacionResponse",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "bearerFormat": "JWT",
+        "description": "Obtener access_token con POST /api/v1/login (JSON identificadorLogin y password). Enviar Authorization: Bearer <access_token>. expires_in indica la duración en segundos; al expirar, autenticar de nuevo. No hay refresh tokens. Se validan firma HS256, exp, issuer y audience y se recargan cuenta, ONG y emisor vigentes; los permisos no se toman de roles del JWT. BONITA_CALLBACK_TOKEN es una credencial local distinta.",
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "API nacional para gestionar organizaciones, certificaciones y recursos de la red RescueSync.\n\n**Autenticación:** POST /api/v1/login recibe identificadorLogin y password; usar access_token como Authorization: Bearer <token>. Los roles vigentes son ONG, ADMIN_NACIONAL e INTEGRACION; cada operación explica su acceso. Los ejemplos son ficticios y sus UUID deben reemplazarse por mappings reales. IDs locales y nacionales no son intercambiables.\n\n**Flujo distribuido:** Bonita obtiene el snapshot cerrado del backend local y llama a validaciones. La evaluación es transitoria, no persiste ofertas y no reserva stock. Comprometer revalida permisos, competencias y disponibilidad bajo locks PostgreSQL, con confirmación atómica. Compromiso, edición de inventario y liberación comparten locking. No se mantienen locks durante llamadas HTTP.\n\n**Idempotencia y cierre:** conservar Idempotency-Key ante timeouts o 503; el commit puede haber ocurrido. Misma clave y contenido reproducen la confirmación; contenido distinto da 409. Liberar afecta sólo el compromiso de esa ONG y conserva historial. Cerrar exige cero compromisos activos y comparte el lock de proyecto con comprometer.\n\n**Contratos:** camelCase para DTO de integración; cantidades nacionales exactas como strings decimales. Errores JSON con detail seguro: 401 autenticación, 403 permisos, 404 referencia inexistente, 409 conflicto, 422 entrada inválida, 500 inconsistencia, 503 fallo temporal. El frontend consume su backend local, no esta API directamente.",
+    "title": "RescueSync API Nacional",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/capacidades": {
+      "get": {
+        "description": "Acceso: ONG, ADMIN_NACIONAL o INTEGRACION con cuenta vigente. Lista capacidades activas, tipo, unidad y admisión de fracciones; no asigna competencias.",
+        "operationId": "capacidades_api_v1_capacidades_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "admiteFracciones": false,
+                    "codigo": "ATENCION",
+                    "id": "00000000-0000-4000-8000-000000000102",
+                    "nombre": "Atención prehospitalaria",
+                    "tipo": "PERSONAL",
+                    "unidad": "persona"
+                  }
+                ],
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CapacidadResponse"
+                  },
+                  "title": "Response Capacidades Api V1 Capacidades Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Consultar capacidades y unidades activas",
+        "tags": [
+          "cuentas e inventario"
+        ]
+      },
+      "post": {
+        "description": "Acceso exclusivo: ADMIN_NACIONAL con cuenta activa. Exige unidad predefinida; código duplicado produce 409 y unidad inexistente o fracciones incompatibles, 422. No crea unidades, acreditaciones ni inventario.",
+        "operationId": "alta_capacidad_api_v1_capacidades_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CapacidadCreate",
+                "examples": [
+                  {
+                    "admiteFracciones": false,
+                    "codigo": "ATENCION",
+                    "nombre": "Atención prehospitalaria",
+                    "tipo": "PERSONAL",
+                    "unidad": "persona"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "admiteFracciones": false,
+                  "codigo": "ATENCION",
+                  "id": "00000000-0000-4000-8000-000000000102",
+                  "nombre": "Atención prehospitalaria",
+                  "tipo": "PERSONAL",
+                  "unidad": "persona"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CapacidadResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La operación entra en conflicto con el estado actual."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflicto de estado, stock, versión, unicidad o clave idempotente."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Crear una capacidad nacional",
+        "tags": [
+          "catálogo nacional"
+        ]
+      }
+    },
+    "/api/v1/certificaciones": {
+      "get": {
+        "description": "Acceso: ONG, ADMIN_NACIONAL o INTEGRACION. Sólo ADMIN_NACIONAL admite incluirInactivas=true; otros roles reciben 403. Los filtros seleccionan alcances compatibles y no acreditan a la cuenta consultante.",
+        "operationId": "catalogo_api_v1_certificaciones_get",
+        "parameters": [
+          {
+            "description": "UUID de capacidad nacional; filtra recursos o alcances.",
+            "in": "query",
+            "name": "capacidadId",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID de capacidad nacional; filtra recursos o alcances.",
+              "examples": [
+                "00000000-0000-4000-8000-000000000102"
+              ],
+              "title": "Capacidadid"
+            }
+          },
+          {
+            "description": "Riesgo requerido: BAJA, MEDIA, ALTA o CRITICA.",
+            "in": "query",
+            "name": "nivelRiesgo",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/NivelRiesgo"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Riesgo requerido: BAJA, MEDIA, ALTA o CRITICA.",
+              "examples": [
+                "MEDIA"
+              ],
+              "title": "Nivelriesgo"
+            }
+          },
+          {
+            "description": "Revisiones inactivas: sólo ADMIN_NACIONAL.",
+            "in": "query",
+            "name": "incluirInactivas",
+            "required": false,
+            "schema": {
+              "default": false,
+              "description": "Revisiones inactivas: sólo ADMIN_NACIONAL.",
+              "examples": [
+                false
+              ],
+              "title": "Incluirinactivas",
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "activa": true,
+                    "alcances": [
+                      {
+                        "activa": true,
+                        "admiteFracciones": false,
+                        "capacidadId": "00000000-0000-4000-8000-000000000102",
+                        "codigo": "ATENCION",
+                        "nombre": "Atención prehospitalaria",
+                        "riesgoMaximo": "ALTA",
+                        "tipo": "PERSONAL",
+                        "unidad": "persona"
+                      }
+                    ],
+                    "codigo": "ATENCION",
+                    "id": "00000000-0000-4000-8000-000000000108",
+                    "nombre": "Atención prehospitalaria",
+                    "revision": 1
+                  }
+                ],
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CertificacionResponse"
+                  },
+                  "title": "Response Catalogo Api V1 Certificaciones Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Consultar catálogo de certificaciones y alcances",
+        "tags": [
+          "certificaciones"
+        ]
+      }
+    },
+    "/api/v1/compromisos": {
+      "post": {
+        "description": "Acceso: INTEGRACION del sistemaOrigen autenticado o ADMIN_NACIONAL seleccionando emisor activo; cuentas ONG reciben 403. Idempotency-Key identifica la adjudicación completa por emisor y operación. Misma clave/contenido reproduce el 201 original; contenido distinto o adjudicación repetida con otra clave producen 409. Revalida permisos, competencias y stock bajo locks PostgreSQL ordenados: proyecto, ONGs, capacidades y recursos. Todos los aportes se confirman o revierten juntos; sólo guarda asignaciones efectivas y referencias mínimas. Tras timeout o 503, reintentar con la misma clave; no generar otra para un resultado incierto.",
+        "operationId": "comprometer_api_v1_compromisos_post",
+        "parameters": [
+          {
+            "description": "Clave estable por emisor y tipo de operación. Misma clave/contenido reproduce la confirmación; contenido o destino distintos dan 409. Tras timeout o 503, reintentar con esta misma clave.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "description": "Clave estable por emisor y tipo de operación. Misma clave/contenido reproduce la confirmación; contenido o destino distintos dan 409. Tras timeout o 503, reintentar con esta misma clave.",
+              "examples": [
+                "seleccion-101-1"
+              ],
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "\\S",
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompromisoRequest",
+                "examples": [
+                  {
+                    "adjudicacionId": "seleccion-101-1",
+                    "aportes": [
+                      {
+                        "aporteId": "50",
+                        "cantidad": "6.000",
+                        "capacidadNacionalId": "00000000-0000-4000-8000-000000000102",
+                        "loteId": "40",
+                        "ofertaId": "30",
+                        "ongNacionalId": "00000000-0000-4000-8000-000000000101",
+                        "recursoNacionalId": "00000000-0000-4000-8000-000000000103",
+                        "riesgoRequerido": "MEDIA",
+                        "unidad": "persona",
+                        "version": 1
+                      }
+                    ],
+                    "caseId": "100",
+                    "convocatoriaId": "20",
+                    "idEmergencia": "101",
+                    "sistemaOrigen": "instalacion-prueba"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "compromisoIds": [
+                    "00000000-0000-4000-8000-000000000106"
+                  ],
+                  "operacionId": "00000000-0000-4000-8000-000000000107",
+                  "proyectoId": "00000000-0000-4000-8000-000000000105",
+                  "registradoEn": "2026-10-14T18:01:00Z"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmacionCompromisos"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El recurso nacional no existe."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "La referencia solicitada no existe en el sistema nacional."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La operación entra en conflicto con el estado actual."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflicto de estado, stock, versión, unicidad o clave idempotente."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El inventario nacional no es consistente."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Inconsistencia interna; no se exponen SQL ni detalles de infraestructura."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Operación temporalmente no disponible. Reintentá con la misma clave."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Fallo temporal de base de datos. En escrituras idempotentes, reintentar con la misma Idempotency-Key: el resultado puede haberse confirmado."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Comprometer atómicamente cantidades adjudicadas por ONG",
+        "tags": [
+          "compromisos nacionales"
+        ]
+      }
+    },
+    "/api/v1/compromisos/{compromiso_id}": {
+      "get": {
+        "description": "Acceso: INTEGRACION del emisor dueño o ADMIN_NACIONAL; cuentas ONG u otro emisor reciben 403. Devuelve estado actual e ítems, incluso después de liberar. Permite reconciliar un timeout cuando ya se conoce el ID del compromiso.",
+        "operationId": "consultar_api_v1_compromisos__compromiso_id__get",
+        "parameters": [
+          {
+            "description": "UUID nacional obtenido de compromisoIds al comprometer.",
+            "in": "path",
+            "name": "compromiso_id",
+            "required": true,
+            "schema": {
+              "description": "UUID nacional obtenido de compromisoIds al comprometer.",
+              "examples": [
+                "00000000-0000-4000-8000-000000000106"
+              ],
+              "format": "uuid",
+              "title": "Compromiso Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "adjudicacionId": "seleccion-101-1",
+                  "caseId": "100",
+                  "creadoEn": "2026-10-14T18:01:00Z",
+                  "estado": "LIBERADO",
+                  "id": "00000000-0000-4000-8000-000000000106",
+                  "idEmergencia": "101",
+                  "items": [
+                    {
+                      "aporteId": "50",
+                      "cantidad": "6.000",
+                      "capacidadNacionalId": "00000000-0000-4000-8000-000000000102",
+                      "convocatoriaId": "20",
+                      "id": "00000000-0000-4000-8000-000000000110",
+                      "loteId": "40",
+                      "ofertaId": "30",
+                      "ongNacionalId": "00000000-0000-4000-8000-000000000101",
+                      "recursoNacionalId": "00000000-0000-4000-8000-000000000103",
+                      "riesgoRequerido": "MEDIA",
+                      "unidad": "persona",
+                      "version": 1
+                    }
+                  ],
+                  "liberadoEn": "2026-10-14T19:00:00Z",
+                  "liberadoPorId": "00000000-0000-4000-8000-000000000114",
+                  "ongNacionalId": "00000000-0000-4000-8000-000000000101",
+                  "proyectoId": "00000000-0000-4000-8000-000000000105",
+                  "sistemaOrigen": "instalacion-prueba"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CompromisoResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El recurso nacional no existe."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "La referencia solicitada no existe en el sistema nacional."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Operación temporalmente no disponible. Reintentá con la misma clave."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Fallo temporal de base de datos. En escrituras idempotentes, reintentar con la misma Idempotency-Key: el resultado puede haberse confirmado."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Consultar el estado vigente y referencias de un compromiso",
+        "tags": [
+          "compromisos nacionales"
+        ]
+      }
+    },
+    "/api/v1/compromisos/{compromiso_id}/liberacion": {
+      "post": {
+        "description": "Acceso: INTEGRACION del emisor dueño o ADMIN_NACIONAL; cuentas ONG reciben 403. caseId debe coincidir con el proyecto. Exige Idempotency-Key estable. Libera una sola vez el compromiso de esa ONG y conserva historial; otras ONGs continúan reservadas. ONG suspendida o acreditación vencida no impiden devolver la reserva. Misma clave/contenido reproduce la confirmación; cambiar caso o destino con esa clave produce 409. Otra clave sobre un compromiso liberado conserva la primera fecha y no duplica stock. Comparte locks de proyecto y recursos con compromiso/cierre. Tras timeout, reintentar la misma clave.",
+        "operationId": "liberar_api_v1_compromisos__compromiso_id__liberacion_post",
+        "parameters": [
+          {
+            "description": "UUID nacional obtenido de compromisoIds al comprometer.",
+            "in": "path",
+            "name": "compromiso_id",
+            "required": true,
+            "schema": {
+              "description": "UUID nacional obtenido de compromisoIds al comprometer.",
+              "examples": [
+                "00000000-0000-4000-8000-000000000106"
+              ],
+              "format": "uuid",
+              "title": "Compromiso Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Clave estable por emisor y tipo de operación. Misma clave/contenido reproduce la confirmación; contenido o destino distintos dan 409. Tras timeout o 503, reintentar con esta misma clave.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "description": "Clave estable por emisor y tipo de operación. Misma clave/contenido reproduce la confirmación; contenido o destino distintos dan 409. Tras timeout o 503, reintentar con esta misma clave.",
+              "examples": [
+                "seleccion-101-1"
+              ],
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "\\S",
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinalizacionRequest",
+                "examples": [
+                  {
+                    "caseId": "100"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "compromisoId": "00000000-0000-4000-8000-000000000106",
+                  "liberadoEn": "2026-10-14T19:00:00Z",
+                  "ongNacionalId": "00000000-0000-4000-8000-000000000101",
+                  "operacionId": "00000000-0000-4000-8000-000000000111",
+                  "proyectoId": "00000000-0000-4000-8000-000000000105"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmacionLiberacion"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El recurso nacional no existe."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "La referencia solicitada no existe en el sistema nacional."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La operación entra en conflicto con el estado actual."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflicto de estado, stock, versión, unicidad o clave idempotente."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Operación temporalmente no disponible. Reintentá con la misma clave."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Fallo temporal de base de datos. En escrituras idempotentes, reintentar con la misma Idempotency-Key: el resultado puede haberse confirmado."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Liberar una vez el compromiso de una ONG y conservar historial",
+        "tags": [
+          "compromisos nacionales"
+        ]
+      }
+    },
+    "/api/v1/health": {
+      "get": {
+        "description": "Acceso público. Comprueba el proceso HTTP sin consultar PostgreSQL.",
+        "operationId": "health_api_v1_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "service": "national-api",
+                  "status": "ok"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          }
+        },
+        "summary": "Comprobar el proceso HTTP",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/v1/health/database": {
+      "get": {
+        "description": "Acceso público. Comprueba una conexión real a PostgreSQL. Fallo temporal devuelve 503 con JSON detail seguro, sin exponer infraestructura.",
+        "operationId": "database_health_api_v1_health_database_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "service": "national-api",
+                  "status": "ok"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "PostgreSQL no está disponible"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Fallo temporal de base de datos. En escrituras idempotentes, reintentar con la misma Idempotency-Key: el resultado puede haberse confirmado."
+          }
+        },
+        "summary": "Comprobar PostgreSQL",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/api/v1/integraciones/ongs/{referencia_local}": {
+      "put": {
+        "description": "Acceso exclusivo: INTEGRACION con emisor activo. referencia_local es un UUID durable por emisor. Repetir los mismos datos devuelve la misma identidad sin rotar secretos; contenido distinto produce 409. El backend emisor genera y conserva el secreto, que nunca se devuelve por HTTP. Alta PENDIENTE sin habilitación ni certificaciones.",
+        "operationId": "aprovisionar_api_v1_integraciones_ongs__referencia_local__put",
+        "parameters": [
+          {
+            "description": "UUID durable del backend local, único por emisor.",
+            "in": "path",
+            "name": "referencia_local",
+            "required": true,
+            "schema": {
+              "description": "UUID durable del backend local, único por emisor.",
+              "examples": [
+                "00000000-0000-4000-8000-000000000201"
+              ],
+              "format": "uuid",
+              "title": "Referencia Local",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AprovisionamientoRequest",
+                "examples": [
+                  {
+                    "emailContacto": "ong@example.org",
+                    "nombre": "Rescate de ejemplo",
+                    "password": "SECRETO-FICTICIO-DE-EJEMPLO-32-CARACTERES"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "cuentaId": "00000000-0000-4000-8000-000000000104",
+                  "identificadorLogin": "ong-ejemplo-generado-por-el-emisor",
+                  "ong": {
+                    "estado": "PENDIENTE",
+                    "id": "00000000-0000-4000-8000-000000000101",
+                    "nombre": "Rescate de ejemplo"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/AprovisionamientoResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La operación entra en conflicto con el estado actual."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflicto de estado, stock, versión, unicidad o clave idempotente."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Aprovisionar una ONG y su cuenta técnica",
+        "tags": [
+          "aprovisionamiento institucional"
+        ]
+      }
+    },
+    "/api/v1/login": {
+      "post": {
+        "description": "Acceso público. Recibe identificadorLogin y password; devuelve access_token, token_type=bearer y expires_in en segundos. Enviar Authorization: Bearer <access_token>. Al expirar, autenticar de nuevo; no hay refresh tokens. Cuentas técnicas ONG: 300 segundos; otras cuentas: JWT_ACCESS_SECONDS (1800 por defecto).",
+        "operationId": "login_api_v1_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest",
+                "examples": [
+                  {
+                    "identificadorLogin": "ong@example.org",
+                    "password": "Ejemplo-no-utilizable-123"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "access_token": "JWT_DE_EJEMPLO_NO_UTILIZABLE",
+                  "expires_in": 1800,
+                  "token_type": "bearer"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/TokenResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El identificador o la contraseña son incorrectos."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          }
+        },
+        "summary": "Iniciar sesión nacional",
+        "tags": [
+          "cuentas e inventario"
+        ]
+      }
+    },
+    "/api/v1/me": {
+      "get": {
+        "description": "Acceso: ONG, ADMIN_NACIONAL o INTEGRACION con cuenta vigente. Devuelve rol, ONG y propósito actuales, recargados desde la base nacional.",
+        "operationId": "me_api_v1_me_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "id": "00000000-0000-4000-8000-000000000104",
+                  "ongId": "00000000-0000-4000-8000-000000000101",
+                  "proposito": "PERSONAL",
+                  "rol": "ONG"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CuentaResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Consultar la cuenta nacional vigente",
+        "tags": [
+          "cuentas e inventario"
+        ]
+      }
+    },
+    "/api/v1/ongs": {
+      "post": {
+        "description": "Acceso público. Crea atómicamente cuenta y ONG PENDIENTE, sin habilitación ni certificaciones. Login o identificador institucional duplicados producen 409.",
+        "operationId": "onboarding_api_v1_ongs_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OngCreate",
+                "examples": [
+                  {
+                    "emailContacto": "ong@example.org",
+                    "identificadorInstitucional": "ong-ejemplo",
+                    "identificadorLogin": "ong@example.org",
+                    "nombre": "Rescate de ejemplo",
+                    "password": "Ejemplo-no-utilizable-123"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "estado": "PENDIENTE",
+                  "id": "00000000-0000-4000-8000-000000000101",
+                  "nombre": "Rescate de ejemplo"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/OngResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La operación entra en conflicto con el estado actual."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflicto de estado, stock, versión, unicidad o clave idempotente."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          }
+        },
+        "summary": "Registrar una ONG y su cuenta",
+        "tags": [
+          "cuentas e inventario"
+        ]
+      }
+    },
+    "/api/v1/ongs/habilitadas": {
+      "get": {
+        "description": "Acceso: ONG, ADMIN_NACIONAL o INTEGRACION con cuenta vigente. Directorio resumido sin datos de contacto. Sin filtros incluye instituciones habilitadas sin competencias. Capacidad y riesgo coinciden en un mismo alcance; devuelve perfil completo. No consulta stock ni reserva recursos.",
+        "operationId": "ongs_habilitadas_api_v1_ongs_habilitadas_get",
+        "parameters": [
+          {
+            "description": "UUID de capacidad nacional; filtra recursos o alcances.",
+            "in": "query",
+            "name": "capacidadId",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID de capacidad nacional; filtra recursos o alcances.",
+              "examples": [
+                "00000000-0000-4000-8000-000000000102"
+              ],
+              "title": "Capacidadid"
+            }
+          },
+          {
+            "description": "Riesgo requerido: BAJA, MEDIA, ALTA o CRITICA.",
+            "in": "query",
+            "name": "nivelRiesgo",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/NivelRiesgo"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Riesgo requerido: BAJA, MEDIA, ALTA o CRITICA.",
+              "examples": [
+                "MEDIA"
+              ],
+              "title": "Nivelriesgo"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "evaluadoEn": "2026-10-14T18:01:00Z",
+                  "ongs": [
+                    {
+                      "capacidadesHabilitadas": [
+                        {
+                          "acreditacionIds": [
+                            "00000000-0000-4000-8000-000000000109"
+                          ],
+                          "capacidadId": "00000000-0000-4000-8000-000000000102",
+                          "codigo": "ATENCION",
+                          "nivelesRiesgoPermitidos": [
+                            "BAJA",
+                            "MEDIA",
+                            "ALTA"
+                          ],
+                          "nombre": "Atención prehospitalaria",
+                          "riesgoMaximo": "ALTA",
+                          "unidad": "persona"
+                        }
+                      ],
+                      "estadoOng": "HABILITADA",
+                      "motivosPerfil": [],
+                      "nombre": "Rescate de ejemplo",
+                      "ongId": "00000000-0000-4000-8000-000000000101"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/OngsHabilitadasResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Consultar ONGs habilitadas y sus competencias vigentes",
+        "tags": [
+          "ONGs habilitadas"
+        ]
+      }
+    },
+    "/api/v1/ongs/{ong_id}/certificaciones": {
+      "get": {
+        "description": "Acceso: ONG propia, ADMIN_NACIONAL o INTEGRACION. Otra ONG recibe 403. Incluye historia, vigencia UTC [desde,hasta), capacidades y motivos. No garantiza disponibilidad ni reserva futura.",
+        "operationId": "acreditaciones_api_v1_ongs__ong_id__certificaciones_get",
+        "parameters": [
+          {
+            "description": "UUID de la ONG en el sistema nacional; no es el ID local.",
+            "in": "path",
+            "name": "ong_id",
+            "required": true,
+            "schema": {
+              "description": "UUID de la ONG en el sistema nacional; no es el ID local.",
+              "examples": [
+                "00000000-0000-4000-8000-000000000101"
+              ],
+              "format": "uuid",
+              "title": "Ong Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "acreditaciones": [
+                    {
+                      "certificacion": {
+                        "activa": true,
+                        "alcances": [
+                          {
+                            "activa": true,
+                            "admiteFracciones": false,
+                            "capacidadId": "00000000-0000-4000-8000-000000000102",
+                            "codigo": "ATENCION",
+                            "nombre": "Atención prehospitalaria",
+                            "riesgoMaximo": "ALTA",
+                            "tipo": "PERSONAL",
+                            "unidad": "persona"
+                          }
+                        ],
+                        "codigo": "ATENCION",
+                        "id": "00000000-0000-4000-8000-000000000108",
+                        "nombre": "Atención prehospitalaria",
+                        "revision": 1
+                      },
+                      "emisor": "Autoridad de ejemplo",
+                      "estado": "REVOCADA",
+                      "estadoVigencia": "REVOCADA",
+                      "id": "00000000-0000-4000-8000-000000000109",
+                      "motivoRevocacion": "Fin del alcance acreditado de ejemplo",
+                      "motivos": [
+                        {
+                          "capacidadId": "00000000-0000-4000-8000-000000000102",
+                          "codigo": "ACREDITACION_REVOCADA",
+                          "mensaje": "Acreditación revocada."
+                        }
+                      ],
+                      "numeroCredencial": "CERT-001",
+                      "revocadaEn": "2026-10-15T12:00:00Z",
+                      "vigenteDesde": "2026-01-01T00:00:00Z",
+                      "vigenteHasta": "2027-01-01T00:00:00Z"
+                    }
+                  ],
+                  "capacidadesHabilitadas": [],
+                  "estadoOng": "HABILITADA",
+                  "evaluadoEn": "2026-10-15T12:01:00Z",
+                  "motivosInstitucionales": [],
+                  "ongId": "00000000-0000-4000-8000-000000000101"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CertificacionesOngResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El recurso nacional no existe."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "La referencia solicitada no existe en el sistema nacional."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Consultar acreditaciones y competencia de una ONG",
+        "tags": [
+          "certificaciones"
+        ]
+      }
+    },
+    "/api/v1/ongs/{ong_id}/recursos": {
+      "get": {
+        "description": "Acceso: ONG propietaria, ADMIN_NACIONAL o INTEGRACION. Otra ONG recibe 403. Devuelve total, comprometido y disponible en un mismo snapshot; consultar no reserva stock.",
+        "operationId": "recursos_api_v1_ongs__ong_id__recursos_get",
+        "parameters": [
+          {
+            "description": "UUID de la ONG en el sistema nacional; no es el ID local.",
+            "in": "path",
+            "name": "ong_id",
+            "required": true,
+            "schema": {
+              "description": "UUID de la ONG en el sistema nacional; no es el ID local.",
+              "examples": [
+                "00000000-0000-4000-8000-000000000101"
+              ],
+              "format": "uuid",
+              "title": "Ong Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "activo": true,
+                    "actualizadoEn": "2026-10-14T18:01:00Z",
+                    "admiteFracciones": false,
+                    "cantidadComprometida": "0.000",
+                    "cantidadDisponible": "10.000",
+                    "cantidadTotal": "10.000",
+                    "capacidad": "ATENCION",
+                    "capacidadId": "00000000-0000-4000-8000-000000000102",
+                    "codigoInterno": "PARAM-01",
+                    "id": "00000000-0000-4000-8000-000000000103",
+                    "nombre": "Paramédicos sede 1",
+                    "ongId": "00000000-0000-4000-8000-000000000101",
+                    "unidad": "persona"
+                  }
+                ],
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RecursoResponse"
+                  },
+                  "title": "Response Recursos Api V1 Ongs  Ong Id  Recursos Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El recurso nacional no existe."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "La referencia solicitada no existe en el sistema nacional."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Consultar inventario y disponibilidad de una ONG",
+        "tags": [
+          "cuentas e inventario"
+        ]
+      },
+      "post": {
+        "description": "Acceso: ONG propietaria o ADMIN_NACIONAL; INTEGRACION no puede escribir inventario. Capacidad y propietario son inmutables; codigoInterno es único por ONG. Cantidades positivas y compatibles con la unidad.",
+        "operationId": "crear_api_v1_ongs__ong_id__recursos_post",
+        "parameters": [
+          {
+            "description": "UUID de la ONG en el sistema nacional; no es el ID local.",
+            "in": "path",
+            "name": "ong_id",
+            "required": true,
+            "schema": {
+              "description": "UUID de la ONG en el sistema nacional; no es el ID local.",
+              "examples": [
+                "00000000-0000-4000-8000-000000000101"
+              ],
+              "format": "uuid",
+              "title": "Ong Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecursoCreate",
+                "examples": [
+                  {
+                    "cantidadTotal": "10.000",
+                    "capacidadId": "00000000-0000-4000-8000-000000000102",
+                    "codigoInterno": "PARAM-01",
+                    "nombre": "Paramédicos sede 1"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "activo": true,
+                  "actualizadoEn": "2026-10-14T18:01:00Z",
+                  "admiteFracciones": false,
+                  "cantidadComprometida": "0.000",
+                  "cantidadDisponible": "10.000",
+                  "cantidadTotal": "10.000",
+                  "capacidad": "ATENCION",
+                  "capacidadId": "00000000-0000-4000-8000-000000000102",
+                  "codigoInterno": "PARAM-01",
+                  "id": "00000000-0000-4000-8000-000000000103",
+                  "nombre": "Paramédicos sede 1",
+                  "ongId": "00000000-0000-4000-8000-000000000101",
+                  "unidad": "persona"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RecursoResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El recurso nacional no existe."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "La referencia solicitada no existe en el sistema nacional."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La operación entra en conflicto con el estado actual."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflicto de estado, stock, versión, unicidad o clave idempotente."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Registrar un recurso propio",
+        "tags": [
+          "cuentas e inventario"
+        ]
+      }
+    },
+    "/api/v1/ongs/{ong_id}/recursos/{recurso_id}": {
+      "patch": {
+        "description": "Acceso: ONG propietaria o ADMIN_NACIONAL. Bloquea la fila y recalcula compromisos activos. Enviar actualizadoEn de la última lectura; versión obsoleta o total inferior a lo comprometido producen 409. No cambia propietario ni capacidad.",
+        "operationId": "actualizar_api_v1_ongs__ong_id__recursos__recurso_id__patch",
+        "parameters": [
+          {
+            "description": "UUID de la ONG en el sistema nacional; no es el ID local.",
+            "in": "path",
+            "name": "ong_id",
+            "required": true,
+            "schema": {
+              "description": "UUID de la ONG en el sistema nacional; no es el ID local.",
+              "examples": [
+                "00000000-0000-4000-8000-000000000101"
+              ],
+              "format": "uuid",
+              "title": "Ong Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "UUID nacional del recurso perteneciente a la ONG de la ruta.",
+            "in": "path",
+            "name": "recurso_id",
+            "required": true,
+            "schema": {
+              "description": "UUID nacional del recurso perteneciente a la ONG de la ruta.",
+              "examples": [
+                "00000000-0000-4000-8000-000000000103"
+              ],
+              "format": "uuid",
+              "title": "Recurso Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RecursoUpdate",
+                "examples": [
+                  {
+                    "actualizadoEn": "2026-10-14T18:01:00Z",
+                    "cantidadTotal": "12.000"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "activo": true,
+                  "actualizadoEn": "2026-10-14T18:02:00Z",
+                  "admiteFracciones": false,
+                  "cantidadComprometida": "0.000",
+                  "cantidadDisponible": "12.000",
+                  "cantidadTotal": "12.000",
+                  "capacidad": "ATENCION",
+                  "capacidadId": "00000000-0000-4000-8000-000000000102",
+                  "codigoInterno": "PARAM-01",
+                  "id": "00000000-0000-4000-8000-000000000103",
+                  "nombre": "Paramédicos sede 1",
+                  "ongId": "00000000-0000-4000-8000-000000000101",
+                  "unidad": "persona"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RecursoResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El recurso nacional no existe."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "La referencia solicitada no existe en el sistema nacional."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La operación entra en conflicto con el estado actual."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflicto de estado, stock, versión, unicidad o clave idempotente."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Actualizar el total de un recurso",
+        "tags": [
+          "cuentas e inventario"
+        ]
+      }
+    },
+    "/api/v1/proyectos/{proyecto_id}/cierre": {
+      "post": {
+        "description": "Acceso: INTEGRACION del emisor dueño o ADMIN_NACIONAL; cuentas ONG reciben 403. Exige caseId del proyecto e Idempotency-Key. Toma el mismo lock de proyecto que comprometer; con compromisos activos devuelve 409 sin liberar recursos. Sin activos pasa a TERMINADO, estado terminal que impide nuevas reservas. Los reintentos conservan el primer cierre; misma clave con otro destino/caso produce 409. Tras timeout, reintentar la misma clave.",
+        "operationId": "cerrar_api_v1_proyectos__proyecto_id__cierre_post",
+        "parameters": [
+          {
+            "description": "UUID nacional del proyecto devuelto al comprometer.",
+            "in": "path",
+            "name": "proyecto_id",
+            "required": true,
+            "schema": {
+              "description": "UUID nacional del proyecto devuelto al comprometer.",
+              "examples": [
+                "00000000-0000-4000-8000-000000000105"
+              ],
+              "format": "uuid",
+              "title": "Proyecto Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Clave estable por emisor y tipo de operación. Misma clave/contenido reproduce la confirmación; contenido o destino distintos dan 409. Tras timeout o 503, reintentar con esta misma clave.",
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "description": "Clave estable por emisor y tipo de operación. Misma clave/contenido reproduce la confirmación; contenido o destino distintos dan 409. Tras timeout o 503, reintentar con esta misma clave.",
+              "examples": [
+                "seleccion-101-1"
+              ],
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "\\S",
+              "title": "Idempotency-Key",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinalizacionRequest",
+                "examples": [
+                  {
+                    "caseId": "100"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "cerradoEn": "2026-10-14T19:01:00Z",
+                  "operacionId": "00000000-0000-4000-8000-000000000112",
+                  "proyectoId": "00000000-0000-4000-8000-000000000105"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ConfirmacionCierre"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El recurso nacional no existe."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "La referencia solicitada no existe en el sistema nacional."
+          },
+          "409": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La operación entra en conflicto con el estado actual."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Conflicto de estado, stock, versión, unicidad o clave idempotente."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Operación temporalmente no disponible. Reintentá con la misma clave."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Fallo temporal de base de datos. En escrituras idempotentes, reintentar con la misma Idempotency-Key: el resultado puede haberse confirmado."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Cerrar un proyecto únicamente sin compromisos activos",
+        "tags": [
+          "proyectos nacionales"
+        ]
+      }
+    },
+    "/api/v1/recursos/disponibilidad": {
+      "get": {
+        "description": "Acceso: ONG, ADMIN_NACIONAL o INTEGRACION. Stock de recursos y capacidades activos de instituciones HABILITADAS. Descuenta sólo compromisos activos, conserva disponibilidad cero y separa capacidad/unidad. No evalúa certificaciones ni reserva stock.",
+        "operationId": "disponibilidad_api_v1_recursos_disponibilidad_get",
+        "parameters": [
+          {
+            "description": "UUID de capacidad nacional; filtra recursos o alcances.",
+            "in": "query",
+            "name": "capacidadId",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID de capacidad nacional; filtra recursos o alcances.",
+              "examples": [
+                "00000000-0000-4000-8000-000000000102"
+              ],
+              "title": "Capacidadid"
+            }
+          },
+          {
+            "description": "UUID nacional de la ONG por la que se filtra el stock global.",
+            "in": "query",
+            "name": "ongId",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "UUID nacional de la ONG por la que se filtra el stock global.",
+              "examples": [
+                "00000000-0000-4000-8000-000000000101"
+              ],
+              "title": "Ongid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "consultadoEn": "2026-10-14T18:01:00Z",
+                  "recursos": [
+                    {
+                      "admiteFracciones": false,
+                      "cantidadComprometida": "0.000",
+                      "cantidadDisponible": "10.000",
+                      "cantidadTotal": "10.000",
+                      "capacidadId": "00000000-0000-4000-8000-000000000102",
+                      "codigo": "ATENCION",
+                      "nombre": "Atención prehospitalaria",
+                      "ongs": [
+                        {
+                          "cantidadComprometida": "0.000",
+                          "cantidadDisponible": "10.000",
+                          "cantidadTotal": "10.000",
+                          "estadoOng": "HABILITADA",
+                          "nombre": "Rescate de ejemplo",
+                          "ongId": "00000000-0000-4000-8000-000000000101"
+                        }
+                      ],
+                      "tipo": "PERSONAL",
+                      "unidad": "persona"
+                    }
+                  ]
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/DisponibilidadResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El inventario nacional no es consistente."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Inconsistencia interna; no se exponen SQL ni detalles de infraestructura."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Consultar disponibilidad global por capacidad y ONG",
+        "tags": [
+          "cuentas e inventario",
+          "disponibilidad global"
+        ]
+      }
+    },
+    "/api/v1/unidades": {
+      "get": {
+        "description": "Acceso: ONG, ADMIN_NACIONAL o INTEGRACION con cuenta vigente. Catálogo de solo lectura instalado por migraciones en todos los entornos.",
+        "operationId": "unidades_api_v1_unidades_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "codigo": "persona",
+                    "nombre": "Personas"
+                  }
+                ],
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/UnidadResponse"
+                  },
+                  "title": "Response Unidades Api V1 Unidades Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Consultar unidades predefinidas",
+        "tags": [
+          "catálogo nacional"
+        ]
+      }
+    },
+    "/api/v1/validaciones": {
+      "post": {
+        "description": "Acceso: INTEGRACION del sistemaOrigen autenticado o ADMIN_NACIONAL seleccionando un emisor activo; cuentas ONG reciben 403. Bonita envía el snapshot contratoVersion=2 tras el cierre local. Evaluación transitoria READ ONLY / REPEATABLE READ: devuelve capacidades, riesgos, clasificación PRINCIPAL/APOYO/SIN_HABILITACION y motivos por aporte. No guarda ofertas ni resultados y no crea proyectos o reservas. La disponibilidad consultada no garantiza stock al adjudicar.",
+        "operationId": "validar_api_v1_validaciones_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ValidacionRequest",
+                "examples": [
+                  {
+                    "caseId": "100",
+                    "cerradaEn": "2026-10-14T18:00:00Z",
+                    "contratoVersion": 2,
+                    "convocatoriaId": 20,
+                    "gravedad": "ALTA",
+                    "idEmergencia": 101,
+                    "lotes": [
+                      {
+                        "cantidadOfrecida": 6,
+                        "cantidadOfrecidaExacta": "6.000",
+                        "cantidadPublicada": 6,
+                        "cantidadPublicadaExacta": "6.000",
+                        "capacidadNacionalId": "00000000-0000-4000-8000-000000000102",
+                        "codigoCapacidad": "ATENCION",
+                        "cubierto": true,
+                        "loteId": 40,
+                        "riesgoRequerido": "MEDIA",
+                        "tipoNecesidad": "Paramédicos",
+                        "unidad": "persona"
+                      }
+                    ],
+                    "lotesCubiertos": true,
+                    "motivosIntegracion": [],
+                    "numero": 1,
+                    "ofertas": [
+                      {
+                        "estado": "PRESENTADA",
+                        "items": [
+                          {
+                            "aportes": [
+                              {
+                                "aporteId": 50,
+                                "cantidad": "6.000",
+                                "capacidadNacionalId": "00000000-0000-4000-8000-000000000102",
+                                "ongId": 1,
+                                "ongNacionalId": "00000000-0000-4000-8000-000000000101",
+                                "recursoNacionalId": "00000000-0000-4000-8000-000000000103",
+                                "unidad": "persona"
+                              }
+                            ],
+                            "cantidadOfrecida": 6,
+                            "cantidadOfrecidaExacta": "6.000",
+                            "descripcion": "Paramédicos sede 1",
+                            "itemId": 41,
+                            "loteId": 40,
+                            "tipo": "PERSONAL",
+                            "unidad": "persona"
+                          }
+                        ],
+                        "motivosIntegracion": [],
+                        "ofertaId": 30,
+                        "ongId": 1,
+                        "ongNacionalId": "00000000-0000-4000-8000-000000000101",
+                        "participantes": [
+                          {
+                            "ongId": 1,
+                            "ongNacionalId": "00000000-0000-4000-8000-000000000101",
+                            "rol": "LIDER"
+                          }
+                        ],
+                        "presentadaEn": "2026-10-14T17:00:00Z",
+                        "referenciasNacionalesCompletas": true,
+                        "version": 1
+                      }
+                    ],
+                    "referenciasNacionalesCompletas": true,
+                    "sistemaOrigen": "instalacion-prueba"
+                  }
+                ]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "aportes": [
+                    {
+                      "aporteId": 50,
+                      "cantidadDisponibleConsultada": "10.000",
+                      "cantidadOfrecida": "6.000",
+                      "capacidadesHabilitadas": [
+                        {
+                          "acreditacionIds": [
+                            "00000000-0000-4000-8000-000000000109"
+                          ],
+                          "capacidadId": "00000000-0000-4000-8000-000000000102",
+                          "codigo": "ATENCION",
+                          "nivelesRiesgoPermitidos": [
+                            "BAJA",
+                            "MEDIA",
+                            "ALTA"
+                          ],
+                          "nombre": "Atención prehospitalaria",
+                          "riesgoMaximo": "ALTA",
+                          "unidad": "persona"
+                        }
+                      ],
+                      "clasificacion": "PRINCIPAL",
+                      "itemId": 41,
+                      "loteId": 40,
+                      "motivos": [],
+                      "nivelesRiesgoPermitidos": [
+                        "BAJA",
+                        "MEDIA",
+                        "ALTA"
+                      ],
+                      "ofertaId": 30,
+                      "ongId": 1,
+                      "ongNacionalId": "00000000-0000-4000-8000-000000000101",
+                      "recursoNacionalId": "00000000-0000-4000-8000-000000000103",
+                      "unidad": "persona",
+                      "version": 1
+                    }
+                  ],
+                  "caseId": "100",
+                  "contratoVersion": 2,
+                  "convocatoriaId": 20,
+                  "evaluadoEn": "2026-10-14T18:01:00Z",
+                  "idEmergencia": 101,
+                  "numero": 1,
+                  "recursosConsultados": [
+                    {
+                      "cantidadDisponible": "10.000",
+                      "cantidadSolicitadaSnapshot": "6.000",
+                      "capacidadNacionalId": "00000000-0000-4000-8000-000000000102",
+                      "ongNacionalId": "00000000-0000-4000-8000-000000000101",
+                      "recursoNacionalId": "00000000-0000-4000-8000-000000000103",
+                      "unidad": "persona"
+                    }
+                  ],
+                  "sistemaOrigen": "instalacion-prueba"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ValidacionResponse"
+                }
+              }
+            },
+            "description": "Operación confirmada correctamente."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "La credencial nacional no es válida o expiró."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Login incorrecto o JWT ausente, inválido o expirado; autenticar nuevamente."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "No tenés permisos para acceder a ese inventario."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Cuenta, ONG o emisor sin permisos vigentes para la operación o el destino."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El recurso nacional no existe."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "La referencia solicitada no existe en el sistema nacional."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Los datos enviados no son válidos. Revisá campos y cantidades."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Campos, referencias, unidades o cantidades inválidos. El detalle es seguro."
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "El inventario nacional no es consistente."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Inconsistencia interna; no se exponen SQL ni detalles de infraestructura."
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "detail": "Operación temporalmente no disponible. Reintentá con la misma clave."
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            },
+            "description": "Fallo temporal de base de datos. En escrituras idempotentes, reintentar con la misma Idempotency-Key: el resultado puede haberse confirmado."
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Evaluar competencias y disponibilidad por aporte sin reservar",
+        "tags": [
+          "validación de competencias"
+        ]
+      }
+    }
+  }
+}

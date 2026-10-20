@@ -6,9 +6,10 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException, Query, Response
 
+from app.api import ejemplos
 from app.api.dependencies import CuentaActual, Db
+from app.api.documentacion import respuestas
 from app.schemas.disponibilidad import DisponibilidadResponse
-from app.schemas.inventario import ErrorResponse
 from app.services.disponibilidad import (
     InventarioInconsistenteError,
     consultar_disponibilidad,
@@ -21,21 +22,37 @@ logger = logging.getLogger(__name__)
 @router.get(
     "/recursos/disponibilidad",
     response_model=DisponibilidadResponse,
-    responses={codigo: {"model": ErrorResponse} for codigo in (401, 403, 422, 500)},
     summary="Consultar disponibilidad global por capacidad y ONG",
     description=(
-        "Stock de recursos y capacidades activos de instituciones HABILITADAS. "
-        "Descuenta sólo compromisos activos, conserva disponibilidad cero y "
-        "separa capacidad/unidad. No evalúa certificaciones ni reserva stock. "
-        "Las cuentas ONG, administración e integración consultan agregados resumidos."
+        "Acceso: ONG, ADMIN_NACIONAL o INTEGRACION. Stock de recursos y "
+        "capacidades activos de instituciones HABILITADAS. Descuenta sólo "
+        "compromisos activos, conserva disponibilidad cero y separa "
+        "capacidad/unidad. No evalúa certificaciones ni reserva stock."
+    ),
+    responses=respuestas(
+        401, 403, 422, 500, ejemplo=ejemplos.DISPONIBILIDAD, exito=200
     ),
 )
 def disponibilidad(
     session: Db,
     cuenta: CuentaActual,
     response: Response,
-    capacidad_id: Annotated[UUID | None, Query(alias="capacidadId")] = None,
-    ong_id: Annotated[UUID | None, Query(alias="ongId")] = None,
+    capacidad_id: Annotated[
+        UUID | None,
+        Query(
+            alias="capacidadId",
+            description="UUID de capacidad nacional; filtra recursos o alcances.",
+            examples=[ejemplos.CAPACIDAD_ID],
+        ),
+    ] = None,
+    ong_id: Annotated[
+        UUID | None,
+        Query(
+            alias="ongId",
+            description="UUID nacional de la ONG por la que se filtra el stock global.",
+            examples=[ejemplos.ONG_ID],
+        ),
+    ] = None,
 ) -> DisponibilidadResponse:
     response.headers["Cache-Control"] = "no-store"
     try:
